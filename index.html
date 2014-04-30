@@ -1,0 +1,399 @@
+<html>
+  <head>
+    <!-- Load Socket.IO from our web server, which is separate from the
+  application's server. -->
+    <script src="socket.io/socket.io.js"></script>
+    <script>
+      // Tell Socket.IO where to find the Flash component if the browser needs it.
+      WEB_SOCKET_SWF_LOCATION = 'http://localhost/socket.io/WebSocketMain.swf';
+    </script>
+
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="moment.min.js"></script>
+
+    <style>
+      .axis path,
+      .axis2 line,
+      .axis2 path,
+      .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+      }
+
+      .line, .line2 {
+        stroke: steelblue;
+        stroke-width: 1;
+        fill: none;
+        clip-path: url(#clip);
+      }
+
+      div.tooltip {
+          position: absolute;
+          text-align: left;
+          padding: 8px;
+          font: 10px Verdana;
+          background: lightsteelblue;
+          border: px;
+          border-radius: 8px;
+          pointer-events: none;
+      }
+
+      .brush .extent {
+        stroke: #fff;
+        fill-opacity: .125;
+        shape-rendering: crispEdges;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Console</h2>
+
+    <!-- A log for messages -->
+    <div id="messages" style="height:90px; border: 1px solid #000; width: 100%; color: #0F0; background: #000; font-family: monospace; overflow:scroll; overflow-x:hidden;">
+      Connecting to server...<br/>
+    </div>
+
+    <h2>Nesse Core: Client Stub</h2>
+
+    <label for="nameInput">Name:</label>
+    <input type="text" id="nameInput" value="" />
+    <button type="button" id="addObject">Add</button>
+
+    <h2>Frontend</h2>
+
+    <ul id="availableObjects" style="list-style-type:none;">
+    </ul>
+
+    <div id="timeline" style="margin-left:50px;"></div>
+
+    <script>
+      // Make the output visible
+      var messages = document.getElementById('messages');
+
+      // Connect to our app.js, which is listeninging on port 1080 
+      var socket = io.connect('http://localhost:1080');
+      
+      // Console
+      socket.on('connect', function() {
+          messages.innerHTML += 'Connected<br/>';
+      });
+      socket.on('connectionStatus', function(data) {
+        console.log("connectionStatus:" + data.toString());
+        messages.innerHTML += 'Server says: "' + data.toString() + '"<br/>';
+        
+        $('#messages').animate({"scrollTop": $('#messages')[0].scrollHeight}, "fast");
+      });
+
+      // Add new objects to list
+      socket.on('addedObject', function(data) {
+        $("#availableObjects").append("<li>"+data.name+"</li>");
+      });
+
+      var first = null;
+
+      // Add new objects to list
+      socket.on('updatedObject', function(data) {
+
+        // Push new value in dataset
+        first.datasets[0].values.push(data.datasets[0].values[data.datasets[0].values.length-1]);
+
+        // Write new datapoints in graph
+        x.domain(d3.extent(first.datasets[0].values, function(d) { return parseDate(d.timestamp); }));
+        x2.domain(d3.extent(first.datasets[0].values, function(d) { return parseDate(d.timestamp); }));
+
+        // Make transition
+        /*var t = svg.transition().duration(750);
+        
+        t.select(".line").attr("d", main_line(first.datasets[0].values));
+        t.select(".x.axis").call(xAxis);
+        t.select(".line2").attr("d", context_line(first.datasets[0].values));
+        t.select(".x.axis2").call(xAxis2);*/
+
+        svg.select(".line").attr("d", main_line(first.datasets[0].values));
+        svg.select(".x.axis").call(xAxis);
+        svg.select(".line2").attr("d", context_line(first.datasets[0].values));
+        svg.select(".x.axis2").call(xAxis2);
+
+        // Update tooltip circles
+        //focus.selectAll("circle").attr("cx", function (d) { return x(parseDate(d.timestamp)); } );
+
+        // Keep brushed.
+        brushed();
+
+        // Add new circles
+        /*focus.selectAll("circle")
+          .data(first.datasets[0].values)
+          .enter().append("circle")
+            .attr("cx", function(d) { return x(parseDate(d.timestamp)); })
+            .attr("cy", function(d) { return y(d.value); })
+          .attr("r", 5)
+          .style("fill","none")
+          .style("stroke","none")
+          .style("pointer-events","all");*/
+
+      });
+
+      // Get all objects and display them in a list
+      $.get("http://localhost:1080/testcases", function( data ) {
+
+        console.log(data);
+
+        for(var i in data) {
+          $("#availableObjects").append("<li>"+data[i].name+"</li>");
+        }
+
+        // TODO: Change this
+        first = data[0];
+
+        var margin = {top: 10, right: 10, bottom: 60, left: 40},
+            margin2 = {top: 215, right: 10, bottom: 10, left: 40},
+            width = 960 - margin.left - margin.right,
+            height = 250 - margin.top - margin.bottom,
+            height2 = 250 - margin2.top - margin2.bottom;
+
+        parseDate = d3.time.format('%d %m %Y, %H:%M:%S').parse;
+
+        x = d3.time.scale().range([0, width]),
+            x2 = d3.time.scale().range([0, width]),
+            y = d3.scale.linear().range([height, 0]),
+            y2 = d3.scale.linear().range([height2, 0]);
+
+        xAxis = d3.svg.axis().scale(x).orient("bottom"),
+            xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
+            yAxis = d3.svg.axis().scale(y).orient("left"),
+            yAxis2 = d3.svg.axis().scale(y).orient("left");
+
+        brush = d3.svg.brush()
+            .x(x2)
+            .on("brush", brushed);
+
+        main_line = d3.svg.line()
+            .interpolate("linear")
+            .x(function(d) { return x(parseDate(d.timestamp)); })
+            .y(function(d) { return y(d.value); });
+
+        context_line = d3.svg.line()
+            .interpolate("linear")
+            .x(function(d) { return x2(parseDate(d.timestamp)); })
+            .y(function(d) { return y2(d.value); });
+
+        // Create container svg element
+        svg = d3.select("#timeline").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", 3*height + margin.top + margin.bottom); // TODO: 3 to x
+
+        // Clip lines on edges
+        svg.append("defs").append("clipPath")
+            .attr("id", "clip")
+          .append("rect")
+            .attr("width", width)
+            .attr("height", height);
+
+        focus = svg.append("g")
+            .attr("class", "focus")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        focus2 = svg.append("g")
+          .attr("class", "focus")
+          .attr("transform", "translate(" + margin.left + "," + margin2.top + ")");
+
+        var context = svg.append("g")
+            .attr("class", "context")
+            .attr("transform", "translate(" + margin2.left + "," + margin2.top * 2 + ")");
+
+        x.domain(d3.extent(first.datasets[0].values.map(function(d) { return parseDate(d.timestamp); })));
+        y.domain([0, 100]);
+        x2.domain(x.domain());
+        y2.domain(y.domain());
+
+        focus.append("path")
+            .datum(first.datasets[0].values)
+            .attr("class", "line")
+            .attr("d", main_line);
+
+        focus2.append("path")
+          .datum(first.datasets[0].values)
+          .attr("class", "line")
+          .attr("d", main_line);
+
+        focus.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
+
+        focus2.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
+
+        focus.append("g")
+            .attr("class", "y axis")
+            .call(yAxis);
+
+        focus2.append("g")
+            .attr("class", "y axis")
+            .call(yAxis);
+
+        /* TOOLTIPS //
+        var tooltip = d3.select("body")
+          .append("div")
+          .attr("class", "tooltip")
+          .style("position", "absolute")
+          .style("z-index", "10")
+          .style("visibility", "hidden");
+
+        // Append invisible circles for tooltips
+        focus.selectAll("circle")
+          .data(first.datasets[0].values)
+          .enter().append("circle")
+            .attr("cx", function(d) { return x(parseDate(d.timestamp)); })
+            .attr("cy", function(d) { return y(d.value); })
+            .attr("clip-path", "url(#clip)")
+            .attr("r", 5)
+            .style("fill","none")
+            .style("stroke","none")
+          .on("mouseover", function(d){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px").style("visibility", "visible").html(d.timestamp + "<br/> Value:" + d.value);})
+          .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
+          .on("mouseout", function(){return tooltip.style("visibility", "hidden");})
+            .style("pointer-events","all");
+        */
+
+        context.append("path")
+            .datum(first.datasets[0].values)
+            .attr("class", "line2")
+            .attr("d", context_line);
+
+        context.append("g")
+            .attr("class", "x axis2")
+            .attr("transform", "translate(0," + height2 + ")")
+            .call(xAxis2);
+
+        context.append("g")
+            .attr("class", "x brush")
+            .call(brush)
+          .selectAll("rect")
+            .attr("y", -6)
+            .attr("height", height2 + 7);
+
+        /* LEGEND //
+        var ageNames = ["asdasd", "sdfsdf", "ysdfs"];
+        var colorscale = d3.scale.category20c(); 
+
+        var legend = svg.selectAll(".legend")
+            .data(ageNames.slice().reverse())
+          .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+        legend.append("rect")
+            .attr("x", width - 18)
+            .attr("width", 18)
+            .attr("height", 18)
+            .style("fill", colorscale);
+
+        legend.append("text")
+            .attr("x", width - 24)
+            .attr("y", 9)
+            .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .text(function(d) { return d; });
+            */
+
+      });
+
+        function brushed() {
+          x.domain(brush.empty() ? x2.domain() : brush.extent());
+          // Update circles
+          focus.selectAll("circle").attr("cx", function (d) { return x(parseDate(d.timestamp)); } );
+          // Update line
+          focus.select(".line").attr("d", main_line);
+          // Update x axis
+          focus.select(".x.axis").call(xAxis);
+        }
+
+      //
+      // Nessee Mock Stuff...
+      //
+
+      // Add new object button (from nessee mock)
+      $("#addObject").click(function(){
+
+        // Build mock object
+        var data = JSON.stringify({ 
+                      name: $("#nameInput").val(), 
+                      datasets: [], 
+                      origin_id: "xxxxxxxxxx-xxxx-xxxx" 
+                    });
+
+        $.ajax({
+          url : "http://localhost:1080/testcases",
+          type: "POST",
+          contentType: 'application/json',
+          data : data,
+          success: function(data, textStatus, jqXHR) {
+              console.log("post success");
+              console.log(data);
+              $("#nameInput").val("");
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.log("post error");
+          }
+        });
+      });
+
+      // Get all objects and update them periodically
+      $.get("http://localhost:1080/testcases", function( testcases ) {
+        for(var i in testcases) {
+            updateEveryObjectsCPU(testcases[i]);
+            //updateEveryObjectsAgentNumber(testcases[i]);
+        }
+      });
+
+      function updateEveryObjectsCPU(testcase) {
+        window.setInterval(function(){
+          var id = testcase._id;
+          var newCpuValue = _.random(1, 100);
+
+          $.ajax({
+            url : "http://localhost:1080/testcases/" + id,
+            type: "PUT",
+            contentType: 'application/json',
+            data : JSON.stringify({ key: "cpuLoad", type: "int", value: newCpuValue, timestamp: moment().format('DD MM YYYY, HH:mm:ss')}),
+            success: function(data, textStatus, jqXHR) {
+                console.log("put success");
+                console.log(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              console.log("put error");
+            }
+          });
+        }, 5000);
+      }
+
+      function updateEveryObjectsAgentNumber(testcase) {
+        window.setInterval(function(){
+          var id = testcase._id;
+          var newAgentNumber = _.random(3, 10);
+
+          $.ajax({
+            url : "http://localhost:1080/testcases/" + id,
+            type: "PUT",
+            contentType: 'application/json',
+            data : JSON.stringify({ key: "agentNumber", type: "int", value: newAgentNumber, timestamp: moment().format('DD MM YYYY, HH:mm:ss')}),
+            success: function(data, textStatus, jqXHR) {
+                console.log("put success");
+                console.log(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              console.log("put error");
+            }
+          });
+        }, 5000);
+      }
+    </script>
+
+  </body>
+</html>
