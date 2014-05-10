@@ -23,22 +23,29 @@
         shape-rendering: crispEdges;
       }
 
-      .line, .line2 {
+      .line2 {
         stroke: steelblue;
         stroke-width: 1;
         fill: none;
         clip-path: url(#clip);
       }
 
-      div.tooltip {
-          position: absolute;
-          text-align: left;
-          padding: 8px;
-          font: 10px Verdana;
-          background: lightsteelblue;
-          border: px;
-          border-radius: 8px;
-          pointer-events: none;
+      .area {
+        /*fill: steelblue;*/
+        clip-path: url(#clip);
+      }
+
+      .overlay {
+        opacity: 0.3;
+        fill: none;
+        pointer-events: all;
+        z-index: 25;
+      }
+
+      .tooltip .hover-line {
+        fill: none;
+        stroke: black;
+        stroke-width: 1;
       }
 
       .brush .extent {
@@ -78,7 +85,7 @@
       
       // Console
       socket.on('connect', function() {
-          messages.innerHTML += 'Connected<br/>';
+        messages.innerHTML += 'Connected<br/>';
       });
       socket.on('connectionStatus', function(data) {
         console.log("connectionStatus:" + data.toString());
@@ -95,46 +102,35 @@
       var first = null;
 
       // Add new objects to list
-      socket.on('updatedObject', function(data) {
+      /*socket.on('updatedObject', function(data) {
 
         // Push new value in dataset
-        first.datasets[0].values.push(data.datasets[0].values[data.datasets[0].values.length-1]);
+        for(var i in first.datasets) {
+          if(first.datasets[i].key == data.key) {
 
-        // Write new datapoints in graph
-        x.domain(d3.extent(first.datasets[0].values, function(d) { return parseDate(d.timestamp); }));
-        x2.domain(d3.extent(first.datasets[0].values, function(d) { return parseDate(d.timestamp); }));
+            // Update data
+            first.datasets[i].values.push({ timestamp: data.timestamp, value: data.value});
 
-        // Make transition
-        /*var t = svg.transition().duration(750);
-        
-        t.select(".line").attr("d", main_line(first.datasets[0].values));
-        t.select(".x.axis").call(xAxis);
-        t.select(".line2").attr("d", context_line(first.datasets[0].values));
-        t.select(".x.axis2").call(xAxis2);*/
+            // Update focus
+            xs[i].domain(d3.extent(first.datasets[i].values, function(d) { return parseDate(d.timestamp); }));
+            ys[i].domain([0, d3.max(first.datasets[i].values, function(d) { return d.value; })]);
 
-        svg.select(".line").attr("d", main_line(first.datasets[0].values));
-        svg.select(".x.axis").call(xAxis);
-        svg.select(".line2").attr("d", context_line(first.datasets[0].values));
-        svg.select(".x.axis2").call(xAxis2);
+            // Update context
+            x2.domain(d3.extent(first.datasets[i].values, function(d) { return parseDate(d.timestamp); }));
 
-        // Update tooltip circles
-        //focus.selectAll("circle").attr("cx", function (d) { return x(parseDate(d.timestamp)); } );
+            // Update line and axis
+            //svg.select(".area").attr("d", main_lines[i](first.datasets[i].values));
+            svg.select(".area").attr("d", main_lines[i](first.datasets[i].values));
+            //svg.select(".x.axis").call(xAxes[i]);
+            svg.select(".y"+i+".axis").call(yAxes[i]);
+            svg.select(".line2").attr("d", context_line(first.datasets[i].values));
+            svg.select(".x.axis2").call(xAxis2);
 
-        // Keep brushed.
-        brushed();
-
-        // Add new circles
-        /*focus.selectAll("circle")
-          .data(first.datasets[0].values)
-          .enter().append("circle")
-            .attr("cx", function(d) { return x(parseDate(d.timestamp)); })
-            .attr("cy", function(d) { return y(d.value); })
-          .attr("r", 5)
-          .style("fill","none")
-          .style("stroke","none")
-          .style("pointer-events","all");*/
-
-      });
+            // Keep brushed
+            brushed();
+          }
+        }     
+      });*/
 
       // Get all objects and display them in a list
       $.get("http://localhost:1080/testcases", function( data ) {
@@ -147,8 +143,126 @@
 
         // TODO: Change this
         first = data[0];
+        console.log(first);
 
-        var margin = {top: 10, right: 10, bottom: 60, left: 40},
+        xAxes = new Array();
+        yAxes = new Array();
+        xs = new Array();
+        ys = new Array();
+        main_lines = new Array();
+
+        for(var i in first.datasets) {
+          first.datasets[i].values.splice(0, 0, { timestamp: "10 05 2014, 17:56:33", value: null});
+        }
+
+        console.log(first);
+
+        createSVGContainer(first.datasets);
+        for(var i in first.datasets) {
+          if(first.datasets[i].type == "int") {
+            createLineChart(first.datasets[i], i);
+          }
+        }
+
+        // Give every area a different color
+        color = d3.scale.category20();
+        d3.selectAll(".area").attr("fill",function(d,i){return color(i);});
+
+        // Tooltips
+        /*bisectDate = d3.bisector(function(d) { return parseDate(d.timestamp); }).left
+
+        d3.selectAll(".focus").append("rect")
+          .datum(first.datasets)
+          .attr("class", "overlay")
+          .attr("width", width)
+          .attr("height", height)
+          .on("mouseover", function() { tooltip.style("display", null); })
+          .on("mouseout", function() { tooltip.style("display", "none"); })
+          .on("mousemove", mousemove);
+
+        var tooltip = d3.selectAll(".focus").append("g")
+            .attr("class", "tooltip")
+            .style("display", "none");
+
+        tooltip.append("g")
+            .attr("class", "hover-line")
+            .append("line")
+            .attr("x1", 0).attr("x2", 0) 
+            .attr("y1", 0).attr("y2", height);
+
+        focus.append("text")
+            .attr("class", "y1")
+            .attr("x", 5)
+            .attr("y", height/2)
+            .attr("dy", ".35em");
+
+        focus2.append("text")
+            .attr("class", "y2")
+            .attr("x", 5)
+            .attr("y", height/2)
+            .attr("dy", ".35em");
+
+        function mousemove() {
+          var x0 = x.invert(d3.mouse(this)[0]),
+          i = bisectDate(first.datasets[0].values, x0, 1),
+          d0 = first.datasets[0].values[i - 1],
+          d1 = first.datasets[0].values[i],
+          d = x0 - d0.timestamp > d1.timestamp - x0 ? d1 : d0;
+
+          tooltip.attr("transform", "translate(" + x(parseDate(d.timestamp)) + "," + 0 + ")");
+          focus.select("text.y1").attr("transform", "translate(" + x(parseDate(d.timestamp)) + "," + 0 + ")").text(d.value);
+
+          var x0 = x.invert(d3.mouse(this)[0]),
+          i = bisectDate(first.datasets[1].values, x0, 1),
+          d0 = first.datasets[1].values[i - 1],
+          d1 = first.datasets[1].values[i],
+          d = x0 - d0.timestamp > d1.timestamp - x0 ? d1 : d0;
+          tooltip.attr("transform", "translate(" + x(parseDate(d.timestamp)) + "," + 0 + ")");
+          focus2.select("text.y2").attr("transform", "translate(" + x(parseDate(d.timestamp)) + "," + 0 + ")").text(d.value);
+        }*/
+      });
+
+      function createLineChart(dataset, i) {
+
+        // Focus lines
+        main_line = d3.svg.area()
+          .interpolate("linear")
+          .x(function(d) { return xs[i](parseDate(d.timestamp)); })
+          .y0(height)
+          .y1(function(d) { return ys[i](d.value); });
+
+        main_lines.push(main_line);
+
+        focus = svg.append("g")
+            .attr("class", "focus" + i)
+            .attr("transform", "translate(" + margin.left + "," + margin.top * (i+1)*2 + ")"); // TODO: margintop * i
+
+        focus.append("path")
+            .datum(dataset.values)
+            .attr("class", "area")
+            .attr("d", main_line);
+
+        focus.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxes[i]);
+
+        focus.append("g")
+            //.attr("class", "y axis")
+            .attr("class", "y"+i+ " axis")
+            .call(yAxes[i]);
+      }
+
+      function createSVGContainer(datasets) {
+
+        var context_dataset = null;
+        for(var i in datasets) {
+          if(datasets[i].type == "string") {
+            context_dataset = datasets[i];
+          }
+        }
+
+        margin = {top: 10, right: 10, bottom: 60, left: 40},
             margin2 = {top: 215, right: 10, bottom: 10, left: 40},
             width = 960 - margin.left - margin.right,
             height = 250 - margin.top - margin.bottom,
@@ -156,25 +270,25 @@
 
         parseDate = d3.time.format('%d %m %Y, %H:%M:%S').parse;
 
-        x = d3.time.scale().range([0, width]),
-            x2 = d3.time.scale().range([0, width]),
-            y = d3.scale.linear().range([height, 0]),
-            y2 = d3.scale.linear().range([height2, 0]);
+        for(var i in datasets) {
+          drawAxis(datasets[i]);
+        }
 
-        xAxis = d3.svg.axis().scale(x).orient("bottom"),
-            xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
-            yAxis = d3.svg.axis().scale(y).orient("left"),
-            yAxis2 = d3.svg.axis().scale(y).orient("left");
+        x2 = d3.time.scale().range([0, width]), // Context
+            y2 = d3.scale.linear().range([height2, 0]); // Context
+
+        xAxis2 = d3.svg.axis().scale(x2).orient("bottom"), // Context
+            yAxis2 = d3.svg.axis().scale(y).orient("left"); // Context
+
+        // TODO: dont care about which domain is choosen. Later i will use the log scattersplott here.
+        x2.domain(x.domain());
+        y2.domain(y.domain());
 
         brush = d3.svg.brush()
             .x(x2)
             .on("brush", brushed);
 
-        main_line = d3.svg.line()
-            .interpolate("linear")
-            .x(function(d) { return x(parseDate(d.timestamp)); })
-            .y(function(d) { return y(d.value); });
-
+        // Context line
         context_line = d3.svg.line()
             .interpolate("linear")
             .x(function(d) { return x2(parseDate(d.timestamp)); })
@@ -185,85 +299,20 @@
             .attr("width", width + margin.left + margin.right)
             .attr("height", 3*height + margin.top + margin.bottom); // TODO: 3 to x
 
-        // Clip lines on edges
+        // Clip on edges
         svg.append("defs").append("clipPath")
             .attr("id", "clip")
           .append("rect")
             .attr("width", width)
             .attr("height", height);
 
-        focus = svg.append("g")
-            .attr("class", "focus")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        focus2 = svg.append("g")
-          .attr("class", "focus")
-          .attr("transform", "translate(" + margin.left + "," + margin2.top + ")");
-
-        var context = svg.append("g")
+        context = svg.append("g")
             .attr("class", "context")
             .attr("transform", "translate(" + margin2.left + "," + margin2.top * 2 + ")");
 
-        x.domain(d3.extent(first.datasets[0].values.map(function(d) { return parseDate(d.timestamp); })));
-        y.domain([0, 100]);
-        x2.domain(x.domain());
-        y2.domain(y.domain());
-
-        focus.append("path")
-            .datum(first.datasets[0].values)
-            .attr("class", "line")
-            .attr("d", main_line);
-
-        focus2.append("path")
-          .datum(first.datasets[0].values)
-          .attr("class", "line")
-          .attr("d", main_line);
-
-        focus.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(xAxis);
-
-        focus2.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(xAxis);
-
-        focus.append("g")
-            .attr("class", "y axis")
-            .call(yAxis);
-
-        focus2.append("g")
-            .attr("class", "y axis")
-            .call(yAxis);
-
-        /* TOOLTIPS //
-        var tooltip = d3.select("body")
-          .append("div")
-          .attr("class", "tooltip")
-          .style("position", "absolute")
-          .style("z-index", "10")
-          .style("visibility", "hidden");
-
-        // Append invisible circles for tooltips
-        focus.selectAll("circle")
-          .data(first.datasets[0].values)
-          .enter().append("circle")
-            .attr("cx", function(d) { return x(parseDate(d.timestamp)); })
-            .attr("cy", function(d) { return y(d.value); })
-            .attr("clip-path", "url(#clip)")
-            .attr("r", 5)
-            .style("fill","none")
-            .style("stroke","none")
-          .on("mouseover", function(d){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px").style("visibility", "visible").html(d.timestamp + "<br/> Value:" + d.value);})
-          .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
-          .on("mouseout", function(){return tooltip.style("visibility", "hidden");})
-            .style("pointer-events","all");
-        */
-
         context.append("path")
-            .datum(first.datasets[0].values)
-            .attr("class", "line2")
+            .datum(datasets[1])
+            .attr("class", "line")
             .attr("d", context_line);
 
         context.append("g")
@@ -277,42 +326,35 @@
           .selectAll("rect")
             .attr("y", -6)
             .attr("height", height2 + 7);
+      }
 
-        /* LEGEND //
-        var ageNames = ["asdasd", "sdfsdf", "ysdfs"];
-        var colorscale = d3.scale.category20c(); 
+      function drawAxis(dataset) {
+        x = d3.time.scale().range([0, width]), // Focus
+            y = d3.scale.linear().range([height, 0]); // Focus
 
-        var legend = svg.selectAll(".legend")
-            .data(ageNames.slice().reverse())
-          .enter().append("g")
-            .attr("class", "legend")
-            .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+        // Axis
+        xAxis = d3.svg.axis().scale(x).orient("bottom"), // Focus
+            yAxis = d3.svg.axis().scale(y).orient("left"); // Focus
 
-        legend.append("rect")
-            .attr("x", width - 18)
-            .attr("width", 18)
-            .attr("height", 18)
-            .style("fill", colorscale);
+        x.domain(d3.extent(first.datasets[0].values.map(function(d) { return parseDate(d.timestamp); })));
+        //y.domain([0, 100]);
+        //y.domain(d3.extent(dataset.values, function(d) { return d.value; }));
+        y.domain([0, d3.max(dataset.values, function(d) { return d.value; })]);
 
-        legend.append("text")
-            .attr("x", width - 24)
-            .attr("y", 9)
-            .attr("dy", ".35em")
-            .style("text-anchor", "end")
-            .text(function(d) { return d; });
-            */
+        // Save domains and axes for later retrieval
+        xAxes.push(xAxis);
+        yAxes.push(yAxis);
+        xs.push(x);
+        ys.push(y);
+      }
 
-      });
-
-        function brushed() {
-          x.domain(brush.empty() ? x2.domain() : brush.extent());
-          // Update circles
-          focus.selectAll("circle").attr("cx", function (d) { return x(parseDate(d.timestamp)); } );
-          // Update line
-          focus.select(".line").attr("d", main_line);
-          // Update x axis
-          focus.select(".x.axis").call(xAxis);
+      function brushed() {
+        for(var i in main_lines) {
+          xs[i].domain(brush.empty() ? x2.domain() : brush.extent());
+          d3.select(".focus"+i).select(".area").attr("d", main_lines[i]);
+          d3.select(".focus"+i).select(".x.axis").call(xAxes[i]);
         }
+      }
 
       //
       // Nessee Mock Stuff...
@@ -348,7 +390,8 @@
       $.get("http://localhost:1080/testcases", function( testcases ) {
         for(var i in testcases) {
             updateEveryObjectsCPU(testcases[i]);
-            //updateEveryObjectsAgentNumber(testcases[i]);
+            updateEveryObjectsAgentNumber(testcases[i]);
+            //updateLog(testcases[i]);
         }
       });
 
@@ -391,7 +434,28 @@
               console.log("put error");
             }
           });
-        }, 5000);
+        }, 3000);
+      }
+
+      function updateLog(testcase) {
+        window.setInterval(function(){
+          var id = testcase._id;
+          var rndNumber = _.random(3, 100000);
+
+          $.ajax({
+            url : "http://localhost:1080/testcases/" + id,
+            type: "PUT",
+            contentType: 'application/json',
+            data : JSON.stringify({ key: "log", type: "string", value: rndNumber, timestamp: moment().format('DD MM YYYY, HH:mm:ss')}),
+            success: function(data, textStatus, jqXHR) {
+                console.log("put success");
+                console.log(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              console.log("put error");
+            }
+          });
+        }, 10000);
       }
     </script>
 
