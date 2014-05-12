@@ -11,6 +11,7 @@
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
     <script src="moment.min.js"></script>
 
     <style>
@@ -45,6 +46,48 @@
         fill: none;
         pointer-events: all;
         z-index: 25;
+      }
+
+      .tooltipicon {   
+        position: absolute;           
+        text-align: center;           
+        width: 60px;                  
+        height: 28px;                 
+        padding: 2px;             
+        font: 12px sans-serif;        
+        background: lightsteelblue;   
+        border: 0px;      
+        border-radius: 8px;           
+        pointer-events: none;         
+      }
+
+      .d3-tip {
+        line-height: 1;
+        font-weight: bold;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        border-radius: 2px;
+      }
+
+      /* Creates a small triangle extender for the tooltip */
+      .d3-tip:after {
+        box-sizing: border-box;
+        display: inline;
+        font-size: 10px;
+        width: 100%;
+        line-height: 1;
+        color: rgba(0, 0, 0, 0.8);
+        content: "\25BC";
+        position: absolute;
+        text-align: center;
+      }
+
+      /* Style northward tooltips differently */
+      .d3-tip.n:after {
+        margin: -1px 0 0 0;
+        top: 100%;
+        left: 0;
       }
 
       .tooltip .hover-line {
@@ -109,21 +152,33 @@
       // Add new objects to list
       socket.on('updatedObject', function(data) {
         console.log(data);
-        if(data.key == "log") {
+        if(data.type == "string") {
             // Push new value in dataset
             string_dataset.values.push({ timestamp: data.timestamp, value: data.value});    
             var current_dataset = string_dataset;
 
             // Append new focus circle
-            circlegroup.selectAll("circle").data(string_dataset.values).enter()
+            /*circlegroup.selectAll("circle").data(string_dataset.values).enter()
              .append("circle")
              .attr("r", 3)
              .attr("cx", function(d) { return x_log(parseDate(d.timestamp)); })
-             .attr("cy", function(d) { return margin.top; });
+             .attr("cy", function(d) { return margin.top; });*/
+            d3.select(".focus.scatter").selectAll('circle')
+              .data(string_dataset.values)
+              .enter().append("circle")
+              .attr("clip-path", "url(#clip)")
+              .attr('class', 'circle')
+              .attr("cx", function(d) { return x_log(parseDate(d.timestamp)); })
+              .attr("cy", function(d) { return margin.top; })
+              .attr("r", 5)
+              .on("mouseover", tip.show)
+              .on("mouseout",tip.hide);
 
             // Append new context circle
-            circlegroup_context.selectAll("circle").data(string_dataset.values).enter()
+            context.selectAll("circle")
+             .data(string_dataset.values).enter()
              .append("circle")
+             .attr('class', 'circle')
              .attr("r", 3)
              .attr("cx", function (d) { return x2(parseDate(d.timestamp)); })
              .attr("cy", function (d) { return height2/2; });
@@ -141,10 +196,16 @@
         x2.domain(d3.extent(current_dataset.values, function(d) { return parseDate(d.timestamp); }));
 
         // Move context circles
-        circlegroup_context.selectAll(".circle")
-         .attr("cx", function (d) { return x2(parseDate(d.timestamp)); })
-         .attr("cy", function (d) { return height2/2; });
+        context.selectAll("circle")
+          .data(string_dataset.values)
+          .attr("cx", function(d) {
+               return x2(parseDate(d.timestamp));
+          })
+          .attr("cy", function(d) {
+               return height2/2; 
+          });
 
+        // Update context axis
         svg.select(".x.axis2").call(xAxis2);
 
         // Keep brushed, update everything
@@ -173,7 +234,7 @@
 
         // TODO: Change this
         for(var i in first.datasets) {
-          first.datasets[i].values.splice(0, 0, { timestamp: "12 05 2014, 13:46:00", value: null});
+          first.datasets[i].values.splice(0, 0, { timestamp: "12 05 2014, 14:32:00", value: null});
         }
 
         // Get log data from datasets
@@ -198,20 +259,26 @@
         color = d3.scale.category20();
         d3.selectAll(".area").attr("fill",function(d,i){return color(i);});
 
-        // Tooltips
-        /*bisectDate = d3.bisector(function(d) { return parseDate(d.timestamp); }).left
+        for(var i in first.datasets) {
+          createHoverline(first.datasets[i], i);
+        }
 
-        d3.selectAll(".focus").append("rect")
-          .datum(first.datasets)
+      });
+      
+      function createHoverline(dataset, i) {
+        bisectDate = d3.bisector(function(d) { return parseDate(d.timestamp); }).left
+
+        d3.select(".focus"+i).append("rect")
+          .datum(dataset)
           .attr("class", "overlay")
           .attr("width", width)
           .attr("height", height)
-          .on("mouseover", function() { tooltip.style("display", null); })
-          .on("mouseout", function() { tooltip.style("display", "none"); })
+          .on("mouseover", function() { tooltip.style("display", null); text.style("display", null); })
+          .on("mouseout", function() { tooltip.style("display", "none"); text.style("display", "none"); })
           .on("mousemove", mousemove);
 
-        var tooltip = d3.selectAll(".focus").append("g")
-            .attr("class", "tooltip")
+        var tooltip = d3.selectAll(".focus"+i).append("g")
+            .attr("class", "tooltip " + i)
             .style("display", "none");
 
         tooltip.append("g")
@@ -220,41 +287,25 @@
             .attr("x1", 0).attr("x2", 0) 
             .attr("y1", 0).attr("y2", height);
 
-        focus.append("text")
+        var text = d3.selectAll(".focus"+i).append("text")
             .attr("class", "y1")
-            .attr("x", 5)
-            .attr("y", height/2)
-            .attr("dy", ".35em");
-
-        focus2.append("text")
-            .attr("class", "y2")
             .attr("x", 5)
             .attr("y", height/2)
             .attr("dy", ".35em");
 
         function mousemove() {
           var x0 = x.invert(d3.mouse(this)[0]),
-          i = bisectDate(first.datasets[0].values, x0, 1),
-          d0 = first.datasets[0].values[i - 1],
-          d1 = first.datasets[0].values[i],
+          i = bisectDate(dataset.values, x0, 1),
+          d0 = dataset.values[i - 1],
+          d1 = dataset.values[i],
           d = x0 - d0.timestamp > d1.timestamp - x0 ? d1 : d0;
 
           tooltip.attr("transform", "translate(" + x(parseDate(d.timestamp)) + "," + 0 + ")");
-          focus.select("text.y1").attr("transform", "translate(" + x(parseDate(d.timestamp)) + "," + 0 + ")").text(d.value);
-
-          var x0 = x.invert(d3.mouse(this)[0]),
-          i = bisectDate(first.datasets[1].values, x0, 1),
-          d0 = first.datasets[1].values[i - 1],
-          d1 = first.datasets[1].values[i],
-          d = x0 - d0.timestamp > d1.timestamp - x0 ? d1 : d0;
-          tooltip.attr("transform", "translate(" + x(parseDate(d.timestamp)) + "," + 0 + ")");
-          focus2.select("text.y2").attr("transform", "translate(" + x(parseDate(d.timestamp)) + "," + 0 + ")").text(d.value);
-        }*/
-      });
-
+          text.attr("transform", "translate(" + x(parseDate(d.timestamp)) + "," + 0 + ")").text(d.value);
+        }
+      }
 
       function createLogScatterplot(string_dataset) {
-
         x_log = d3.time.scale().range([0, width]),
             y_log = d3.scale.linear().range([height2, 0]);
 
@@ -266,7 +317,7 @@
         y_log.domain([0, d3.max(string_dataset.values, function(d) { return d.value; })]);
 
         focus = svg.append("g")
-            .attr("class", "focus")
+            .attr("class", "focus scatter")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         focus.append("g")
@@ -275,26 +326,17 @@
             .call(xAxis_log);
 
         if(string_dataset != null) {
-            circlegroup = focus.append("g");
-              circlegroup.attr("clip-path", "url(#clip)");
-              circlegroup.selectAll('.circle')
+            focus.selectAll('circle')
               .data(string_dataset.values)
               .enter().append("circle")
+              .attr("clip-path", "url(#clip)")
               .attr('class', 'circle')
               .attr("cx", function (d) { return x_log(parseDate(d.timestamp)); })
               .attr("cy", function (d) { return margin.top; })
-              .attr("r", function(d){ return 3;})
-              .on("mouseover",function() {
-                  d3.select(this).moveToFront();
-                  d3.select(this)
-                      .transition()
-                      .duration(200)
-                      .attr("r",8);
-              }).on("mouseout",function() {
-                  d3.select(this).transition().attr("r",3);
-              });
+              .attr("r", function(d){ return 5;})
+              .on("mouseover", tip.show)
+              .on("mouseout",tip.hide);
         }
-
       }
 
       function createLineChart(dataset, i, string_dataset) {
@@ -337,6 +379,13 @@
 
         parseDate = d3.time.format('%d %m %Y, %H:%M:%S').parse;
 
+        tip = d3.tip()
+          .attr('class', 'd3-tip')
+          .offset([-10, 0])
+          .html(function(d) {
+            return "<strong>Value:</strong> <span style='color:white'>" + d.value + "</span>";
+          })
+
         for(var i in datasets) {
           drawAxis(datasets[i]);
         }
@@ -347,7 +396,6 @@
         xAxis2 = d3.svg.axis().scale(x2).orient("bottom"), // Context
             yAxis2 = d3.svg.axis().scale(y).orient("left"); // Context
 
-        // TODO: dont care about which domain is choosen. Later i will use the log scattersplott here.
         x2.domain(x.domain());
         y2.domain(y.domain());
 
@@ -366,6 +414,8 @@
             .attr("width", width + margin.left + margin.right)
             .attr("height", 3*height + margin.top + margin.bottom); // TODO: 3 to x
 
+        svg.call(tip);
+
         // Clip on edges
         svg.append("defs").append("clipPath")
             .attr("id", "clip")
@@ -377,11 +427,10 @@
             .attr("class", "context")
             .attr("transform", "translate(" + margin2.left + "," + (margin.top *6 + margin2.top * datasets.length) + ")");
 
-        circlegroup_context = context.append("g");
-          circlegroup_context.attr("clip-path", "url(#clip)");
-          circlegroup_context.selectAll('.circle')
+        context.selectAll('circle')
           .data(string_dataset.values)
           .enter().append("circle")
+          .attr("clip-path", "url(#clip)")
           .attr('class', 'circle')
           .attr("cx", function (d) { return x2(parseDate(d.timestamp)); })
           .attr("cy", function (d) { return height2/2; })
@@ -422,7 +471,13 @@
 
         // Scatterplot update
         x_log.domain(brush.empty() ? x2.domain() : brush.extent());
-        circlegroup.selectAll(".circle").attr("cx",function(d){ return x_log(parseDate(d.timestamp));}).attr("cy", function(d){ return margin.top;});
+
+        // Move circles
+        d3.select(".focus.scatter").selectAll("circle")
+          .data(string_dataset.values)
+          .attr("cx",function(d){ return x_log(parseDate(d.timestamp));})
+          .attr("cy", function(d){ return margin.top;});
+
         d3.select(".focus").select(".x.axis").call(xAxis_log);
 
         // Line charts update
