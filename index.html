@@ -279,6 +279,7 @@
 
         var tooltip = d3.selectAll(".focus"+i).append("g")
             .attr("class", "tooltip " + i)
+            .attr("clip-path", "url(#clip)")
             .style("display", "none");
 
         tooltip.append("g")
