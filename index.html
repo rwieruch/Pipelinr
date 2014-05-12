@@ -154,7 +154,7 @@
         console.log(data);
         if(data.type == "string") {
             // Push new value in dataset
-            string_dataset.values.push({ timestamp: data.timestamp, value: data.value});    
+            string_dataset.values.push({ timestamp: data.timestamp, value: data.value, level: data.level});    
             var current_dataset = string_dataset;
 
             // Append new focus circle
@@ -168,6 +168,7 @@
               .enter().append("circle")
               .attr("clip-path", "url(#clip)")
               .attr('class', 'circle')
+              .style("fill", logColor)
               .attr("cx", function(d) { return x_log(parseDate(d.timestamp)); })
               .attr("cy", function(d) { return margin.top; })
               .attr("r", 5)
@@ -179,6 +180,7 @@
              .data(string_dataset.values).enter()
              .append("circle")
              .attr('class', 'circle')
+             .style("fill", logColor)
              .attr("r", 3)
              .attr("cx", function (d) { return x2(parseDate(d.timestamp)); })
              .attr("cy", function (d) { return height2/2; });
@@ -234,7 +236,7 @@
 
         // TODO: Change this
         for(var i in first.datasets) {
-          first.datasets[i].values.splice(0, 0, { timestamp: "12 05 2014, 14:32:00", value: null});
+          first.datasets[i].values.splice(0, 0, { timestamp: "12 05 2014, 18:50:00", value: null});
         }
 
         // Get log data from datasets
@@ -277,7 +279,7 @@
           .on("mouseout", function() { tooltip.style("display", "none"); text.style("display", "none"); })
           .on("mousemove", mousemove);
 
-        var tooltip = d3.selectAll(".focus"+i).append("g")
+        var tooltip = d3.select(".focus"+i).append("g")
             .attr("class", "tooltip " + i)
             .attr("clip-path", "url(#clip)")
             .style("display", "none");
@@ -288,8 +290,8 @@
             .attr("x1", 0).attr("x2", 0) 
             .attr("y1", 0).attr("y2", height);
 
-        var text = d3.selectAll(".focus"+i).append("text")
-            .attr("class", "y1")
+        var text = d3.select(".focus"+i).append("text")
+            .attr("class", "y"+i)
             .attr("x", 5)
             .attr("y", height/2)
             .attr("dy", ".35em");
@@ -332,6 +334,7 @@
               .enter().append("circle")
               .attr("clip-path", "url(#clip)")
               .attr('class', 'circle')
+              .style("fill", logColor)
               .attr("cx", function (d) { return x_log(parseDate(d.timestamp)); })
               .attr("cy", function (d) { return margin.top; })
               .attr("r", function(d){ return 5;})
@@ -384,7 +387,7 @@
           .attr('class', 'd3-tip')
           .offset([-10, 0])
           .html(function(d) {
-            return "<strong>Value:</strong> <span style='color:white'>" + d.value + "</span>";
+            return "<strong>" + d.level + ":</strong> <span style='color:white'>" + d.value + "</span>";
           })
 
         for(var i in datasets) {
@@ -433,6 +436,7 @@
           .enter().append("circle")
           .attr("clip-path", "url(#clip)")
           .attr('class', 'circle')
+          .style("fill", logColor)
           .attr("cx", function (d) { return x2(parseDate(d.timestamp)); })
           .attr("cy", function (d) { return height2/2; })
           .attr("r", function(d){ return 3;});
@@ -466,6 +470,14 @@
         yAxes.push(yAxis);
         xs.push(x);
         ys.push(y);
+      }
+
+      function logColor(d) {
+        console.log(d);
+        if(d.level == "warning")
+          return "yellow"
+        if(d.level == "error")
+          return "red";
       }
 
       function brushed() {
@@ -582,11 +594,17 @@
           var id = testcase._id;
           var rndNumber = _.random(3, 100000);
 
+          var levelArray = [
+              'warning',
+              'error'
+          ];
+          var randomNumber = Math.floor(Math.random()*levelArray.length);
+
           $.ajax({
             url : "http://localhost:1080/testcases/" + id,
             type: "PUT",
             contentType: 'application/json',
-            data : JSON.stringify({ key: "log", type: "string", value: rndNumber, timestamp: moment().format('DD MM YYYY, HH:mm:ss')}),
+            data : JSON.stringify({ key: "log", level: levelArray[randomNumber], type: "string", value: rndNumber, timestamp: moment().format('DD MM YYYY, HH:mm:ss')}),
             success: function(data, textStatus, jqXHR) {
                 console.log("put success");
                 console.log(data);
