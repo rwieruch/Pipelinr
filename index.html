@@ -107,35 +107,49 @@
       var first = null;
 
       // Add new objects to list
-      /*socket.on('updatedObject', function(data) {
+      socket.on('updatedObject', function(data) {
         console.log(data);
-        // Push new value in dataset
-        for(var i in first.datasets) {
-          if(first.datasets[i].key == data.key) {
+        if(data.key == "log") {
+            // Push new value in dataset
+            string_dataset.values.push({ timestamp: data.timestamp, value: data.value});    
+            var current_dataset = string_dataset;
 
-            // Update data
-            first.datasets[i].values.push({ timestamp: data.timestamp, value: data.value});
+            // Append new focus circle
+            circlegroup.selectAll("circle").data(string_dataset.values).enter()
+             .append("circle")
+             .attr("r", 3)
+             .attr("cx", function(d) { return x_log(parseDate(d.timestamp)); })
+             .attr("cy", function(d) { return margin.top; });
 
-            // Update focus
-            xs[i].domain(d3.extent(first.datasets[i].values, function(d) { return parseDate(d.timestamp); }));
-            ys[i].domain([0, d3.max(first.datasets[i].values, function(d) { return d.value; })]);
-
-            // Update context
-            x2.domain(d3.extent(first.datasets[i].values, function(d) { return parseDate(d.timestamp); }));
-
-            // Update line and axis
-            //svg.select(".area").attr("d", main_lines[i](first.datasets[i].values));
-            svg.select(".area").attr("d", main_lines[i](first.datasets[i].values));
-            //svg.select(".x.axis").call(xAxes[i]);
-            svg.select(".y"+i+".axis").call(yAxes[i]);
-            svg.select(".line2").attr("d", context_line(first.datasets[i].values));
-            svg.select(".x.axis2").call(xAxis2);
-
-            // Keep brushed
-            brushed();
+            // Append new context circle
+            circlegroup_context.selectAll("circle").data(string_dataset.values).enter()
+             .append("circle")
+             .attr("r", 3)
+             .attr("cx", function (d) { return x2(parseDate(d.timestamp)); })
+             .attr("cy", function (d) { return height2/2; });
+        } else {
+          // Find according dataset
+          for(var i in first.datasets) {
+            if(first.datasets[i].key == data.key) {
+              // Push new value in dataset
+              first.datasets[i].values.push({ timestamp: data.timestamp, value: data.value});
+              var current_dataset = first.datasets[i];
+            }
           }
-        }     
-      });*/
+        } 
+        // Update context
+        x2.domain(d3.extent(current_dataset.values, function(d) { return parseDate(d.timestamp); }));
+
+        // Move context circles
+        circlegroup_context.selectAll(".circle")
+         .attr("cx", function (d) { return x2(parseDate(d.timestamp)); })
+         .attr("cy", function (d) { return height2/2; });
+
+        svg.select(".x.axis2").call(xAxis2);
+
+        // Keep brushed, update everything
+        brushed();
+      });  
 
       // Get all objects and display them in a list
       $.get("http://localhost:1080/testcases", function( data ) {
@@ -159,13 +173,11 @@
 
         // TODO: Change this
         for(var i in first.datasets) {
-          first.datasets[i].values.splice(0, 0, { timestamp: "12 05 2014, 08:55:00", value: null});
+          first.datasets[i].values.splice(0, 0, { timestamp: "12 05 2014, 13:46:00", value: null});
         }
 
-        console.log(first);
-
         // Get log data from datasets
-        var string_dataset = null;
+        string_dataset = null;
         for(var i in first.datasets) {
           if(first.datasets[i].type == "string") {
             string_dataset = first.datasets[i];
@@ -311,7 +323,7 @@
 
         focus.append("g")
             //.attr("class", "y axis")
-            .attr("class", "y"+i+ " axis")
+            .attr("class", "y "+i+ " axis")
             .call(yAxes[i]);
       }
 
@@ -365,19 +377,15 @@
             .attr("class", "context")
             .attr("transform", "translate(" + margin2.left + "," + (margin.top *6 + margin2.top * datasets.length) + ")");
 
-        /*context.append("path")
-            .datum(string_dataset.values)
-            .attr("class", "line")
-            .attr("d", context_line);*/
-
-        context.selectAll("circle")
+        circlegroup_context = context.append("g");
+          circlegroup_context.attr("clip-path", "url(#clip)");
+          circlegroup_context.selectAll('.circle')
           .data(string_dataset.values)
-          .enter()
-          .append("circle")
-          .attr("class", "circle")
-          .attr("r", 3)
+          .enter().append("circle")
+          .attr('class', 'circle')
           .attr("cx", function (d) { return x2(parseDate(d.timestamp)); })
-          .attr("cy", function (d) { return height2/2; });
+          .attr("cy", function (d) { return height2/2; })
+          .attr("r", function(d){ return 3;});
 
         context.append("g")
             .attr("class", "x axis2")
@@ -531,7 +539,7 @@
               console.log("put error");
             }
           });
-        }, 10000);
+        }, 9000);
       }
     </script>
 
