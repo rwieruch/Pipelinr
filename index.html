@@ -23,7 +23,7 @@
         shape-rendering: crispEdges;
       }
 
-      .line2 {
+      .line {
         stroke: steelblue;
         stroke-width: 1;
         fill: none;
@@ -31,8 +31,13 @@
       }
 
       .area {
-        /*fill: steelblue;*/
         clip-path: url(#clip);
+      }
+
+      .circle {
+        fill: steelblue;
+        stroke: #222;
+        stroke-width: 1;
       }
 
       .overlay {
@@ -103,7 +108,7 @@
 
       // Add new objects to list
       /*socket.on('updatedObject', function(data) {
-
+        console.log(data);
         // Push new value in dataset
         for(var i in first.datasets) {
           if(first.datasets[i].key == data.key) {
@@ -145,22 +150,35 @@
         first = data[0];
         console.log(first);
 
+        // TODO: Change this
         xAxes = new Array();
         yAxes = new Array();
         xs = new Array();
         ys = new Array();
         main_lines = new Array();
 
+        // TODO: Change this
         for(var i in first.datasets) {
-          first.datasets[i].values.splice(0, 0, { timestamp: "10 05 2014, 17:56:33", value: null});
+          first.datasets[i].values.splice(0, 0, { timestamp: "12 05 2014, 08:55:00", value: null});
         }
 
         console.log(first);
 
-        createSVGContainer(first.datasets);
+        // Get log data from datasets
+        var string_dataset = null;
+        for(var i in first.datasets) {
+          if(first.datasets[i].type == "string") {
+            string_dataset = first.datasets[i];
+            delete first.datasets[i];
+            first.datasets.length--;
+          }
+        }
+
+        createSVGContainer(first.datasets, string_dataset);
+        createLogScatterplot(string_dataset);
         for(var i in first.datasets) {
           if(first.datasets[i].type == "int") {
-            createLineChart(first.datasets[i], i);
+            createLineChart(first.datasets[i], i, string_dataset);
           }
         }
 
@@ -222,8 +240,52 @@
         }*/
       });
 
-      function createLineChart(dataset, i) {
 
+      function createLogScatterplot(string_dataset) {
+
+        x_log = d3.time.scale().range([0, width]),
+            y_log = d3.scale.linear().range([height2, 0]);
+
+        // Axis
+        xAxis_log = d3.svg.axis().scale(x_log).orient("bottom"),
+            yAxis_log = d3.svg.axis().scale(y_log).orient("left");
+
+        x_log.domain(d3.extent(string_dataset.values.map(function(d) { return parseDate(d.timestamp); })));
+        y_log.domain([0, d3.max(string_dataset.values, function(d) { return d.value; })]);
+
+        focus = svg.append("g")
+            .attr("class", "focus")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        focus.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + margin.top * 2 + ")")
+            .call(xAxis_log);
+
+        if(string_dataset != null) {
+            circlegroup = focus.append("g");
+              circlegroup.attr("clip-path", "url(#clip)");
+              circlegroup.selectAll('.circle')
+              .data(string_dataset.values)
+              .enter().append("circle")
+              .attr('class', 'circle')
+              .attr("cx", function (d) { return x_log(parseDate(d.timestamp)); })
+              .attr("cy", function (d) { return margin.top; })
+              .attr("r", function(d){ return 3;})
+              .on("mouseover",function() {
+                  d3.select(this).moveToFront();
+                  d3.select(this)
+                      .transition()
+                      .duration(200)
+                      .attr("r",8);
+              }).on("mouseout",function() {
+                  d3.select(this).transition().attr("r",3);
+              });
+        }
+
+      }
+
+      function createLineChart(dataset, i, string_dataset) {
         // Focus lines
         main_line = d3.svg.area()
           .interpolate("linear")
@@ -235,7 +297,7 @@
 
         focus = svg.append("g")
             .attr("class", "focus" + i)
-            .attr("transform", "translate(" + margin.left + "," + margin.top * (i+1)*2 + ")"); // TODO: margintop * i
+            .attr("transform", "translate(" + margin.left + "," + (margin.top*6 + (margin2.top *i)) + ")");
 
         focus.append("path")
             .datum(dataset.values)
@@ -253,14 +315,7 @@
             .call(yAxes[i]);
       }
 
-      function createSVGContainer(datasets) {
-
-        var context_dataset = null;
-        for(var i in datasets) {
-          if(datasets[i].type == "string") {
-            context_dataset = datasets[i];
-          }
-        }
+      function createSVGContainer(datasets, string_dataset) {
 
         margin = {top: 10, right: 10, bottom: 60, left: 40},
             margin2 = {top: 215, right: 10, bottom: 10, left: 40},
@@ -308,12 +363,21 @@
 
         context = svg.append("g")
             .attr("class", "context")
-            .attr("transform", "translate(" + margin2.left + "," + margin2.top * 2 + ")");
+            .attr("transform", "translate(" + margin2.left + "," + (margin.top *6 + margin2.top * datasets.length) + ")");
 
-        context.append("path")
-            .datum(datasets[1])
+        /*context.append("path")
+            .datum(string_dataset.values)
             .attr("class", "line")
-            .attr("d", context_line);
+            .attr("d", context_line);*/
+
+        context.selectAll("circle")
+          .data(string_dataset.values)
+          .enter()
+          .append("circle")
+          .attr("class", "circle")
+          .attr("r", 3)
+          .attr("cx", function (d) { return x2(parseDate(d.timestamp)); })
+          .attr("cy", function (d) { return height2/2; });
 
         context.append("g")
             .attr("class", "x axis2")
@@ -337,8 +401,6 @@
             yAxis = d3.svg.axis().scale(y).orient("left"); // Focus
 
         x.domain(d3.extent(first.datasets[0].values.map(function(d) { return parseDate(d.timestamp); })));
-        //y.domain([0, 100]);
-        //y.domain(d3.extent(dataset.values, function(d) { return d.value; }));
         y.domain([0, d3.max(dataset.values, function(d) { return d.value; })]);
 
         // Save domains and axes for later retrieval
@@ -349,12 +411,26 @@
       }
 
       function brushed() {
+
+        // Scatterplot update
+        x_log.domain(brush.empty() ? x2.domain() : brush.extent());
+        circlegroup.selectAll(".circle").attr("cx",function(d){ return x_log(parseDate(d.timestamp));}).attr("cy", function(d){ return margin.top;});
+        d3.select(".focus").select(".x.axis").call(xAxis_log);
+
+        // Line charts update
         for(var i in main_lines) {
           xs[i].domain(brush.empty() ? x2.domain() : brush.extent());
           d3.select(".focus"+i).select(".area").attr("d", main_lines[i]);
           d3.select(".focus"+i).select(".x.axis").call(xAxes[i]);
         }
       }
+
+      // On hover (e.g. for a circle) move svg to front (instead of z-index)
+      d3.selection.prototype.moveToFront = function() {
+        return this.each(function(){
+          this.parentNode.appendChild(this);
+        });
+      };
 
       //
       // Nessee Mock Stuff...
@@ -391,7 +467,7 @@
         for(var i in testcases) {
             updateEveryObjectsCPU(testcases[i]);
             updateEveryObjectsAgentNumber(testcases[i]);
-            //updateLog(testcases[i]);
+            updateLog(testcases[i]);
         }
       });
 
