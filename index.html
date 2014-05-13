@@ -185,8 +185,15 @@
              .attr('class', 'circle')
              .style("fill", function (d) { return logColor(d.level);})
              .attr("r", 3)
-             .attr("cx", function (d) { return x2(parseDate(d.timestamp)); })
              .attr("cy", function (d) { return height2/2; });
+
+            // Keep filter
+            for(var i in settings.logFilter) {
+              if(!settings.logFilter[i].value)
+                svg.selectAll("circle")
+                  .filter(function(d) { return d.level === settings.logFilter[i].key; })
+                  .attr("display", "none");
+            }
         } else {
           // Find according dataset
           for(var i in first.datasets) {
@@ -252,10 +259,10 @@
           }
         }
 
-        // TODO: change this
-        settings = new Array();
-        settings.push({ key: "warning", value: true });
-        settings.push({ key: "error", value: true });
+        // TODO: change this to global settings object
+        settings = {};
+        settings.logFilter = new Array();
+        settings.logFilter.push({ key: "warning", value: true }, { key: "error", value: true });
 
         createSVGContainer(first.datasets, string_dataset);
         createLogScatterplot(string_dataset);
@@ -495,11 +502,11 @@
 
           // Retrieve filter key
           var level = d3.select(this).attr("value");
-          for(var i in settings) {
-            if(settings[i].key == level) {
-              settings[i].value ? settings[i].value = false: settings[i].value = true; 
-              var display = settings[i].value ? "inline" : "none";
-              var fill = settings[i].value ? logColor(level) : "#FFF";
+          for(var i in settings.logFilter) {
+            if(settings.logFilter[i].key == level) {
+              settings.logFilter[i].value ? settings.logFilter[i].value = false: settings.logFilter[i].value = true; 
+              var display = settings.logFilter[i].value ? "inline" : "none";
+              var fill = settings.logFilter[i].value ? logColor(level) : "#FFF";
             }
           }
 
