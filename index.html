@@ -158,11 +158,6 @@
             var current_dataset = string_dataset;
 
             // Append new focus circle
-            /*circlegroup.selectAll("circle").data(string_dataset.values).enter()
-             .append("circle")
-             .attr("r", 3)
-             .attr("cx", function(d) { return x_log(parseDate(d.timestamp)); })
-             .attr("cy", function(d) { return margin.top; });*/
             d3.select(".focus.scatter").selectAll('circle')
               .data(string_dataset.values)
               .enter().append("circle")
@@ -236,7 +231,7 @@
 
         // TODO: Change this
         for(var i in first.datasets) {
-          first.datasets[i].values.splice(0, 0, { timestamp: "12 05 2014, 18:50:00", value: null});
+          first.datasets[i].values.splice(0, 0, { timestamp: "13 05 2014, 10:48:00", value: null});
         }
 
         // Get log data from datasets
@@ -300,8 +295,13 @@
           var x0 = x.invert(d3.mouse(this)[0]),
           i = bisectDate(dataset.values, x0, 1),
           d0 = dataset.values[i - 1],
-          d1 = dataset.values[i],
-          d = x0 - d0.timestamp > d1.timestamp - x0 ? d1 : d0;
+          d1 = dataset.values[i];
+          console.log(d1);
+          if(d1 != null) { // Last value is sometimes undefined after immediate update
+            var d = x0 - d0.timestamp > d1.timestamp - x0 ? d1 : d0;
+          } else {
+            var d = d0;
+          }
 
           tooltip.attr("transform", "translate(" + x(parseDate(d.timestamp)) + "," + 0 + ")");
           text.attr("transform", "translate(" + x(parseDate(d.timestamp)) + "," + 0 + ")").text(d.value);
