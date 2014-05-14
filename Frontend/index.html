@@ -12,7 +12,6 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-    <script src="moment.min.js"></script>
 
     <style>
       .axis path,
@@ -104,29 +103,24 @@
     </style>
   </head>
   <body>
-    <h2>Console</h2>
-
-    <!-- A log for messages -->
-    <div id="messages" style="height:90px; border: 1px solid #000; width: 100%; color: #0F0; background: #000; font-family: monospace; overflow:scroll; overflow-x:hidden;">
-      Connecting to server...<br/>
-    </div>
-
-    <h2>Nesse Core: Client Stub</h2>
-
-    <label for="nameInput">Name:</label>
-    <input type="text" id="nameInput" value="" />
-    <button type="button" id="addObject">Add</button>
-
     <h2>Frontend</h2>
 
-    <ul id="availableObjects" style="list-style-type:none;">
-    </ul>
+    <div id="wrapper" style="margin-left:50px;">
 
-    <div id="timeline" style="margin-left:50px;"></div>
-    <!--<div class="filter_options">
-      <input class="filter_button" type="checkbox" value="warning" checked>warning</input><br>
-      <input class="filter_button" type="checkbox" value="error" checked>error</input><br>
-    </div>-->
+      <ul id="availableObjects" style="list-style-type:none; margin-left:-40px;">
+      </ul>
+
+      <div style="margin:40px;">
+        <label for="beginSearchInput">Beginn:</label>
+        <input type="text" id="beginSearchInput" value="" />
+        <label for="endSearchInput">Ende:</label>
+        <input type="text" id="endSearchInput" value="" />
+        <button type="button" id="searchButton">Search</button>
+      </div>
+
+      <div id="timeline"></div>
+
+    </div>
 
     <script>
       // Make the output visible
@@ -134,24 +128,41 @@
 
       // Connect to our app.js, which is listeninging on port 1080 
       var socket = io.connect('http://localhost:1080');
-      
-      // Console
-      socket.on('connect', function() {
-        messages.innerHTML += 'Connected<br/>';
-      });
-      socket.on('connectionStatus', function(data) {
-        console.log("connectionStatus:" + data.toString());
-        messages.innerHTML += 'Server says: "' + data.toString() + '"<br/>';
-        
-        $('#messages').animate({"scrollTop": $('#messages')[0].scrollHeight}, "fast");
-      });
 
       // Add new objects to list
       socket.on('addedObject', function(data) {
         $("#availableObjects").append("<li>"+data.name+"</li>");
       });
 
-      var first = null;
+     var first = null;
+
+     // Search query with beginn and end
+      $("#searchButton").click(function(){
+
+        // Build mock object
+        var data = JSON.stringify({ 
+                      time_range: { begin: $("#beginSearchInput").val(), end: $("#endSearchInput").val() }
+                    });
+
+        console.log(data);
+
+        $.ajax({
+          url : "http://localhost:1080/testcases/" + first._id,
+          type: "GET",
+          contentType: 'application/json',
+          data : data,
+          success: function(data, textStatus, jqXHR) {
+              console.log("get success");
+              console.log(data);
+
+              $("#beginSearchInput").val("");
+              $("#endSearchInput").val("");
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.log("get error");
+          }
+        });
+      });
 
      logColor = d3.scale.ordinal()
          .domain(["","warning","error"])
@@ -246,7 +257,7 @@
 
         // TODO: Change this
         for(var i in first.datasets) {
-          first.datasets[i].values.splice(0, 0, { timestamp: "13 05 2014, 13:26:00", value: null});
+          first.datasets[i].values.splice(0, 0, { timestamp: "14 05 2014, 12:02:00", value: null});
         }
 
         // Get log data from datasets
@@ -348,19 +359,17 @@
             .attr("transform", "translate(0," + margin.top * 2 + ")")
             .call(xAxis_log);
 
-        if(string_dataset != null) {
-            focus.selectAll('circle')
-              .data(string_dataset.values)
-              .enter().append("circle")
-              .attr("clip-path", "url(#clip)")
-              .attr('class', 'circle')
-              .style("fill", function (d) { return logColor(d.level);})
-              .attr("cx", function (d) { return x_log(parseDate(d.timestamp)); })
-              .attr("cy", function (d) { return margin.top; })
-              .attr("r", function(d){ return 5;})
-              .on("mouseover", tip.show)
-              .on("mouseout",tip.hide);
-        }
+        focus.selectAll('circle')
+          .data(string_dataset.values)
+          .enter().append("circle")
+          .attr("clip-path", "url(#clip)")
+          .attr('class', 'circle')
+          .style("fill", function (d) { return logColor(d.level);})
+          .attr("cx", function (d) { return x_log(parseDate(d.timestamp)); })
+          .attr("cy", function (d) { return margin.top; })
+          .attr("r", function(d){ return 5;})
+          .on("mouseover", tip.show)
+          .on("mouseout",tip.hide);
       }
 
       function createLineChart(dataset, i, string_dataset) {
@@ -475,8 +484,11 @@
             .attr("y", -6)
             .attr("height", height2 + 7);
 
+        // Settings container
+        var settingContainer = svg.append("g").attr("class", "setting_container");
+
         // Draw legend
-        var legend = svg.selectAll(".legend")
+        var legend = settingContainer.selectAll(".legend")
             .data(logColor.domain())
           .enter().append("g")
             .attr("class", "legend")
@@ -565,114 +577,6 @@
           this.parentNode.appendChild(this);
         });
       };
-
-      //
-      // Nessee Mock Stuff...
-      //
-
-      // Add new object button (from nessee mock)
-      $("#addObject").click(function(){
-
-        // Build mock object
-        var data = JSON.stringify({ 
-                      name: $("#nameInput").val(), 
-                      datasets: [], 
-                      origin_id: "xxxxxxxxxx-xxxx-xxxx" 
-                    });
-
-        $.ajax({
-          url : "http://localhost:1080/testcases",
-          type: "POST",
-          contentType: 'application/json',
-          data : data,
-          success: function(data, textStatus, jqXHR) {
-              console.log("post success");
-              console.log(data);
-              $("#nameInput").val("");
-          },
-          error: function (jqXHR, textStatus, errorThrown) {
-            console.log("post error");
-          }
-        });
-      });
-
-      // Get all objects and update them periodically
-      $.get("http://localhost:1080/testcases", function( testcases ) {
-        for(var i in testcases) {
-            updateEveryObjectsCPU(testcases[i]);
-            updateEveryObjectsAgentNumber(testcases[i]);
-            updateLog(testcases[i]);
-        }
-      });
-
-      function updateEveryObjectsCPU(testcase) {
-        window.setInterval(function(){
-          var id = testcase._id;
-          var newCpuValue = _.random(1, 100);
-
-          $.ajax({
-            url : "http://localhost:1080/testcases/" + id,
-            type: "PUT",
-            contentType: 'application/json',
-            data : JSON.stringify({ key: "cpuLoad", type: "int", value: newCpuValue, timestamp: moment().format('DD MM YYYY, HH:mm:ss')}),
-            success: function(data, textStatus, jqXHR) {
-                console.log("put success");
-                console.log(data);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.log("put error");
-            }
-          });
-        }, 5000);
-      }
-
-      function updateEveryObjectsAgentNumber(testcase) {
-        window.setInterval(function(){
-          var id = testcase._id;
-          var newAgentNumber = _.random(3, 10);
-
-          $.ajax({
-            url : "http://localhost:1080/testcases/" + id,
-            type: "PUT",
-            contentType: 'application/json',
-            data : JSON.stringify({ key: "agentNumber", type: "int", value: newAgentNumber, timestamp: moment().format('DD MM YYYY, HH:mm:ss')}),
-            success: function(data, textStatus, jqXHR) {
-                console.log("put success");
-                console.log(data);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.log("put error");
-            }
-          });
-        }, 3000);
-      }
-
-      function updateLog(testcase) {
-        window.setInterval(function(){
-          var id = testcase._id;
-          var rndNumber = _.random(3, 100000);
-
-          var levelArray = [
-              'warning',
-              'error'
-          ];
-          var randomNumber = Math.floor(Math.random()*levelArray.length);
-
-          $.ajax({
-            url : "http://localhost:1080/testcases/" + id,
-            type: "PUT",
-            contentType: 'application/json',
-            data : JSON.stringify({ key: "log", level: levelArray[randomNumber], type: "string", value: rndNumber, timestamp: moment().format('DD MM YYYY, HH:mm:ss')}),
-            success: function(data, textStatus, jqXHR) {
-                console.log("put success");
-                console.log(data);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.log("put error");
-            }
-          });
-        }, 9000);
-      }
     </script>
 
   </body>

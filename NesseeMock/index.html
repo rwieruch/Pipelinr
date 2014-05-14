@@ -1,0 +1,133 @@
+<html>
+  <head>
+
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+    <script src="moment.min.js"></script>
+
+    <style>
+    </style>
+  </head>
+  <body>
+    <h2>Console</h2>
+
+    <!-- A log for messages -->
+    <div id="messages" style="height:90px; border: 1px solid #000; width: 100%; color: #0F0; background: #000; font-family: monospace; overflow:scroll; overflow-x:hidden;">
+      Connecting to server...<br/>
+    </div>
+
+    <h2>Nesse Core: Client Stub</h2>
+
+    <label for="nameInput">Name:</label>
+    <input type="text" id="nameInput" value="" />
+    <button type="button" id="addObject">Add</button>
+
+    <script>
+
+      // Add new object button
+      $("#addObject").click(function(){
+
+        // Build mock object
+        var data = JSON.stringify({ 
+                      name: $("#nameInput").val(), 
+                      datasets: [], 
+                      origin_id: "xxxxxxxxxx-xxxx-xxxx" });
+
+        $.ajax({
+          url : "http://localhost:1080/testcases",
+          type: "POST",
+          contentType: 'application/json',
+          data : data,
+          success: function(data, textStatus, jqXHR) {
+              console.log("post success");
+              console.log(data);
+              $("#nameInput").val("");
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.log("post error");
+          }
+        });
+      });
+
+      // Get all objects and update them periodically
+      $.get("http://localhost:1080/testcases", function( testcases ) {
+        for(var i in testcases) {
+            updateEveryObjectsCPU(testcases[i]);
+            updateEveryObjectsAgentNumber(testcases[i]);
+            updateLog(testcases[i]);
+        }
+      });
+
+      // Update functions
+      function updateEveryObjectsCPU(testcase) {
+        window.setInterval(function(){
+          var id = testcase._id;
+          var newCpuValue = _.random(1, 100);
+
+          $.ajax({
+            url : "http://localhost:1080/testcases/" + id,
+            type: "PUT",
+            contentType: 'application/json',
+            data : JSON.stringify({ key: "cpuLoad", type: "int", value: newCpuValue, timestamp: moment().format('DD MM YYYY, HH:mm:ss')}),
+            success: function(data, textStatus, jqXHR) {
+                console.log("put success");
+                console.log(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              console.log("put error");
+            }
+          });
+        }, 5000);
+      }
+
+      function updateEveryObjectsAgentNumber(testcase) {
+        window.setInterval(function(){
+          var id = testcase._id;
+          var newAgentNumber = _.random(3, 10);
+
+          $.ajax({
+            url : "http://localhost:1080/testcases/" + id,
+            type: "PUT",
+            contentType: 'application/json',
+            data : JSON.stringify({ key: "agentNumber", type: "int", value: newAgentNumber, timestamp: moment().format('DD MM YYYY, HH:mm:ss')}),
+            success: function(data, textStatus, jqXHR) {
+                console.log("put success");
+                console.log(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              console.log("put error");
+            }
+          });
+        }, 3000);
+      }
+
+      function updateLog(testcase) {
+        window.setInterval(function(){
+          var id = testcase._id;
+          var rndNumber = _.random(3, 100000);
+
+          var levelArray = [
+              'warning',
+              'error'
+          ];
+          var randomNumber = Math.floor(Math.random()*levelArray.length);
+
+          $.ajax({
+            url : "http://localhost:1080/testcases/" + id,
+            type: "PUT",
+            contentType: 'application/json',
+            data : JSON.stringify({ key: "log", level: levelArray[randomNumber], type: "string", value: rndNumber, timestamp: moment().format('DD MM YYYY, HH:mm:ss')}),
+            success: function(data, textStatus, jqXHR) {
+                console.log("put success");
+                console.log(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              console.log("put error");
+            }
+          });
+        }, 9000);
+      }
+    </script>
+
+  </body>
+</html>
