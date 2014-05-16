@@ -2,8 +2,7 @@
 	<div ng-controller="RegisterCtrl">
 		<div class="row-fluid">
 			<div class="col col-md-2 col-md-offset-4">
-				<!--<form  ng-submit="addUser()" name="signupForm" novalidate>-->
-				<form name="signupForm" role="form" novalidate>
+				<form name="signupForm" role="form" ng-submit="addUser()" novalidate>
 				  <div class="form-group">
 					<label for="email">Email</label>
 					<input id="email" name="email" ng-model="newUser.email" type="email" class="form-control" placeholder="Enter your email" required>
