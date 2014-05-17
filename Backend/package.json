@@ -2,6 +2,7 @@
   "dependencies": {
     "express": "latest",
     "socket.io": "latest",
-    "underscore": "latest"
+    "underscore": "latest",
+    "mongoose" : "latest"
   }
 }

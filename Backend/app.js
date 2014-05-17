@@ -21,9 +21,39 @@ testcase = require('./routes/testcases');
 user = require('./routes/users');
 
 // Enables MongoDB
-var mongo = require('mongodb');
+//var mongo = require('mongodb');
+var mongoose = require('mongoose');
+
+var db = mongoose.connection;
+
+db.on('error', console.error);
+db.once('open', function() {
+  // Create your schemas and models here
+  var userSchema = new mongoose.Schema({
+    email: {
+        type:String,
+        required: true,
+        unique: true
+    },
+    username: {
+        type:String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type:String,
+        required: true
+    }
+  });
+
+  // Compile models using the schema as the structure
+  // Mongoose also creates a MongoDB collection called 'User' for these documents.
+  User = mongoose.model('User', userSchema);
+});
+
+mongoose.connect('mongodb://localhost/pipelinr');
  
-var Server = mongo.Server,
+/*var Server = mongo.Server,
     Db = mongo.Db,
     BSON = mongo.BSONPure;
     ObjectID = mongo.ObjectID;
@@ -40,7 +70,7 @@ db.open(function(err, db) {
         db.collection('testcases', function(err, collection) {});
         db.collection('users', function(err, collection) {});
     }
-});
+});*/
 
 // Realtime
 io.sockets.on('connection', function (socket) {
