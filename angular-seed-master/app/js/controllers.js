@@ -20,6 +20,10 @@ angular.module('myApp.controllers', [])
 
 	    console.log(user);
 
+	    var bla = UserService.query();
+
+	    console.log(bla);
+
 	    $scope.newUser.username = '';
 	    $scope.newUser.email = '';
 	    $scope.newUser.password1 = '';
