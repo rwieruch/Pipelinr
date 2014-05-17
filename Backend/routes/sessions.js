@@ -10,7 +10,6 @@ exports.login = function(req, res) {
       // Create session with token
       var timestamp = new Date();
       var plainToken =  object.email+":"+object.password+":"+timestamp;
-      //var token =  base64_encode(plainToken);
       var token = new Buffer(plainToken).toString('base64');
 
       console.log("Token created: " + token);
