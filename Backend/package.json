@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "express": "latest",
+    "socket.io": "latest",
+    "underscore": "latest"
+  }
+}
