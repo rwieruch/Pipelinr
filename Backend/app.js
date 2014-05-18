@@ -84,7 +84,7 @@ app.post('/users', user.addUser);
 app.get('/users', user.findAll);
 
 app.post('/login', sessions.login);
-//app.post('/logout', sessions.logout);
+app.post('/logout', sessions.logout);
 
 app.get('/testcases/:id', testcase.findById);
 app.get('/testcases', testcase.findAll);

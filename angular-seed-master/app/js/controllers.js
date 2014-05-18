@@ -37,21 +37,19 @@ angular.module('myApp.controllers', [])
 
 			console.log(data);
 
-			// succefull login
-			/*console.log(data.token);
+			console.log(data.token);
 			Session.isLogged = true;
 			Session.token = data.token;
 
 			console.log(Session);
 
 		  	$scope.user.email = '';
-			$scope.user.password = '';*/
+			$scope.user.password = '';
 
-			// Redirect after login
-			//$location.path( '/showreels.html' );
+			$location.path( '/view1' );
 		});
 	};
-	/*$scope.logoutUser = function(){
+	$scope.logoutUser = function(){
 		$http.defaults.headers.common['token'] = Session.token;
 
 		SessionOutService.create(function(data){
@@ -60,7 +58,7 @@ angular.module('myApp.controllers', [])
 
 		  console.log(Session);
 
-		  $location.path( '/signup.html' );
+		  $location.path( '/register' );
 		});
-	};*/
+	};
 }]);
