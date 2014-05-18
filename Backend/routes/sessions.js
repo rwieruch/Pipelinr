@@ -4,8 +4,10 @@ exports.login = function(req, res) {
 
     // Get registered user
     User.findOne({ email: object.email, password: object.password }, function(err, user) {
-      if (err) res.send({ msg: "Error: Can't find user."});
-      console.log(user);
+      if (err || !user) {
+        res.send(404);
+        return;
+      }
 
       // Create session with token
       var timestamp = new Date();

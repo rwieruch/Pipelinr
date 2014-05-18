@@ -27,11 +27,18 @@ angular.module('myApp.services', ['ngResource']).
     return $resource(pipelinrURL + '/logout', {}, {  
         create: {method: 'POST'}
     });
-  })   
-  .factory('Session', function() {
+  })  
+  .factory('Session', function($cookieStore) {
+    var isLogged;
+    if(!(typeof $cookieStore.get("token") === "undefined"))
+      isLogged = true;
+    else
+      isLogged = false;
+
     var session = {
-      isLogged: false,
-      token: ''
+      isLogged: isLogged,
+      //token: ""
+      token: $cookieStore.get("token")
     };
     return session;
   });

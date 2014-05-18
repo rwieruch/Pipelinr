@@ -8,7 +8,8 @@ angular.module('myApp', [
   'myApp.services',
   'myApp.directives',
   'myApp.controllers',
-  'ui.bootstrap'
+  'ui.bootstrap',
+  'ngCookies'
 ]).
 config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
   $routeProvider.when('/view1', {templateUrl: 'partials/partial1.html', controller: 'MyCtrl1', access: { isFree: true } });

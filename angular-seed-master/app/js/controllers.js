@@ -27,7 +27,7 @@ angular.module('myApp.controllers', [])
   .controller('SessionCtrl', ['$scope', 'Session', function($scope, Session) {
 	$scope.Session = Session;
   }])
-  .controller('LoginLogoutCtrl', ['$scope', '$http', '$location', 'SessionInService', 'SessionOutService', 'Session', function($scope, $http, $location, SessionInService, SessionOutService, Session) {
+  .controller('LoginLogoutCtrl', ['$scope', '$http', '$location', '$cookieStore', 'SessionInService', 'SessionOutService', 'Session', function($scope, $http, $location, $cookieStore, SessionInService, SessionOutService, Session) {
 	$scope.loginUser = function(){
 		var session = {email:$scope.user.email, password:$scope.user.password};
 	    console.log(session);
@@ -40,6 +40,8 @@ angular.module('myApp.controllers', [])
 			console.log(data.token);
 			Session.isLogged = true;
 			Session.token = data.token;
+
+			$cookieStore.put("token", data.token);
 
 			console.log(Session);
 
@@ -55,6 +57,7 @@ angular.module('myApp.controllers', [])
 		SessionOutService.create(function(data){
 		  Session.isLogged = false;
 		  Session.token = "";
+		  $cookieStore.remove("token");
 
 		  console.log(Session);
 
