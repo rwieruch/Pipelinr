@@ -14,19 +14,15 @@ angular.module('myApp.controllers', [])
     	var user = {name:$scope.newUser.username, email:$scope.newUser.email, password:$scope.newUser.password1};
 	    UserService.create(user);
 
-	    //var bla = UserService.query();
-
 	    $scope.newUser.username = '';
 	    $scope.newUser.email = '';
 	    $scope.newUser.password1 = '';
 	    $scope.newUser.password2 = '';
 	};
   }])
-  // Mêta Session for app.
-  .controller('SessionCtrl', ['$scope', 'Session', function($scope, Session) {
+  .controller('SessionCtrl', ['$scope', '$http', '$location', '$cookieStore', 'SessionInService', 'SessionOutService', 'Session', function($scope, $http, $location, $cookieStore, SessionInService, SessionOutService, Session) {
 	$scope.Session = Session;
-  }])
-  .controller('LoginLogoutCtrl', ['$scope', '$http', '$location', '$cookieStore', 'SessionInService', 'SessionOutService', 'Session', function($scope, $http, $location, $cookieStore, SessionInService, SessionOutService, Session) {
+
 	$scope.loginUser = function(){
 		var session = {email:$scope.user.email, password:$scope.user.password};
 	    console.log(session);

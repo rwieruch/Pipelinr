@@ -37,7 +37,6 @@ angular.module('myApp.services', ['ngResource']).
 
     var session = {
       isLogged: isLogged,
-      //token: ""
       token: $cookieStore.get("token")
     };
     return session;
