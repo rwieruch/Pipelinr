@@ -4,10 +4,7 @@ exports.login = function(req, res) {
 
     // Get registered user
     User.findOne({ email: object.email, password: object.password }, function(err, user) {
-      if (err || !user) {
-        res.send(404);
-        return;
-      }
+      if (err || !user) { res.send(404); return; }
 
       // Create session with token
       var timestamp = new Date();
@@ -24,16 +21,10 @@ exports.login = function(req, res) {
 
       console.log("Session created: " + session);
 
+      // Save session in db
       session.save(function(err, session) {
-
-        if ( err && err.code) {
-          console.log(err);
-          console.log(err.code);
-          res.send({ msg: "Error: Can't delete user."});
-          return;
-        }
-
-        res.send({token: session.token});
+        if ( err && err.code) { res.send(404); return; }
+        res.send(200,{token: session.token});
       });
     });
 };
@@ -42,20 +33,16 @@ exports.logout = function(req, res) {
     var token = req.headers.token;
     console.log('remove session: ' + token);
 
+    // Find session
     Session.findOne({ token: token }, function(err, session) {
-      if (err) return res.send({ msg: "Unauthroized."});
-      console.log(session);
+      if (err) { res.send(401); return; }
+      
+      console.log("Session retireved: " + session);
 
+      // Remove session
       session.remove(function(err, session) {
-
-        if ( err && err.code) {
-          console.log(err);
-          console.log(err.code);
-          res.send({ msg: "Error: Can't delete session."});
-          return;
-        }
-
-        res.send({ msg: "User logged out."});
+        if ( err && err.code) { res.send(404); return; }
+        res.send(200);
       });
     });
 };

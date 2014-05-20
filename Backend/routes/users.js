@@ -10,27 +10,19 @@ exports.addUser = function(req, res) {
 
     user.save(function(err, user) {
 
-      if ( err && err.code !== 11000 ) {
-        console.log(err);
-        console.log(err.code);
-        res.send('Another error showed up');
-        return;
-      }
+      if ( err && err.code !== 11000 ) { res.send(404); return; }
 
-     //duplicate key
-      if ( err && err.code === 11000 ) {
-        res.send('User already exists');
-        return;
-      }
+     // Duplicate key
+      if ( err && err.code === 11000 ) { res.send(409); return; }
 
-      res.send(user);
+      res.send(200);
     });
 };
 
 exports.findAll = function(req, res) {
     console.log('Find all users');
     User.find(function(err, users) {
-      if (err) return console.error(err);
+      if (err) { res.send(404); return; }
       res.send(users);
     });
 };

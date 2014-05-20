@@ -12,8 +12,7 @@ angular.module('myApp.controllers', [])
   .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
     $scope.addUser = function(){
     	var user = {name:$scope.newUser.username, email:$scope.newUser.email, password:$scope.newUser.password1};
-	    user = UserService.create(user);
-	    console.log(user);
+	    UserService.create(user);
 
 	    //var bla = UserService.query();
 
