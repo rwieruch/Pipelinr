@@ -37,6 +37,11 @@ angular.module('myApp.services', ['ngResource'])
     }
   };
 })
+.factory('PipelineService', function($resource) {
+    return $resource(pipelinrURL + '/testcases', {}, {  
+        query: {method: 'GET', isArray: true}
+    });
+  })
 .factory('UserService', function($resource) {
     return $resource(pipelinrURL + '/users', {}, {	
     	  query: {method: 'GET', isArray: true},

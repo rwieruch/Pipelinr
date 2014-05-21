@@ -3,15 +3,18 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-  .controller('PipelinesCtrl', ['$scope', 'Socket', function($scope, Socket) {
+  .controller('PipelinesCtrl', ['$scope', 'Socket', 'PipelineService', function($scope, Socket, PipelineService) {
 	Socket.on('connectionStatus', function (state) {
 		//$scope.state = state;
 		console.log(state);
    	});
-	
+
     $scope.$on('$destroy', function (event) {
         Socket.getSocket().removeAllListeners();
     });
+
+    //$scope.pipelines = PipelineService.query();
+    console.log(PipelineService.query());
   }])  
   .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
     $scope.addUser = function(){
