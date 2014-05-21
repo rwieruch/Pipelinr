@@ -1,6 +1,6 @@
 // API for Pipelinr
 
-exports.findById = function(req, res) {
+/*exports.findById = function(req, res) {
     var id = req.params.id;
     console.log('Retrieving testcase: ' + id);
     db.collection('testcases', function(err, collection) {
@@ -8,19 +8,27 @@ exports.findById = function(req, res) {
             res.send(item);
         });
     });
-};
+};*/
 
-exports.findAll = function(req, res) {
+/*exports.findAll = function(req, res) {
     db.collection('testcases', function(err, collection) {
         collection.find().toArray(function(err, items) {
             res.send(items);
         });
     });
+};*/
+
+exports.findAll = function(req, res) {
+    console.log('Find all testcases');
+    Testcase.find(function(err, testcases) {
+      if (err) { res.send(404); return; }
+      res.send(testcases);
+    });
 };
 
 // API for nessee Core
 
-exports.addObject = function(io) {
+/*exports.addObject = function(io) {
     return function(req, res) {
         var object = req.body;
         console.log('Adding object: ' + JSON.stringify(object));
@@ -44,9 +52,30 @@ exports.addObject = function(io) {
             });
         });
     }
-}
+}*/
 
-exports.updateObject = function(io) {
+exports.addObject = function(req, res) {
+    var object = req.body;
+    console.log('add testcase: ' + JSON.stringify(object));
+
+    var testcase = new Testcase({
+          name: object.name
+        , origin_id: object.origin_id
+        , datasets: []
+    });
+
+    testcase.save(function(err, testcase) {
+
+      if ( err && err.code !== 11000 ) { res.send(404); return; }
+
+     // Duplicate key
+      if ( err && err.code === 11000 ) { res.send(409); return; }
+
+      res.send(200);
+    });
+};
+
+/*exports.updateObject = function(io) {
     return function(req, res) {
         var id = req.params.id;
         var object = req.body;
@@ -98,4 +127,4 @@ exports.updateObject = function(io) {
             });
         });
     }
-}
+}*/

@@ -59,10 +59,30 @@ db.once('open', function() {
     }
   });
 
+  var testcaseSchema = new mongoose.Schema({
+    name: {
+        type:String,
+        required: true
+    },
+    origin_id: {
+        type:String,
+        required: true
+    },
+    datasets : [{
+        key : String,
+        type : String,
+        values : [{
+                value: String,
+                timestamp: String
+            }]
+         }]
+  });
+
   // Compile models using the schema as the structure
   // Mongoose also creates a MongoDB collection called 'User' for these documents.
   User = mongoose.model('User', userSchema);
   Session = mongoose.model('Session', sessionSchema);
+  Testcase = mongoose.model('Testcase', testcaseSchema);
 });
 
 mongoose.connect('mongodb://localhost/pipelinr');
@@ -87,7 +107,8 @@ app.get('/users', user.findAll);
 app.post('/login', sessions.login);
 app.post('/logout', sessions.logout);
 
-app.get('/testcases/:id', testcase.findById);
+//app.get('/testcases/:id', testcase.findById);
 app.get('/testcases', testcase.findAll);
-app.post('/testcases', testcase.addObject(io));
-app.put('/testcases/:id', testcase.updateObject(io));
+app.post('/testcases', testcase.addObject);
+//app.post('/testcases', testcase.addObject(io));
+//app.put('/testcases/:id', testcase.updateObject(io));
