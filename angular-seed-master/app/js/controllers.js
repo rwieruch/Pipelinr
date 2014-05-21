@@ -20,8 +20,24 @@ angular.module('myApp.controllers', [])
 	    $scope.newUser.password2 = '';
 	};
   }])
-  .controller('SessionCtrl', ['$scope', '$http', '$location', '$cookieStore', 'SessionInService', 'SessionOutService', 'Session', function($scope, $http, $location, $cookieStore, SessionInService, SessionOutService, Session) {
+  .controller('SessionCtrl', ['$scope', '$http', '$location', '$cookieStore', 'SessionInService', 'SessionOutService', 'Session', 'Socket', function($scope, $http, $location, $cookieStore, SessionInService, SessionOutService, Session, Socket) {
 	$scope.Session = Session;
+
+      /*Socket.on('connect', function () {
+    	Socket.emit('connect', { initial: true });
+
+	  	Socket.on('connectionStatus', function (state) {
+	    	//$scope.state = state;
+	    	console.log(state);
+   	  });
+	});*/
+
+	Socket.on('connectionStatus', function (state) {
+	    	//$scope.state = state;
+	    	console.log(state);
+   	});
+
+	//Socket.emit('connection', { initial: true });
 
 	$scope.loginUser = function(){
 		var session = {email:$scope.user.email, password:$scope.user.password};

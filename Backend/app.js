@@ -72,6 +72,8 @@ io.sockets.on('connection', function (socket) {
 
   socket.join('flow');
 
+  console.log("ping");
+
   setInterval(function(){
     socket.emit('connectionStatus', 'ping');
   },10000);

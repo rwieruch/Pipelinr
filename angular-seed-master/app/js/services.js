@@ -4,8 +4,37 @@
 
 var pipelinrURL = "http://localhost:1080";
 
-angular.module('myApp.services', ['ngResource']).
-  factory('UserService', function($resource) {
+angular.module('myApp.services', ['ngResource'])
+.factory('Socket', function ($rootScope) {
+  var socket = io.connect("http://localhost:1080");
+
+  return {
+    emit: function (event, data, callback) {
+      socket.emit(event, data, function () {
+        var args = arguments;
+        $rootScope.$apply(function () {
+          if (callback) {
+            callback.apply(null, args);
+          }
+        });
+      });
+    },
+
+    on: function (eventName, callback) {
+        socket.on(eventName, function () {
+            var args = arguments;
+            $rootScope.$apply(function () {
+                callback.apply(socket, args);
+            });
+        });
+    },
+
+    off: function (event, callback) {
+      socket.removeListener(event, callback);
+    }
+  };
+})
+.factory('UserService', function($resource) {
     return $resource(pipelinrURL + '/users', {}, {	
     	  query: {method: 'GET', isArray: true},
         create: {method: 'POST'}

@@ -9,7 +9,8 @@ angular.module('myApp', [
   'myApp.directives',
   'myApp.controllers',
   'ui.bootstrap',
-  'ngCookies'
+  'ngCookies',
+  'btford.socket-io'
 ]).
 config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
   $routeProvider.when('/view1', {templateUrl: 'partials/partial1.html', controller: 'MyCtrl1', access: { isFree: true } });
