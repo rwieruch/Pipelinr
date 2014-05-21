@@ -13,8 +13,7 @@ angular.module('myApp.controllers', [])
         Socket.getSocket().removeAllListeners();
     });
 
-    //$scope.pipelines = PipelineService.query();
-    console.log(PipelineService.query());
+    $scope.pipelines = PipelineService.query();
   }])  
   .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
     $scope.addUser = function(){
@@ -50,7 +49,7 @@ angular.module('myApp.controllers', [])
 		  	$scope.user.email = '';
 			$scope.user.password = '';
 
-			$location.path( '/pipelines' );
+			$location.path( '/pipeline-list' );
 		});
 	};
 	$scope.logoutUser = function(){

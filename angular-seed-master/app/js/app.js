@@ -13,7 +13,7 @@ angular.module('myApp', [
   'btford.socket-io'
 ]).
 config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
-  $routeProvider.when('/pipelines', {templateUrl: 'partials/pipelines.html', controller: 'PipelinesCtrl', access: { isFree: true } });
+  $routeProvider.when('/pipeline-list', {templateUrl: 'partials/pipeline-list.html', controller: 'PipelinesCtrl', access: { isFree: true } });
   $routeProvider.when('/register', {templateUrl: 'partials/register.html', controller: 'RegisterCtrl'});
   $routeProvider.otherwise({redirectTo: '/register'});
   $httpProvider.defaults.useXDomain = true;
