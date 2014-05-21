@@ -14,6 +14,7 @@ angular.module('myApp', [
 ]).
 config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
   $routeProvider.when('/pipeline-list', {templateUrl: 'partials/pipeline-list.html', controller: 'PipelinesCtrl', access: { isFree: true } });
+  $routeProvider.when('/pipeline-list/:originId', {templateUrl: 'partials/pipeline-detail.html', controller: 'PipelineDetailCtrl', access: { isFree: true } });
   $routeProvider.when('/register', {templateUrl: 'partials/register.html', controller: 'RegisterCtrl'});
   $routeProvider.otherwise({redirectTo: '/register'});
   $httpProvider.defaults.useXDomain = true;

@@ -2,6 +2,6 @@
 <table class="table table-hover table-top" id="tr_list">
 	<tr><th>Name</th><th>Id</th><tr>
 	<tr ng-repeat="pipeline in pipelines">
-		<td>{{pipeline.name}}</td><td>{{pipeline.origin_id}}</td>
+		<td><a href="#/pipeline-list/{{pipeline.origin_id}}">{{pipeline.name}}</a></td><td>{{pipeline.origin_id}}</td>
 	</tr>
 </table>

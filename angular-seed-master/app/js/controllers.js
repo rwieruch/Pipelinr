@@ -15,6 +15,9 @@ angular.module('myApp.controllers', [])
 
     $scope.pipelines = PipelineService.query();
   }])  
+ .controller('PipelineDetailCtrl', ['$scope', '$routeParams', function($scope, $routeParams) {
+	$scope.originId = $routeParams.originId;
+  }]) 
   .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
     $scope.addUser = function(){
     	var user = {name:$scope.newUser.username, email:$scope.newUser.email, password:$scope.newUser.password1};
