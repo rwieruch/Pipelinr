@@ -31,6 +31,9 @@ angular.module('myApp.services', ['ngResource'])
 
     off: function (event, callback) {
       socket.removeListener(event, callback);
+    },
+    getSocket: function() {
+      return socket;
     }
   };
 })

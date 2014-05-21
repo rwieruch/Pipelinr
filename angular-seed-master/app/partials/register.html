@@ -1,11 +1,11 @@
-<div class="container-fluid">
+<!--<div class="container-fluid">
 	<div ng-controller="RegisterCtrl">
 		<div class="row-fluid">
-			<div class="col col-md-2 col-md-offset-4">
+			<div class="col col-md-2 col-md-offset-4">-->
 				<form name="signupForm" role="form" ng-submit="addUser()" novalidate>
 				  <div class="form-group">
 					<label for="email">Email</label>
-					<input id="email" name="email" ng-model="newUser.email" type="email" class="form-control" placeholder="Enter your email" required>
+					<input size="30" id="email" name="email" ng-model="newUser.email" type="email" class="form-control" placeholder="Enter your email" required>
 					<span class="help-inline" ng-show="signupForm.$error.email">Invalid Email format!</span>
   				  </div>
   				  <div class="form-group">
@@ -23,7 +23,7 @@
 				  </div>
 				  <button type="submit" ng-disabled="!signupForm.$valid" class="btn btn-default">Sign up</button>
 				</form>
-			</div>
+			<!--</div>
 		</div>
 	</div>
-</div>
+</div>-->

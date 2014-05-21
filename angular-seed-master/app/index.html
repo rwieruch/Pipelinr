@@ -15,6 +15,12 @@
   <!-- Bootstrap -->
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
   <script src="bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
+
+  <style>
+      .margin-base-vertical {
+          margin: 40px 0;
+      }
+  </style>
 </head>
 <body>
   <ul class="menu">
@@ -42,24 +48,14 @@
               <input type="text" class="form-control" id="searchField" placeholder="Search">
             </div>
           </form>
-          <ul class="nav pull-right" ng-show="Session.isLogged">
-            <li>
-              <a href="#/view1">view1</a>
-            </li>
-          </ul>
-          <ul class="nav pull-right" ng-hide="Session.isLogged">
-            <li>
-              <a href="#/register">register</a>
-            </li>
-          </ul>
-            <ul class="nav pull-right" ng-show="Session.isLogged">
-            <li>
-              <a href="#/view2">view2</a>
-            </li>
-          </ul>
           <ul class="nav pull-right">
             <li>
               <a href="#" ng-show="Session.isLogged" ng-click="logoutUser()">Logout</a>
+            </li>
+          </ul>
+          <ul class="nav pull-right" ng-show="Session.isLogged">
+            <li>
+              <a href="#/pipelines">Pipelines</a>
             </li>
           </ul>
           <form class="navbar-form navbar-right" ng-hide="Session.isLogged" name="loginForm" role="form" ng-submit="loginUser()" novalidate>
@@ -79,7 +75,13 @@
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
   <![endif]-->
 
-  <div ng-view></div>
+<div class="container" style="padding-top: 20px;">
+    <div class="row">
+        <div class="col-lg-6 col-offset-3">
+          <div ng-view></div>
+        </div>
+    </div>
+</div>
 
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>

@@ -3,11 +3,15 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-  .controller('MyCtrl1', ['$scope', function($scope) {
-
-  }])
-  .controller('MyCtrl2', ['$scope', function($scope) {
-
+  .controller('PipelinesCtrl', ['$scope', 'Socket', function($scope, Socket) {
+	Socket.on('connectionStatus', function (state) {
+		//$scope.state = state;
+		console.log(state);
+   	});
+	
+    $scope.$on('$destroy', function (event) {
+        Socket.getSocket().removeAllListeners();
+    });
   }])  
   .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
     $scope.addUser = function(){
@@ -20,24 +24,8 @@ angular.module('myApp.controllers', [])
 	    $scope.newUser.password2 = '';
 	};
   }])
-  .controller('SessionCtrl', ['$scope', '$http', '$location', '$cookieStore', 'SessionInService', 'SessionOutService', 'Session', 'Socket', function($scope, $http, $location, $cookieStore, SessionInService, SessionOutService, Session, Socket) {
+  .controller('SessionCtrl', ['$scope', '$http', '$location', '$cookieStore', 'SessionInService', 'SessionOutService', 'Session', function($scope, $http, $location, $cookieStore, SessionInService, SessionOutService, Session) {
 	$scope.Session = Session;
-
-      /*Socket.on('connect', function () {
-    	Socket.emit('connect', { initial: true });
-
-	  	Socket.on('connectionStatus', function (state) {
-	    	//$scope.state = state;
-	    	console.log(state);
-   	  });
-	});*/
-
-	Socket.on('connectionStatus', function (state) {
-	    	//$scope.state = state;
-	    	console.log(state);
-   	});
-
-	//Socket.emit('connection', { initial: true });
 
 	$scope.loginUser = function(){
 		var session = {email:$scope.user.email, password:$scope.user.password};
@@ -59,7 +47,7 @@ angular.module('myApp.controllers', [])
 		  	$scope.user.email = '';
 			$scope.user.password = '';
 
-			$location.path( '/view1' );
+			$location.path( '/pipelines' );
 		});
 	};
 	$scope.logoutUser = function(){
