@@ -1,14 +1,15 @@
 // API for Pipelinr
 
-/*exports.findById = function(req, res) {
+exports.findById = function(req, res) {
     var id = req.params.id;
-    console.log('Retrieving testcase: ' + id);
-    db.collection('testcases', function(err, collection) {
-        collection.findOne({'_id':new ObjectID(id)}, function(err, item) {
-            res.send(item);
-        });
+    console.log('find pipeline: ' + id);
+
+    // Get registered user
+    Testcase.findOne({ origin_id: id }, function(err, testcase) {
+      if (err || !testcase) { res.send(404); return; }
+      res.send(testcase);
     });
-};*/
+};
 
 /*exports.findAll = function(req, res) {
     db.collection('testcases', function(err, collection) {

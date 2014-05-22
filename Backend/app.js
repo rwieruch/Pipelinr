@@ -66,7 +66,8 @@ db.once('open', function() {
     },
     origin_id: {
         type:String,
-        required: true
+        required: true,
+        unique: true
     },
     datasets : [{
         key : String,
@@ -107,7 +108,7 @@ app.get('/users', user.findAll);
 app.post('/login', sessions.login);
 app.post('/logout', sessions.logout);
 
-//app.get('/testcases/:id', testcase.findById);
+app.get('/testcases/:id', testcase.findById);
 app.get('/testcases', testcase.findAll);
 app.post('/testcases', testcase.addObject);
 //app.post('/testcases', testcase.addObject(io));

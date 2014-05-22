@@ -31,7 +31,7 @@
         var data = JSON.stringify({ 
                       name: $("#nameInput").val(), 
                       datasets: [], 
-                      origin_id: "xxxxxxxxxx-xxxx-xxxx" });
+                      origin_id: _.random(1000000, 9999999) });
 
         $.ajax({
           url : "http://localhost:1080/testcases",
