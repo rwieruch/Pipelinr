@@ -4,7 +4,6 @@ exports.findById = function(req, res) {
     var id = req.params.id;
     console.log('find pipeline: ' + id);
 
-    // Get registered user
     Testcase.findOne({ origin_id: id }, function(err, testcase) {
       if (err || !testcase) { res.send(404); return; }
       res.send(testcase);
@@ -20,10 +19,17 @@ exports.findById = function(req, res) {
 };*/
 
 exports.findAll = function(req, res) {
+    var token = req.headers.token;
     console.log('Find all testcases');
-    Testcase.find(function(err, testcases) {
-      if (err) { res.send(404); return; }
-      res.send(testcases);
+
+    // Find session
+    Session.findOne({ token: token }, function(err, session) {
+      if (err|| !session) { res.send(401); return; }
+
+        Testcase.find(function(err, testcases) {
+          if (err) { res.send(404); return; }
+          res.send(testcases);
+        });
     });
 };
 

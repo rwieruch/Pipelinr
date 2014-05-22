@@ -35,7 +35,7 @@ exports.logout = function(req, res) {
 
     // Find session
     Session.findOne({ token: token }, function(err, session) {
-      if (err) { res.send(401); return; }
+      if (err || !session) { res.send(401); return; }
       
       console.log("Session retireved: " + session);
 

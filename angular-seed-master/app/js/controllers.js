@@ -3,7 +3,7 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-  .controller('PipelinesCtrl', ['$scope', 'Socket', 'PipelineService', function($scope, Socket, PipelineService) {
+  .controller('PipelinesCtrl', ['$scope', '$http', 'Socket', 'PipelineService', 'Session', function($scope, $http, Socket, PipelineService, Session) {
 	Socket.on('connectionStatus', function (state) {
 		//$scope.state = state;
 		console.log(state);
@@ -13,6 +13,8 @@ angular.module('myApp.controllers', [])
     $scope.$on('$destroy', function (event) {
         Socket.getSocket().removeAllListeners();
     });
+
+	$http.defaults.headers.common['token'] = Session.token;
 
     $scope.pipelines = PipelineService.query();
   }])  
@@ -57,11 +59,11 @@ angular.module('myApp.controllers', [])
 			$scope.user.password = '';
 
 			$location.path( '/pipeline-list' );
+
+			$http.defaults.headers.common['token'] = Session.token;
 		});
 	};
 	$scope.logoutUser = function(){
-		$http.defaults.headers.common['token'] = Session.token;
-
 		SessionOutService.create(function(data){
 		  Session.isLogged = false;
 		  Session.token = "";
@@ -70,6 +72,8 @@ angular.module('myApp.controllers', [])
 		  console.log(Session);
 
 		  $location.path( '/register' );
+
+  		  $http.defaults.headers.common['token'] = "";
 		});
 	};
 }]);
