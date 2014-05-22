@@ -49,25 +49,22 @@ angular.module('myApp.services', ['ngResource'])
         create: {method: 'POST'}
     });
   })
-  /*.factory('UserService', function ($resource) {
-    return $resource(pipelinrURL + '/users/:id', {}, {
-        show: { method: 'GET', params: {id: '@id'} },
-        update: { method: 'PUT', params: {id: '@id'} },
-        delete: { method: 'DELETE', params: {id: '@id'} }
-    });
-  })*/
-  .factory('SessionInService', function ($resource) {
+  .factory('SessionInService', function($resource) {
     return $resource(pipelinrURL + '/login', {}, {  
         create: {method: 'POST'}
     });
   })  
-  .factory('SessionOutService', function ($resource) {
-    return $resource(pipelinrURL + '/logout', {}, {  
+  .factory('SessionOutService', ['$resource', 'Session', function($resource, Session) {
+    var resource = $resource(pipelinrURL + '/logout', {}, {  
         create: {method: 'POST'}
     });
-  })  
+
+    resource = Session.wrapActions( resource, ["create"] );
+
+    return resource;
+  }])
   .factory('Session', function($cookieStore) {
-    var isLogged;
+    /*var isLogged;
     if(!(typeof $cookieStore.get("token") === "undefined"))
       isLogged = true;
     else
@@ -77,6 +74,52 @@ angular.module('myApp.services', ['ngResource'])
       isLogged: isLogged,
       token: $cookieStore.get("token")
     };
+    return session;*/
+
+    var session = {};
+
+    session.set = function( newToken ) {
+      token = newToken;
+    };
+
+    session.get = function() {
+      return token;
+    };
+
+    var isLogged;
+    if(!(typeof $cookieStore.get("token") === "undefined"))
+      isLogged = true;
+    else
+      isLogged = false;
+
+    var token = $cookieStore.get("token");
+
+    // wrap given actions of a resource to send auth token with every
+    // request
+    session.wrapActions = function( resource, actions ) {
+      // copy original resource
+      var wrappedResource = resource;
+      for (var i=0; i < actions.length; i++) {
+        tokenWrapper( wrappedResource, actions[i] );
+      };
+      // return modified copy of resource
+      return wrappedResource;
+    };
+
+    // wraps resource action to send request with auth token
+    var tokenWrapper = function( resource, action ) {
+      // copy original action
+      resource['_' + action]  = resource[action];
+      // create new action wrapping the original and sending token
+      resource[action] = function( data, success, error){
+        return resource['_' + action](
+          angular.extend({}, data || {}, {access_token: session.get()}),
+          success,
+          error
+        );
+      };
+    };
+
     return session;
   });
 
