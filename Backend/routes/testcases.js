@@ -5,7 +5,7 @@ exports.findById = function(req, res) {
     var id = req.params.id;
     console.log('find pipeline: ' + id);
 
-        // Find session
+    // Find session
     Session.findOne({ token: token }, function(err, session) {
         if (err|| !session) { res.send(401); return; }
 
@@ -30,14 +30,14 @@ exports.findAll = function(req, res) {
     console.log('Find all testcases');
 
     // Find session
-    Session.findOne({ token: token }, function(err, session) {
-      if (err|| !session) { res.send(401); return; }
+    //Session.findOne({ token: token }, function(err, session) {
+    //  if (err|| !session) { res.send(401); return; }
 
         Testcase.find(function(err, testcases) {
           if (err) { res.send(404); return; }
           res.send(testcases);
         });
-    });
+    //});
 };
 
 // API for nessee Core
@@ -142,3 +142,39 @@ exports.addObject = function(req, res) {
         });
     }
 }*/
+
+exports.updateObject = function(io) {
+    return function(req, res) {
+        var id = req.params.id;
+        var object = req.body;
+
+        console.log('Updating object: ' + id);
+        console.log(JSON.stringify(object));
+
+        Testcase.findOne({ _id: id }, function(err, testcase) {
+          if (err || !testcase) { res.send(404); return; }
+          
+          var isIn = false;
+          // Change object
+          for(var i in testcase.datasets) {
+            if(testcase.datasets[i].key == object.key) {
+              testcase.datasets[i].values.push({ value: object.value, timestamp: object.timestamp/*, level: object.level*/});
+              isIn = true;
+
+              testcase.save();
+              res.send(testcase);
+            }
+          }
+          // Create new dataset, when object.key isn't already there. Client needs to specify object.type for the new dataset.
+          if(!isIn) {
+            var values = new Array();
+            values.push({ value: object.value, timestamp: object.timestamp/*, level: object.level*/ });
+            testcase.datasets.push({ key: object.key, type: object.type, values: values});
+
+            testcase.save();
+            res.send(testcase);
+          }
+        });
+
+    }
+}

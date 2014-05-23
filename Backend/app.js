@@ -70,8 +70,8 @@ db.once('open', function() {
         unique: true
     },
     datasets : [{
-        key : String,
-        type : String,
+        key : { type:String },
+        type : { type:String },
         values : [{
                 value: String,
                 timestamp: String
@@ -112,4 +112,4 @@ app.get('/testcases/:id', testcase.findById);
 app.get('/testcases', testcase.findAll);
 app.post('/testcases', testcase.addObject);
 //app.post('/testcases', testcase.addObject(io));
-//app.put('/testcases/:id', testcase.updateObject(io));
+app.put('/testcases/:id', testcase.updateObject(io));

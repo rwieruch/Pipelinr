@@ -15,10 +15,12 @@ angular.module('myApp.controllers', [])
     });
 
 	$http.defaults.headers.common['token'] = Session.token; // Set for refresh
+    console.log(PipelineService.query());
     $scope.pipelines = PipelineService.query();
   }])  
  .controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'Session', function($scope, $http, $routeParams, Socket, PipelineService, Session) {
 	//$scope.originId = $routeParams.originId;
+	console.log(PipelineService.get({originId: $routeParams.originId}));
 	$http.defaults.headers.common['token'] = Session.token; // Set for refresh
 	$scope.pipeline = PipelineService.get({originId: $routeParams.originId});
   }]) 
