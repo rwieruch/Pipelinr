@@ -74,7 +74,8 @@ db.once('open', function() {
         type : { type:String },
         values : [{
                 value: String,
-                timestamp: String
+                timestamp: String,
+                level: String
             }]
          }]
   });

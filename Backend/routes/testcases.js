@@ -151,6 +151,7 @@ exports.updateObject = function(io) {
         console.log('Updating object: ' + id);
         console.log(JSON.stringify(object));
 
+
         Testcase.findOne({ _id: id }, function(err, testcase) {
           if (err || !testcase) { res.send(404); return; }
           
@@ -158,23 +159,19 @@ exports.updateObject = function(io) {
           // Change object
           for(var i in testcase.datasets) {
             if(testcase.datasets[i].key == object.key) {
-              testcase.datasets[i].values.push({ value: object.value, timestamp: object.timestamp/*, level: object.level*/});
+              testcase.datasets[i].values.push({ value: object.value, timestamp: object.timestamp, level: object.level});
               isIn = true;
-
-              testcase.save();
-              res.send(testcase);
             }
           }
           // Create new dataset, when object.key isn't already there. Client needs to specify object.type for the new dataset.
           if(!isIn) {
-            var values = new Array();
-            values.push({ value: object.value, timestamp: object.timestamp/*, level: object.level*/ });
-            testcase.datasets.push({ key: object.key, type: object.type, values: values});
-
-            testcase.save();
-            res.send(testcase);
+            testcase.datasets.push({ key: object.key, type: object.type});
           }
-        });
-
+          // Update
+          Testcase.update({_id: id}, { $set : { datasets : testcase.datasets }}, function(err) { 
+            if(err) { console.log(err); res.send(404); } 
+            res.send(200); 
+          });
+      });
     }
 }
