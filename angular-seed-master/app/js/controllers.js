@@ -14,15 +14,13 @@ angular.module('myApp.controllers', [])
         Socket.getSocket().removeAllListeners();
     });
 
-	$http.defaults.headers.common['token'] = Session.token;
-
+	$http.defaults.headers.common['token'] = Session.token; // Set for refresh
     $scope.pipelines = PipelineService.query();
   }])  
- .controller('PipelineDetailCtrl', ['$scope', '$routeParams', 'Socket', 'PipelineService', function($scope, $routeParams, Socket, PipelineService) {
+ .controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'Session', function($scope, $http, $routeParams, Socket, PipelineService, Session) {
 	//$scope.originId = $routeParams.originId;
-
+	$http.defaults.headers.common['token'] = Session.token; // Set for refresh
 	$scope.pipeline = PipelineService.get({originId: $routeParams.originId});
-	console.log(PipelineService.get({originId: $routeParams.originId}));
   }]) 
   .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
     $scope.addUser = function(){

@@ -1,12 +1,19 @@
 // API for Pipelinr
 
 exports.findById = function(req, res) {
+    var token = req.headers.token;
     var id = req.params.id;
     console.log('find pipeline: ' + id);
 
-    Testcase.findOne({ origin_id: id }, function(err, testcase) {
-      if (err || !testcase) { res.send(404); return; }
-      res.send(testcase);
+        // Find session
+    Session.findOne({ token: token }, function(err, session) {
+        if (err|| !session) { res.send(401); return; }
+
+        Testcase.findOne({ origin_id: id }, function(err, testcase) {
+          if (err || !testcase) { res.send(404); return; }
+          res.send(testcase);
+        });
+
     });
 };
 
