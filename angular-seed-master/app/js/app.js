@@ -10,7 +10,8 @@ angular.module('myApp', [
   'myApp.controllers',
   'ui.bootstrap',
   'ngCookies',
-  'btford.socket-io'
+  'btford.socket-io',
+  'd3'
 ]).
 config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
   $routeProvider.when('/pipeline-list', {templateUrl: 'partials/pipeline-list.html', controller: 'PipelinesCtrl', access: { isFree: true } });
