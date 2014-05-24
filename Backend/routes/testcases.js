@@ -166,7 +166,6 @@ exports.updateObject = function(io) {
         console.log('Updating object: ' + id);
         console.log(JSON.stringify(object));
 
-
         Testcase.findOne({ origin_id: id }, function(err, testcase) {
           if (err || !testcase) { res.send(404); return; }
           
@@ -182,6 +181,7 @@ exports.updateObject = function(io) {
           if(!isIn) {
             testcase.datasets.push({ key: object.key, type: object.type});
 
+            // Send new dataset to overview
             var cloneTestcase = JSON.parse(JSON.stringify(testcase));
             for(var i in cloneTestcase.datasets) {
                 cloneTestcase.datasets[i].values = null;
@@ -192,7 +192,7 @@ exports.updateObject = function(io) {
           Testcase.update({origin_id: id}, { $set : { datasets : testcase.datasets }}, function(err) { 
             if(err) { console.log(err); res.send(404); } 
             
-            res.send(200); 
+            res.send(200, {pipeline: testcase}); 
           });
       });
     }

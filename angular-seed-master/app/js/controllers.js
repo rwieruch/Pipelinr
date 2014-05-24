@@ -4,15 +4,17 @@
 
 angular.module('myApp.controllers', [])
   .controller('PipelinesCtrl', ['$scope', '$http', 'Socket', 'PipelineService', 'Session', function($scope, $http, Socket, PipelineService, Session) {
-	Socket.on('connectionStatus', function (state) {
-		//$scope.state = state;
-		console.log(state);
-   	});
-
     // Set for refresh
 	$http.defaults.headers.common['token'] = Session.token;
+
+	// Set data
 	var pipelines = PipelineService.query();
     $scope.pipelines = pipelines;
+
+    // Push notifications
+	Socket.on('connectionStatus', function (msg) {
+		console.log(msg);
+   	});
 
     Socket.on('newPipeline', function (pipeline) {
     	console.log("newPipeline by socket");
@@ -40,8 +42,19 @@ angular.module('myApp.controllers', [])
  .controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'Session', function($scope, $http, $routeParams, Socket, PipelineService, Session) {
 	//$scope.originId = $routeParams.originId;
 	console.log(PipelineService.get({originId: $routeParams.originId}));
-	$http.defaults.headers.common['token'] = Session.token; // Set for refresh
+
+	// Set for refresh
+	$http.defaults.headers.common['token'] = Session.token; 
+
 	$scope.pipeline = PipelineService.get({originId: $routeParams.originId});
+
+    $scope.greeting = "Resize the page to see the re-rendering";
+    $scope.data = [
+      {name: "Greg", score: 20},
+      {name: "Ari", score: 16},
+      {name: 'Q', score: 75},
+      {name: "Loser", score: 48}
+    ];
   }]) 
   .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
     $scope.addUser = function(){

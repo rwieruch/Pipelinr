@@ -25,7 +25,9 @@ angular.module('myApp.directives', ['d3']).
   .directive('d3Bars', ['d3Service', '$window', function(d3Service, $window) {
     return {
       restrict: 'EA',
-      scope: {},
+      scope: {
+        data: '=' // bi-directional data-binding
+      },
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
 		 var margin = parseInt(attrs.margin) || 20,
@@ -42,12 +44,12 @@ angular.module('myApp.directives', ['d3']).
           };
 
           // hard-code data
-          scope.data = [
+          /*scope.data = [
             {name: "Greg", score: 98},
             {name: "Ari", score: 96},
             {name: 'Q', score: 75},
             {name: "Loser", score: 48}
-          ];
+          ];*/
 
           // Watch for resize event
           scope.$watch(function() {
@@ -55,6 +57,11 @@ angular.module('myApp.directives', ['d3']).
           }, function() {
             scope.render(scope.data);
           });
+
+          // watch for data changes and re-render
+          scope.$watch('data', function(newData) {
+            scope.render(newData);
+          }, true);
 
           scope.render = function(data) {
             // remove all previous items before render
