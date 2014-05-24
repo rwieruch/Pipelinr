@@ -35,6 +35,95 @@
       a:hover { text-decoration:none; color:#BBB;; }
       a:active { text-decoration:none; color:#999;; }
       a:focus { text-decoration:none; background-color:#BBB; }
+
+      /* d3 */
+
+      .axis path,
+      .axis2 line,
+      .axis2 path,
+      .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+      }
+
+      .line {
+        stroke: steelblue;
+        stroke-width: 1;
+        fill: none;
+        clip-path: url(#clip);
+      }
+
+      .area {
+        clip-path: url(#clip);
+      }
+
+      .circle {
+        fill: steelblue;
+        stroke: #222;
+        stroke-width: 1;
+      }
+
+      .overlay {
+        opacity: 0.3;
+        fill: none;
+        pointer-events: all;
+        z-index: 25;
+      }
+
+      .tooltipicon {   
+        position: absolute;           
+        text-align: center;           
+        width: 60px;                  
+        height: 28px;                 
+        padding: 2px;             
+        font: 12px sans-serif;        
+        background: lightsteelblue;   
+        border: 0px;      
+        border-radius: 8px;           
+        pointer-events: none;         
+      }
+
+      .d3-tip {
+        line-height: 1;
+        font-weight: bold;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        border-radius: 2px;
+      }
+
+      /* Creates a small triangle extender for the tooltip */
+      .d3-tip:after {
+        box-sizing: border-box;
+        display: inline;
+        font-size: 10px;
+        width: 100%;
+        line-height: 1;
+        color: rgba(0, 0, 0, 0.8);
+        content: "\25BC";
+        position: absolute;
+        text-align: center;
+      }
+
+      /* Style northward tooltips differently */
+      .d3-tip.n:after {
+        margin: -1px 0 0 0;
+        top: 100%;
+        left: 0;
+      }
+
+      .tooltip .hover-line {
+        fill: none;
+        stroke: black;
+        stroke-width: 1;
+      }
+
+      .brush .extent {
+        stroke: #fff;
+        fill-opacity: .125;
+        shape-rendering: crispEdges;
+      }
   </style>
 </head>
 <body>

@@ -10,6 +10,7 @@ angular.module('myApp.controllers', [])
 	// Set data
 	var pipelines = PipelineService.query();
     $scope.pipelines = pipelines;
+    console.log(pipelines);
 
     // Push notifications
 	Socket.on('connectionStatus', function (msg) {
@@ -36,24 +37,20 @@ angular.module('myApp.controllers', [])
     $scope.$on('$destroy', function (event) {
         Socket.getSocket().removeAllListeners();
     });
-
-    $scope.data = [
-      {name: "Greg", score: 20},
-      {name: "Ari", score: 16},
-      {name: 'Q', score: 75},
-      {name: "Loser", score: 48}
-    ];
-
-	console.log(PipelineService.query());
   }])  
  .controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'Session', function($scope, $http, $routeParams, Socket, PipelineService, Session) {
-	//$scope.originId = $routeParams.originId;
-	console.log(PipelineService.get({originId: $routeParams.originId}));
-
 	// Set for refresh
 	$http.defaults.headers.common['token'] = Session.token; 
 
-	$scope.pipeline = PipelineService.get({originId: $routeParams.originId});
+	//$scope.originId = $routeParams.originId;
+	var pipeline = PipelineService.get({originId: $routeParams.originId});
+	console.log(pipeline);
+
+	$scope.pipeline = pipeline;
+
+	pipeline.$promise.then(function(data) {
+		$scope.data = data;
+    });
   }]) 
   .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
     $scope.addUser = function(){

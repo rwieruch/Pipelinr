@@ -6,15 +6,15 @@ exports.findById = function(req, res) {
     console.log('find pipeline: ' + id);
 
     // Find session
-    Session.findOne({ token: token }, function(err, session) {
-        if (err|| !session) { res.send(401); return; }
+    //Session.findOne({ token: token }, function(err, session) {
+    //    if (err|| !session) { res.send(401); return; }
 
         Testcase.findOne({ origin_id: id }, function(err, testcase) {
           if (err || !testcase) { res.send(404); return; }
           res.send(testcase);
         });
 
-    });
+    //});
 };
 
 /*exports.findAll = function(req, res) {
