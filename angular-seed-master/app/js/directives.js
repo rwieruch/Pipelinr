@@ -2,7 +2,6 @@
 
 /* Directives */
 
-
 angular.module('myApp.directives', ['d3']).
   directive('appVersion', ['version', function(version) {
     return function(scope, elm, attrs) {
