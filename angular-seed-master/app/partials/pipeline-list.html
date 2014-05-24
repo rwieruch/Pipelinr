@@ -1,7 +1,15 @@
 
 <table class="table table-hover table-top" id="tr_list">
-	<tr><th>Name</th><th>Id</th><tr>
+	<tr><th>Name</th><th>Id</th><th>Datasets</th<tr>
 	<tr ng-repeat="pipeline in pipelines">
-		<td><a href="#/pipeline-list/{{pipeline.origin_id}}">{{pipeline.name}}</a></td><td>{{pipeline.origin_id}}</td>
+		<td><a href="#/pipeline-list/{{pipeline.origin_id}}">{{pipeline.name}}</a></td>
+		<td>{{pipeline.origin_id}}</td>
+		<td>      
+			<ul>
+	         <li class="non-styled" ng-repeat="dataset in pipeline.datasets"> 
+	           {{dataset.key}} 
+	         </li>
+	       </ul>
+   	   </td>
 	</tr>
 </table>

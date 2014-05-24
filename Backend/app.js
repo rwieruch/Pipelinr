@@ -111,6 +111,5 @@ app.post('/logout', sessions.logout);
 
 app.get('/testcases/:id', testcase.findById);
 app.get('/testcases', testcase.findAll);
-app.post('/testcases', testcase.addObject);
-//app.post('/testcases', testcase.addObject(io));
+app.post('/testcases', testcase.addObject(io));
 app.put('/testcases/:id', testcase.updateObject(io));

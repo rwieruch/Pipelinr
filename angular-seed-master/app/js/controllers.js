@@ -14,9 +14,28 @@ angular.module('myApp.controllers', [])
         Socket.getSocket().removeAllListeners();
     });
 
-	$http.defaults.headers.common['token'] = Session.token; // Set for refresh
-    console.log(PipelineService.query());
-    $scope.pipelines = PipelineService.query();
+    // Set for refresh
+	$http.defaults.headers.common['token'] = Session.token;
+	var pipelines = PipelineService.query();
+    $scope.pipelines = pipelines;
+
+    Socket.on('newPipeline', function (pipeline) {
+    	console.log("newPipeline by socket");
+		pipelines.push(pipeline);
+		$scope.pipelines = pipelines;
+    });
+
+	Socket.on('newDataset', function (pipeline) {
+		console.log("newDataset by socket");
+		for(var i in pipelines) {
+			if(pipelines[i]._id == pipeline._id) {
+				pipelines[i].datasets = pipeline.datasets;
+			}
+		}
+		$scope.pipelines = pipelines;
+   	});
+
+	console.log(PipelineService.query());
   }])  
  .controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'Session', function($scope, $http, $routeParams, Socket, PipelineService, Session) {
 	//$scope.originId = $routeParams.originId;

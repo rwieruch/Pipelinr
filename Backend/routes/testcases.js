@@ -35,6 +35,13 @@ exports.findAll = function(req, res) {
 
         Testcase.find(function(err, testcases) {
           if (err) { res.send(404); return; }
+
+          for(var j in testcases) {
+              for(var i in testcases[j].datasets) {
+                testcases[j].datasets[i].values = null;
+              }
+          }
+
           res.send(testcases);
         });
     //});
@@ -68,25 +75,33 @@ exports.findAll = function(req, res) {
     }
 }*/
 
-exports.addObject = function(req, res) {
-    var object = req.body;
-    console.log('add testcase: ' + JSON.stringify(object));
+exports.addObject = function(io) {
+    return function(req, res) {
+        var object = req.body;
+        console.log('add testcase: ' + JSON.stringify(object));
 
-    var testcase = new Testcase({
-          name: object.name
-        , origin_id: object.origin_id
-        , datasets: []
-    });
+        var testcase = new Testcase({
+              name: object.name
+            , origin_id: object.origin_id
+            , datasets: []
+        });
 
-    testcase.save(function(err, testcase) {
+        testcase.save(function(err, testcase) {
 
-      if ( err && err.code !== 11000 ) { res.send(404); return; }
+          if ( err && err.code !== 11000 ) { res.send(404); return; }
 
-     // Duplicate key
-      if ( err && err.code === 11000 ) { res.send(409); return; }
+          // Duplicate key
+          if ( err && err.code === 11000 ) { res.send(409); return; }
 
-      res.send(200);
-    });
+          var cloneTestcase = JSON.parse(JSON.stringify(testcase));
+          for(var i in cloneTestcase.datasets) {
+            cloneTestcase.datasets[i].values = null;
+          }
+          io.sockets.in('flow').emit('newPipeline', cloneTestcase);
+
+          res.send(200);
+        });
+    };
 };
 
 /*exports.updateObject = function(io) {
@@ -166,10 +181,17 @@ exports.updateObject = function(io) {
           // Create new dataset, when object.key isn't already there. Client needs to specify object.type for the new dataset.
           if(!isIn) {
             testcase.datasets.push({ key: object.key, type: object.type});
+
+            var cloneTestcase = JSON.parse(JSON.stringify(testcase));
+            for(var i in cloneTestcase.datasets) {
+                cloneTestcase.datasets[i].values = null;
+            }
+            io.sockets.in('flow').emit('newDataset', cloneTestcase);
           }
           // Update
           Testcase.update({_id: id}, { $set : { datasets : testcase.datasets }}, function(err) { 
             if(err) { console.log(err); res.send(404); } 
+            
             res.send(200); 
           });
       });
