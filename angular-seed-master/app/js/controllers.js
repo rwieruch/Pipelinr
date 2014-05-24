@@ -37,6 +37,13 @@ angular.module('myApp.controllers', [])
         Socket.getSocket().removeAllListeners();
     });
 
+    $scope.data = [
+      {name: "Greg", score: 20},
+      {name: "Ari", score: 16},
+      {name: 'Q', score: 75},
+      {name: "Loser", score: 48}
+    ];
+
 	console.log(PipelineService.query());
   }])  
  .controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'Session', function($scope, $http, $routeParams, Socket, PipelineService, Session) {
@@ -47,14 +54,6 @@ angular.module('myApp.controllers', [])
 	$http.defaults.headers.common['token'] = Session.token; 
 
 	$scope.pipeline = PipelineService.get({originId: $routeParams.originId});
-
-    $scope.greeting = "Resize the page to see the re-rendering";
-    $scope.data = [
-      {name: "Greg", score: 20},
-      {name: "Ari", score: 16},
-      {name: 'Q', score: 75},
-      {name: "Loser", score: 48}
-    ];
   }]) 
   .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
     $scope.addUser = function(){
