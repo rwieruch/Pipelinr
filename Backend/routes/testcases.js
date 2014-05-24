@@ -93,13 +93,13 @@ exports.addObject = function(io) {
           // Duplicate key
           if ( err && err.code === 11000 ) { res.send(409); return; }
 
-          var cloneTestcase = JSON.parse(JSON.stringify(testcase));
+          /*var cloneTestcase = JSON.parse(JSON.stringify(testcase));
           for(var i in cloneTestcase.datasets) {
             cloneTestcase.datasets[i].values = null;
-          }
-          io.sockets.in('flow').emit('newPipeline', cloneTestcase);
+          }*/
+          io.sockets.in('flow').emit('newPipeline', testcase);
 
-          res.send(200);
+          res.send(200, {pipeline: testcase});
         });
     };
 };
@@ -167,7 +167,7 @@ exports.updateObject = function(io) {
         console.log(JSON.stringify(object));
 
 
-        Testcase.findOne({ _id: id }, function(err, testcase) {
+        Testcase.findOne({ origin_id: id }, function(err, testcase) {
           if (err || !testcase) { res.send(404); return; }
           
           var isIn = false;
@@ -189,7 +189,7 @@ exports.updateObject = function(io) {
             io.sockets.in('flow').emit('newDataset', cloneTestcase);
           }
           // Update
-          Testcase.update({_id: id}, { $set : { datasets : testcase.datasets }}, function(err) { 
+          Testcase.update({origin_id: id}, { $set : { datasets : testcase.datasets }}, function(err) { 
             if(err) { console.log(err); res.send(404); } 
             
             res.send(200); 

@@ -61,7 +61,8 @@
       // Update functions
       function updateEveryObjectsCPU(testcase) {
         window.setInterval(function(){
-          var id = testcase._id;
+          //var id = testcase._id;
+          var id = testcase.origin_id;
           var newCpuValue = _.random(1, 100);
 
           $.ajax({
@@ -82,7 +83,8 @@
 
       function updateEveryObjectsAgentNumber(testcase) {
         window.setInterval(function(){
-          var id = testcase._id;
+          //var id = testcase._id;
+          var id = testcase.origin_id;
           var newAgentNumber = _.random(3, 10);
 
           $.ajax({
@@ -103,7 +105,8 @@
 
       function updateLog(testcase) {
         window.setInterval(function(){
-          var id = testcase._id;
+          //var id = testcase._id;
+          var id = testcase.origin_id;
           var rndNumber = _.random(3, 100000);
 
           var levelArray = [

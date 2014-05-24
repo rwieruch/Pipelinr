@@ -9,11 +9,6 @@ angular.module('myApp.controllers', [])
 		console.log(state);
    	});
 
-	// Destroy on naviagte away
-    $scope.$on('$destroy', function (event) {
-        Socket.getSocket().removeAllListeners();
-    });
-
     // Set for refresh
 	$http.defaults.headers.common['token'] = Session.token;
 	var pipelines = PipelineService.query();
@@ -34,6 +29,11 @@ angular.module('myApp.controllers', [])
 		}
 		$scope.pipelines = pipelines;
    	});
+
+	// Destroy on naviagte away
+    $scope.$on('$destroy', function (event) {
+        Socket.getSocket().removeAllListeners();
+    });
 
 	console.log(PipelineService.query());
   }])  
