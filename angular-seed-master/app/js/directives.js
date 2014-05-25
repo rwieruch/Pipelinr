@@ -30,17 +30,16 @@ angular.module('myApp.directives', ['d3']).
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
 
-         var logColor = d3.scale.ordinal()
-         .domain(["","warning","error"])
-         .range(["#FFF", "#FFFF00", "#FF0000"]);
+        var logColor = d3.scale.ordinal()
+	        .domain(["","warning","error"])
+	        .range(["#FFF", "#FFFF00", "#FF0000"]);
 
-      	    // TODO: Change this
+  	    // TODO: Change this
 	    var xAxes = new Array();
 	    var yAxes = new Array();
 	    var xs = new Array();
 	    var ys = new Array();
 	    var main_lines = new Array();
-
 
         var margin = {top: 10, right: 10, bottom: 60, left: 40},
             margin2 = {top: 215, right: 10, bottom: 10, left: 40},
@@ -69,6 +68,8 @@ angular.module('myApp.directives', ['d3']).
         var brush;
 
         var x2, y2;
+
+        var tip;
 
         var rendered = false;
 		scope.$watch('data', function(newData) {
@@ -185,9 +186,16 @@ angular.module('myApp.directives', ['d3']).
 			  .style("fill", function (d) { return logColor(d.level);})
 			  .attr("cx", function (d) { return x_log(parseDate(d.timestamp)); })
 			  .attr("cy", function (d) { return margin.top; })
-			  .attr("r", function(d){ return 5;});
-			  //.on("mouseover", tip.show)
-			  //.on("mouseout",tip.hide);
+			  .attr("r", function(d){ return 5;})
+		      .on("mouseover", function(d) {      
+			    tip.transition().duration(200).style("opacity", .9);      
+			    tip.html(d.value)  
+				  .style("left", (parseInt(d3.select(this).attr("cx")) + document.getElementById("timeline").offsetLeft) + "px")     
+				  .style("top", (parseInt(d3.select(this).attr("cy")) + document.getElementById("timeline").offsetTop) + "px");
+			  })                  
+			  .on("mouseout", function(d) {       
+			    tip.transition().duration(500).style("opacity", 0);   
+			  });
 		}
 
 		function createLineChart(dataset, i, string_dataset) {
@@ -222,12 +230,9 @@ angular.module('myApp.directives', ['d3']).
 
       function createSVGContainer(datasets, string_dataset) {
 
-        //tip = d3.tip()
-        //  .attr('class', 'd3-tip')
-        //  .offset([-10, 0])
-        //  .html(function(d) {
-        //    return "<strong>" + d.level + ":</strong> <span style='color:white'>" + d.value + "</span>";
-        //  })
+		tip = d3.select("body").append("div")   
+		    .attr("class", "tip")               
+		    .style("opacity", 0);
 
         for(var i in datasets) {
 			drawAxis(datasets[i]);
@@ -251,11 +256,6 @@ angular.module('myApp.directives', ['d3']).
             .interpolate("linear")
             .x(function(d) { return x2(parseDate(d.timestamp)); })
             .y(function(d) { return y2(d.value); });
-
-        // Create container svg element
-       // svg = d3.select("#timeline").append("svg")
-
-        //svg.call(tip);
 
         // Clip on edges
         svg.append("defs").append("clipPath")
@@ -383,8 +383,8 @@ angular.module('myApp.directives', ['d3']).
           this.parentNode.appendChild(this);
         });
       };
-  	  }
+  	}
 
-        });
-      }};
-  }]);
+    });
+  }};
+}]);

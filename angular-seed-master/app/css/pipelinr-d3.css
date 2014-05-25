@@ -31,46 +31,29 @@
   z-index: 25;
 }
 
-.tooltipicon {   
-  position: absolute;           
-  text-align: center;           
-  width: 60px;                  
-  height: 28px;                 
-  padding: 2px;             
-  font: 12px sans-serif;        
-  background: lightsteelblue;   
-  border: 0px;      
-  border-radius: 8px;           
-  pointer-events: none;         
-}
-
-.d3-tip {
-  line-height: 1;
-  font-weight: bold;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  border-radius: 2px;
-}
-
-/* Creates a small triangle extender for the tooltip */
-.d3-tip:after {
-  box-sizing: border-box;
-  display: inline;
-  font-size: 10px;
-  width: 100%;
-  line-height: 1;
-  color: rgba(0, 0, 0, 0.8);
-  content: "\25BC";
-  position: absolute;
+.tip {
+  position: absolute;  
   text-align: center;
+  width:140px;
+  height: 35px;
+  color: #FFFFFF;
+  background: #000000;
+  line-height: 35px;
+  border-radius: 0px;
+  pointer-events: none;
+  margin-left: -30px;
+  margin-top: -40px;
 }
-
-/* Style northward tooltips differently */
-.d3-tip.n:after {
-  margin: -1px 0 0 0;
+.tip:after {
+  content: '';
+  position: absolute;
   top: 100%;
-  left: 0;
+  left: 50%;
+  margin-left: -8px;
+  width: 0; height: 0;
+  border-top: 8px solid #000000;
+  border-right: 8px solid transparent;
+  border-left: 8px solid transparent;
 }
 
 .tooltip .hover-line {
