@@ -1,4 +1,25 @@
-<h1>{{pipeline.origin_id}}</h1>
-<p>Name: {{pipeline.name}}</p>
-
-	<div d3-timeline id="timeline" data='data'></div>
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="col col-md-2 col-md-offset-2">
+			<div class="my-inner-container">
+				<h1>Details</h1>
+				<p>Id: {{pipeline.origin_id}}</p>
+				<p>Name: {{pipeline.name}}</p>
+			</div>
+		</div>
+		<div class="col col-md-5">
+			<div class="my-inner-container">
+				<h1>Search</h1>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container-fluid">
+	<div class="row-fluid">
+		<div class="col col-md-8 col-md-offset-2">
+			<div class="my-inner-container">
+				<div d3-timeline id="timeline" data='data'></div>
+			</div>
+		</div>
+	</div>
+</div>
