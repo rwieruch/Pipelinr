@@ -3,13 +3,22 @@
 		<div class="col col-md-2 col-md-offset-2">
 			<div class="my-inner-container">
 				<h2>Details</h2>
-				<p>Id: {{pipeline.origin_id}}</p>
-				<p>Name: {{pipeline.name}}</p>
+				<form class="form-horizontal" role="form">
+					<label>Id:</label><p>{{pipeline.origin_id}}</p>
+					<label>Name:</label><p>{{pipeline.name}}</p>
+				</form>
 			</div>
 		</div>
 		<div class="col col-md-6">
 			<div class="my-inner-container">
 				<h2>Search</h2>
+		      	<form class="form-inline" role="form">
+			        <label for="beginSearchInput">Start:</label>
+			        <input type="text" id="beginSearchInput"  class="form-control" value="" />
+			        <label for="endSearchInput">End:</label>
+			        <input type="text" id="endSearchInput"  class="form-control" value="" />
+			        <button type="button" class="btn btn-default" id="searchButton">Send</button>
+		      	</form>
 			</div>
 		</div>
 	</div>
