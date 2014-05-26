@@ -41,7 +41,7 @@ angular.module('myApp.directives', ['d3']).
 	    var ys = new Array();
 	    var main_lines = new Array();
 
-        var margin = {top: 10, right: 10, bottom: 60, left: 40},
+        var margin = {top: 20, right: 10, bottom: 60, left: 40},
             margin2 = {top: 215, right: 10, bottom: 10, left: 40},
             width = 960 - margin.left - margin.right,
             height = 250 - margin.top - margin.bottom,
@@ -62,7 +62,7 @@ angular.module('myApp.directives', ['d3']).
 
        	var svg = d3.select(ele[0]).append("svg")
             .attr("width", width + margin.left + margin.right + legendWidth)
-            .attr("height", 3*height + margin.top + margin.bottom); // TODO: 3 to x
+            .attr("height", 3*height + 2*margin.top + margin.bottom); // TODO: 3 to x
 
         var x_log, y_log, xAxis_log, yAxis_log;
         var brush;
@@ -230,6 +230,13 @@ angular.module('myApp.directives', ['d3']).
 			    //.attr("class", "y axis")
 			    .attr("class", "y "+i+ " axis")
 			    .call(yAxes[i]);
+
+	        focus.append("text")
+			    .attr("class", "x label")
+			    .attr("text-anchor", "end")
+			    .attr("x", width -6)
+			    .attr("y", height - 6)
+			    .text(dataset.key);
 		}
 
       function createSVGContainer(datasets, string_dataset) {
