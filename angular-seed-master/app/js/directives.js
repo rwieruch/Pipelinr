@@ -43,7 +43,7 @@ angular.module('myApp.directives', ['d3']).
 
         var margin = {top: 20, right: 10, bottom: 60, left: 40},
             margin2 = {top: 215, right: 10, bottom: 10, left: 40},
-            width = 960 - margin.left - margin.right,
+            width = 840 - margin.left - margin.right,
             height = 250 - margin.top - margin.bottom,
             height2 = 250 - margin2.top - margin2.bottom;
 
@@ -61,7 +61,7 @@ angular.module('myApp.directives', ['d3']).
         var parseDate = d3.time.format('%d %m %Y, %H:%M:%S').parse;
 
        	var svg = d3.select(ele[0]).append("svg")
-            .attr("width", width + margin.left + margin.right + legendWidth)
+            .attr("width", width + margin.left + margin.right)
             .attr("height", 3*height + 2*margin.top + margin.bottom); // TODO: 3 to x
 
         var x_log, y_log, xAxis_log, yAxis_log;
@@ -301,11 +301,15 @@ angular.module('myApp.directives', ['d3']).
             .attr("y", -6)
             .attr("height", height2 + 7);
 
-        // Settings container
-        var settingContainer = svg.append("g").attr("class", "setting_container");
+        // Setting container
+  		var settingSvg = d3.select("#setting-container").append("svg")
+            .attr("width", legendWidth)
+            .attr("height", height);
 
         // Draw legend
-        var legend = settingContainer.selectAll(".legend")
+       	var legendContainer = settingSvg.append("g").attr("class", "legend_container");
+
+        var legend = legendContainer.selectAll(".legend")
             .data(logColor.domain())
           .enter().append("g")
             .attr("class", "legend")
@@ -314,17 +318,18 @@ angular.module('myApp.directives', ['d3']).
         legend.append("rect")
             .attr("class", "filter_button")
             .attr("value", function(d) { return d })
-            .attr("x", width + legendWidth)
+        	.attr("x", 0)
             .attr("width", 18)
             .attr("height", 18)
             .style("fill", logColor);
 
         legend.append("text")
-            .attr("x", width + legendWidth - 6)
+            .attr("x", 24)
             .attr("y", 9)
             .attr("dy", ".35em")
-            .style("text-anchor", "end")
+            //.style("text-anchor", "end")
             .text(function(d) { return d;})
+        
 
         // Filter
         d3.selectAll(".filter_button").on("click", function() {
