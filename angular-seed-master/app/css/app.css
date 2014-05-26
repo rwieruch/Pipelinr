@@ -9,6 +9,12 @@
   margin-top: 20px;
 }
 
+p {
+  font-family: 'Freight Sans', 'lucida grande',tahoma,verdana,arial,sans-serif; 
+  font-weight: normal;
+  line-height: 28px;
+}
+
 a:link { text-decoration:none; color:#000; }
 a:visited { text-decoration:none; color:#000; }
 a:hover { text-decoration:none; color:#BBB;; }
