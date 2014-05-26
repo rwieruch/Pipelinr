@@ -56,7 +56,7 @@
   border-left: 8px solid transparent;
 }
 
-.tooltip .hover-line {
+.hover-line {
   fill: none;
   stroke: black;
   stroke-width: 1;

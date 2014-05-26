@@ -108,7 +108,7 @@ angular.module('myApp.directives', ['d3']).
 	    // Give every area a different color
 	    d3.selectAll(".area").attr("fill",function(d,i){return color(i);});
 
-	    /*for(var i in data.datasets) {
+	    for(var i in data.datasets) {
 	      createHoverline(data.datasets[i], i);
 	    }
 
@@ -125,7 +125,7 @@ angular.module('myApp.directives', ['d3']).
 	          .on("mousemove", mousemove);
 
 	        var tooltip = d3.select(".focus"+i).append("g")
-	            .attr("class", "tooltip " + i)
+	            .attr("class", "hover-line " + i)
 	            .attr("clip-path", "url(#clip)")
 	            .style("display", "none");
 
@@ -156,7 +156,7 @@ angular.module('myApp.directives', ['d3']).
 	          tooltip.attr("transform", "translate(" + xs[xs.length-1](parseDate(d.timestamp)) + "," + 0 + ")");
 	          text.attr("transform", "translate(" + xs[xs.length-1](parseDate(d.timestamp)) + "," + 0 + ")").text(d.value);
 	        }
-	    }*/
+	    }
 
 		function createLogScatterplot(string_dataset) {
 			x_log = d3.time.scale().range([0, width]),
