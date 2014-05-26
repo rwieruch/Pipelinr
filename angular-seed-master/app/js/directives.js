@@ -189,9 +189,13 @@ angular.module('myApp.directives', ['d3']).
 			  .attr("r", function(d){ return 5;})
 		      .on("mouseover", function(d) {      
 			    tip.transition().duration(200).style("opacity", .9);      
-			    tip.html(d.value)  
-				  .style("left", (parseInt(d3.select(this).attr("cx")) + document.getElementById("timeline").offsetLeft) + "px")     
-				  .style("top", (parseInt(d3.select(this).attr("cy")) + document.getElementById("timeline").offsetTop) + "px");
+			    tip.html(d.value); 
+
+        		// Transformation relative to the page body
+		        var matrix = this.getScreenCTM().translate(+this.getAttribute("cx"),+this.getAttribute("cy"));
+                tip.style("left", (window.pageXOffset + matrix.e) + "px").style("top", (window.pageYOffset + matrix.f + 30) + "px");
+			  	//.style("left", (parseInt(d3.select(this).attr("cx")) + document.getElementById("timeline").offsetLeft) + "px")     
+				//.style("top", (parseInt(d3.select(this).attr("cy")) + document.getElementById("timeline").offsetTop) + "px");
 			  })                  
 			  .on("mouseout", function(d) {       
 			    tip.transition().duration(500).style("opacity", 0);   
