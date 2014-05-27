@@ -12,12 +12,32 @@
 		<div class="col col-md-6">
 			<div class="my-inner-container">
 				<h2>Search</h2>
-		      	<form class="form-inline" role="form">
-			        <label for="beginSearchInput">Start:</label>
-			        <input type="text" id="beginSearchInput"  class="form-control" value="" />
-			        <label for="endSearchInput">End:</label>
-			        <input type="text" id="endSearchInput"  class="form-control" value="" />
-			        <button type="button" class="btn btn-default" id="searchButton">Send</button>
+		      	<form name="getPipelineForm" class="form-horizontal" role="form" ng-submit="getPipeline()" novalidate>
+		      		<div class="form-group">
+				        <label class="col-sm-1 control-label" for="beginSearchInput">Start:</label>
+				        <div class="dropdown col-sm-5">
+						  <a class="dropdown-toggle" id="dropdown1" role="button" data-toggle="dropdown" data-target="#" href="#">
+						    <div class="input-group"><input type="text" class="form-control" data-ng-model="dateDropDownInput1" required><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+						    </div>
+						  </a>
+						  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+						    <datetimepicker data-ng-model="dateDropDownInput1" data-datetimepicker-config="{ dropdownSelector: '#dropdown1' }"/>
+						  </ul>
+						</div>
+					</div>
+		      		<div class="form-group">
+				        <label class="col-sm-1 control-label" for="endSearchInput">End:</label>
+				        <div class="dropdown col-sm-5">
+						  <a class="dropdown-toggle" id="dropdown2" role="button" data-toggle="dropdown" data-target="#" href="#">
+						    <div class="input-group"><input type="text" class="form-control" data-ng-model="dateDropDownInput2" required><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+						    </div>
+						  </a>
+						  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+						    <datetimepicker data-ng-model="dateDropDownInput2" data-datetimepicker-config="{ dropdownSelector: '#dropdown2' }"/>
+						  </ul>
+						</div>
+					</div>
+			        <button type="submit" ng-disabled="!getPipelineForm.$valid" class="col-sm-offset-1 btn btn-default">Send</button>
 		      	</form>
 			</div>
 		</div>

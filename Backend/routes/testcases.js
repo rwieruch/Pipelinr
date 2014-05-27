@@ -1,20 +1,46 @@
 // API for Pipelinr
+exports.findById = function(moment) {
+    return function(req, res) {
+        var token = req.headers.token;
+        var id = req.params.id;
 
-exports.findById = function(req, res) {
-    var token = req.headers.token;
-    var id = req.params.id;
-    console.log('find pipeline: ' + id);
+        var begin = req.query.begin;
+        var end = req.query.end;
 
-    // Find session
-    //Session.findOne({ token: token }, function(err, session) {
-    //    if (err|| !session) { res.send(401); return; }
+        console.log('find pipeline: ' + id);
 
-        Testcase.findOne({ origin_id: id }, function(err, testcase) {
-          if (err || !testcase) { res.send(404); return; }
-          res.send(testcase);
-        });
+        // Find session
+        //Session.findOne({ token: token }, function(err, session) {
+        //    if (err|| !session) { res.send(401); return; }
 
-    //});
+            Testcase.findOne({ origin_id: id }, function(err, testcase) {
+              if (err || !testcase) { res.send(404); return; }
+
+              if(begin == "" && end == "") {
+                  // TODO: Last hour, later this is done by setting, TODO: last hour from last value
+                  var oneHourAgo = moment().subtract('minutes', 600).format('DD MM YYYY, HH:mm:ss');
+                  for(var i = 0; i < testcase.datasets.length; i++) {
+                    for(var j = testcase.datasets[i].values.length-1; j >= 0; j--){
+                        if(testcase.datasets[i].values[j].timestamp < oneHourAgo) {
+                            testcase.datasets[i].values.splice(j,1);
+                        }
+                    }
+                  }
+              } else {
+                for(var i = 0; i < testcase.datasets.length; i++) {
+                    for(var j = testcase.datasets[i].values.length-1; j >= 0; j--){
+                        if(testcase.datasets[i].values[j].timestamp < begin || end < testcase.datasets[i].values[j].timestamp) {
+                            testcase.datasets[i].values.splice(j,1);
+                        }
+                    }
+                }
+              }
+
+              res.send(testcase);
+            });
+
+        //});
+    };
 };
 
 /*exports.findAll = function(req, res) {

@@ -44,13 +44,25 @@ angular.module('myApp.controllers', [])
 
 	//$scope.originId = $routeParams.originId;
 	var pipeline = PipelineService.get({originId: $routeParams.originId});
-	console.log(pipeline);
 
 	$scope.pipeline = pipeline;
 
 	pipeline.$promise.then(function(data) {
+		console.log(data);
 		$scope.data = data;
     });
+
+    $scope.getPipeline = function(){
+		var begin = moment($scope.dateDropDownInput1).format('DD MM YYYY, HH:mm:ss');
+		var end = moment($scope.dateDropDownInput2).format('DD MM YYYY, HH:mm:ss');
+
+		var pipeline = PipelineService.get({originId: $routeParams.originId, begin: begin, end: end});
+
+		pipeline.$promise.then(function(data) {
+			console.log(data);
+			$scope.data = data;
+    	});
+    };
   }]) 
   .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
     $scope.addUser = function(){

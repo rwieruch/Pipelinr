@@ -71,31 +71,28 @@ angular.module('myApp.directives', ['d3']).
 
         var tip;
 
-        var rendered = false;
-		scope.$watch('data', function(newData) {
-			scope.render(newData);
+		scope.$watch('data', function(newVals, oldVals) {
+		  if(!angular.isUndefined(newVals))
+		  	return scope.render(newVals);
 		}, true);
 
         scope.render = function(data) {
-	    	if (!data || rendered) return;
-				rendered = true;
-				console.log(data);
+	    	if (!data) return;
 
 	    // TODO: Change this
 	    //for(var i in data.datasets) {
 	    //  data.datasets[i].values.splice(0, 0, { timestamp: "14 05 2014, 12:02:00", value: null});
 	    //}
+	    console.log(data.datasets);
 
 	    // Get log data from datasets
 	    for(var i in data.datasets) {
 	      if(data.datasets[i].type == "string") {
 	        string_dataset = data.datasets[i];
-	        delete data.datasets[i];
-	        data.datasets.length--;
+	        //delete data.datasets[i];
+	        //data.datasets.length--;
 	      }
 	    }
-
-	    console.log(data);
 
 	    createSVGContainer(data.datasets, string_dataset);
 	    createLogScatterplot(string_dataset);
@@ -109,7 +106,9 @@ angular.module('myApp.directives', ['d3']).
 	    d3.selectAll(".area").attr("fill",function(d,i){return color(i);});
 
 	    for(var i in data.datasets) {
-	      createHoverline(data.datasets[i], i);
+    	  if(data.datasets[i].type == "int") {
+		      createHoverline(data.datasets[i], i);
+		  }
 	    }
 
         function createHoverline(dataset, i) {
@@ -246,7 +245,9 @@ angular.module('myApp.directives', ['d3']).
 		    .style("opacity", 0);
 
         for(var i in datasets) {
-			drawAxis(datasets[i]);
+        	if(data.datasets[i].type == "int") {
+				drawAxis(datasets[i]);
+			}
         }
 
         x2 = d3.time.scale().range([0, width]), // Context
@@ -277,7 +278,7 @@ angular.module('myApp.directives', ['d3']).
 
         var context = svg.append("g")
             .attr("class", "context")
-            .attr("transform", "translate(" + margin2.left + "," + (margin.top *6 + margin2.top * datasets.length) + ")");
+            .attr("transform", "translate(" + margin2.left + "," + (margin.top *6 + margin2.top * (datasets.length-1)) + ")");
 
         context.selectAll('circle')
           .data(string_dataset.values)

@@ -40,7 +40,7 @@ angular.module('myApp.services', ['ngResource'])
 .factory('PipelineService', function($resource) {
     return $resource(pipelinrURL + '/testcases/:originId', {}, {  
         query: {method: 'GET', isArray: true},
-        get: {method:'GET', params:{originId:'originId'}}
+        get: {method:'GET', params:{originId:'originId', begin: '', end: ''}}
     });
   })
 .factory('UserService', function($resource) {

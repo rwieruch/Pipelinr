@@ -4,6 +4,7 @@ var app = express();
 var cors = require('cors');
 var http = require("http").createServer(app);
 var io = require('socket.io').listen(http);
+var moment = require('moment');
 
 // Enable cors
 app.use(cors());
@@ -109,7 +110,7 @@ app.get('/users', user.findAll);
 app.post('/login', sessions.login);
 app.post('/logout', sessions.logout);
 
-app.get('/testcases/:id', testcase.findById);
+app.get('/testcases/:id', testcase.findById(moment));
 app.get('/testcases', testcase.findAll);
 app.post('/testcases', testcase.addObject(io));
 app.put('/testcases/:id', testcase.updateObject(io));
