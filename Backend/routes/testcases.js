@@ -218,6 +218,8 @@ exports.updateObject = function(io) {
           Testcase.update({origin_id: id}, { $set : { datasets : testcase.datasets }}, function(err) { 
             if(err) { console.log(err); res.send(404); } 
             
+            io.sockets.in('flow').emit('updatedObject', JSON.parse(JSON.stringify({ id: id, key: object.key, value: object.value, timestamp: object.timestamp, type: object.type, level: object.level })));
+            
             res.send(200, {pipeline: testcase}); 
           });
       });

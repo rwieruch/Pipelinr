@@ -53,10 +53,16 @@ angular.module('myApp.controllers', [])
 	//$scope.originId = $routeParams.originId;
 	var pipeline = PipelineService.get({originId: $routeParams.originId});
 
-	$scope.pipeline = pipeline;
+	//$scope.pipeline = pipeline;
 
 	pipeline.$promise.then(function(data) {
 		console.log(data);
+		$scope.pipeline = pipeline;
+		$scope.data = data;
+    });
+
+    Socket.on('updatedObject', function (data) {
+    	console.log("updatedObject by socket");
 		$scope.data = data;
     });
 

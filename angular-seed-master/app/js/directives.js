@@ -41,6 +41,9 @@ angular.module('myApp.directives', ['d3']).
 	    var ys = new Array();
 	    var main_lines = new Array();
 
+	    var context;
+	    var xAxis2, yAxis2;
+
         var margin = {top: 20, right: 10, bottom: 60, left: 40},
             margin2 = {top: 215, right: 10, bottom: 10, left: 40},
             width = 840 - margin.left - margin.right,
@@ -71,13 +74,87 @@ angular.module('myApp.directives', ['d3']).
 
         var tip;
 
+        var allData;
+        var rendered = false;
 		scope.$watch('data', function(newVals, oldVals) {
+			console.log(rendered);
+		  if(rendered)
+			return scope.renderUpdate(newVals);
 		  if(!angular.isUndefined(newVals))
+		  	rendered = true;
 		  	return scope.render(newVals);
 		}, true);
 
+		scope.renderUpdate = function(data) {
+	        console.log(data);
+	        if(data.type == "string") {
+	            // Push new value in dataset
+	            string_dataset.values.push({ timestamp: data.timestamp, value: data.value, level: data.level});    
+	            var current_dataset = string_dataset;
+
+	            // Append new focus circle
+	            d3.select(".focus.scatter").selectAll('circle')
+	              .data(string_dataset.values)
+	              .enter().append("circle")
+	              .attr("clip-path", "url(#clip)")
+	              .attr('class', 'circle')
+	              .style("fill", function (d) { return logColor(d.level);})
+	              .attr("cx", function(d) { return x_log(parseDate(d.timestamp)); })
+	              .attr("cy", function(d) { return margin.top; })
+	              .attr("r", 5)
+	              .on("mouseover", tip.show)
+	              .on("mouseout",tip.hide);
+
+	            // Append new context circle
+	            context.selectAll("circle")
+	             .data(string_dataset.values).enter()
+	             .append("circle")
+	             .attr('class', 'circle')
+	             .style("fill", function (d) { return logColor(d.level);})
+	             .attr("r", 3)
+	             .attr("cy", function (d) { return height2/2; });
+
+	            // Keep filter
+	            for(var i in settings.logFilter) {
+	              if(!settings.logFilter[i].value)
+	                svg.selectAll("circle")
+	                  .filter(function(d) { return d.level === settings.logFilter[i].key; })
+	                  .attr("display", "none");
+	            }
+	        } else {
+	          // Find according dataset
+	          for(var i in allData.datasets) {
+	            if(allData.datasets[i].key == data.key) {
+	              // Push new value in dataset
+	              allData.datasets[i].values.push({ timestamp: data.timestamp, value: data.value});
+	              var current_dataset = allData.datasets[i];
+	            }
+	          }
+	        } 
+	        // Update context
+	        x2.domain(d3.extent(current_dataset.values, function(d) { return parseDate(d.timestamp); }));
+
+	        // Move context circles
+	        context.selectAll("circle")
+	          .data(string_dataset.values)
+	          .attr("cx", function(d) {
+	               return x2(parseDate(d.timestamp));
+	          })
+	          .attr("cy", function(d) {
+	               return height2/2; 
+	          });
+
+	        // Update context axis
+	        svg.select(".x.axis2").call(xAxis2);
+
+	        // Keep brushed, update everything
+	        brushed();
+		}
+
         scope.render = function(data) {
 	    	if (!data) return;
+
+	    	allData = data;
 
 	    // TODO: Change this
 	    //for(var i in data.datasets) {
@@ -253,7 +330,7 @@ angular.module('myApp.directives', ['d3']).
         x2 = d3.time.scale().range([0, width]), // Context
             y2 = d3.scale.linear().range([height2, 0]); // Context
 
-        var xAxis2 = d3.svg.axis().scale(x2).orient("bottom"), // Context
+        xAxis2 = d3.svg.axis().scale(x2).orient("bottom"), // Context
             yAxis2 = d3.svg.axis().scale(ys[xs.length-1]).orient("left"); // Context
 
         x2.domain(xs[0].domain());
@@ -276,7 +353,7 @@ angular.module('myApp.directives', ['d3']).
             .attr("width", width)
             .attr("height", height);
 
-        var context = svg.append("g")
+        context = svg.append("g")
             .attr("class", "context")
             .attr("transform", "translate(" + margin2.left + "," + (margin.top *6 + margin2.top * (datasets.length-1)) + ")");
 
@@ -373,27 +450,6 @@ angular.module('myApp.directives', ['d3']).
 	      }
       }
 
-      function brushed() {
-
-        // Scatterplot update
-        x_log.domain(brush.empty() ? x2.domain() : brush.extent());
-
-        // Move circles
-        d3.select(".focus.scatter").selectAll("circle")
-          .data(string_dataset.values)
-          .attr("cx",function(d){ return x_log(parseDate(d.timestamp));})
-          .attr("cy", function(d){ return margin.top;});
-
-        d3.select(".focus").select(".x.axis").call(xAxis_log);
-
-        // Line charts update
-        for(var i in main_lines) {
-          xs[i].domain(brush.empty() ? x2.domain() : brush.extent());
-          d3.select(".focus"+i).select(".area").attr("d", main_lines[i]);
-          d3.select(".focus"+i).select(".x.axis").call(xAxes[i]);
-        }
-      }
-
       // On hover (e.g. for a circle) move svg to front (instead of z-index)
       d3.selection.prototype.moveToFront = function() {
         return this.each(function(){
@@ -401,6 +457,26 @@ angular.module('myApp.directives', ['d3']).
         });
       };
   	}
+
+	function brushed() {
+	    // Scatterplot update
+	    x_log.domain(brush.empty() ? x2.domain() : brush.extent());
+
+	    // Move circles
+	    d3.select(".focus.scatter").selectAll("circle")
+	      .data(string_dataset.values)
+	      .attr("cx",function(d){ return x_log(parseDate(d.timestamp));})
+	      .attr("cy", function(d){ return margin.top;});
+
+	    d3.select(".focus").select(".x.axis").call(xAxis_log);
+
+	    // Line charts update
+	    for(var i in main_lines) {
+	      xs[i].domain(brush.empty() ? x2.domain() : brush.extent());
+	      d3.select(".focus"+i).select(".area").attr("d", main_lines[i]);
+	      d3.select(".focus"+i).select(".x.axis").call(xAxes[i]);
+	    }
+	}
 
     });
   }};
