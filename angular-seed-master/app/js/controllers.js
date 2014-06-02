@@ -41,7 +41,7 @@ angular.module('myApp.controllers', [])
 		$scope.pipelines = pipelines;
    	});
 
-	// Destroy on naviagte away
+	// Destroy on navigate away
     $scope.$on('$destroy', function (event) {
         Socket.getSocket().removeAllListeners();
     });
@@ -61,9 +61,14 @@ angular.module('myApp.controllers', [])
 		$scope.data = data;
     });
 
-    Socket.on('updatedObject', function (data) {
+    Socket.on('updatedObject', function (date) {
     	console.log("updatedObject by socket");
-		$scope.data = data;
+		$scope.date = date;
+    });
+
+	// Destroy on navigate away
+    $scope.$on('$destroy', function (event) {
+        Socket.getSocket().removeAllListeners();
     });
 
     $scope.getPipeline = function(){

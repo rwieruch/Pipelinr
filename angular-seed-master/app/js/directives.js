@@ -25,6 +25,7 @@ angular.module('myApp.directives', ['d3']).
     return {
       restrict: 'EA',
       scope: {
+      	date: '=',
         data: '=' // bi-directional data-binding
       },
       link: function(scope, ele, attrs) {
@@ -55,8 +56,6 @@ angular.module('myApp.directives', ['d3']).
 	    settings.logFilter = new Array();
 	    settings.logFilter.push({ key: "warning", value: true }, { key: "error", value: true });
 
-    	var string_dataset = null;
-
 	    var color = d3.scale.category20();
 
         var legendWidth = 200; // Additional legend width
@@ -75,21 +74,34 @@ angular.module('myApp.directives', ['d3']).
         var tip;
 
         var allData;
+    	var string_dataset;
         var rendered = false;
+
+        // Initialize update
 		scope.$watch('data', function(newVals, oldVals) {
-			console.log(rendered);
-		  if(rendered)
-			return scope.renderUpdate(newVals);
-		  if(!angular.isUndefined(newVals))
-		  	rendered = true;
-		  	return scope.render(newVals);
+	        if (scope.data) {
+				if(!rendered) { // Render only one time
+				  	if(!angular.isUndefined(newVals)) {
+				  		rendered = true;
+				  		return scope.render(newVals);
+				  	}
+				}
+	        }
 		}, true);
 
-		scope.renderUpdate = function(data) {
-	        console.log(data);
-	        if(data.type == "string") {
+		// Single date update
+		scope.$watch('date', function(newVals, oldVals) {
+	        if (scope.date) {
+				if(rendered)
+					return scope.renderUpdate(newVals);
+			}
+		}, true);
+
+		scope.renderUpdate = function(date) {
+	        console.log(date);
+	        if(date.type == "string") {
 	            // Push new value in dataset
-	            string_dataset.values.push({ timestamp: data.timestamp, value: data.value, level: data.level});    
+	            string_dataset.values.push({ timestamp: date.timestamp, value: date.value, level: date.level});    
 	            var current_dataset = string_dataset;
 
 	            // Append new focus circle
@@ -124,9 +136,9 @@ angular.module('myApp.directives', ['d3']).
 	        } else {
 	          // Find according dataset
 	          for(var i in allData.datasets) {
-	            if(allData.datasets[i].key == data.key) {
+	            if(allData.datasets[i].key == date.key) {
 	              // Push new value in dataset
-	              allData.datasets[i].values.push({ timestamp: data.timestamp, value: data.value});
+	              allData.datasets[i].values.push({ timestamp: date.timestamp, value: date.value});
 	              var current_dataset = allData.datasets[i];
 	            }
 	          }
