@@ -29,8 +29,10 @@
   <div ng-controller="SessionCtrl">
     <!--navbar-fixed-top-->
    <nav class="navbar navbar-default" role="navigation">
-    <div class="navbar-inner">
+
       <div class="container">
+
+        <div class="navbar-header">
         <!-- Brand and toggle get grouped for better mobile display -->
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
           <span class="sr-only">Toggle navigation</span>
@@ -39,20 +41,24 @@
           <span class="icon-bar"></span>
         </button>
         <a class="navbar-brand" href="#">Pipelinr</a>
+      </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
-          <form class="navbar-form navbar-left" role="search">
+          <!--<form class="navbar-form navbar-left" ng-show="Session.isLogged" role="search">
             <div class="form-group">
-              <input type="text" ng-show="Session.isLogged" class="form-control" id="searchField" placeholder="Search">
+              <div ng-controller="PipelinesCtrl">
+              <input type="text" class="form-control" ng-model="query" placeholder="Search">
+              </div>
             </div>
-          </form>
-          <ul class="nav pull-right">
+            <button type="submit" class="btn btn-default">Submit</button>
+          </form>-->
+          <ul class="nav navbar-nav navbar-right">
             <li>
               <a href="#" ng-show="Session.isLogged" ng-click="logoutUser()">Logout</a>
             </li>
           </ul>
-          <ul class="nav pull-right" ng-show="Session.isLogged">
+          <ul class="nav navbar-nav navbar-right" ng-show="Session.isLogged">
             <li>
               <a href="#/pipeline-list">Pipelines</a>
             </li>
@@ -66,7 +72,7 @@
           </form>
         </div>
       </div>
-    </div>
+
   </nav>
   </div>
 

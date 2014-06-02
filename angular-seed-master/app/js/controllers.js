@@ -12,6 +12,14 @@ angular.module('myApp.controllers', [])
     $scope.pipelines = pipelines;
     console.log(pipelines);
 
+    // Search input
+    $scope.search = function(item) {
+    	if (item.name.indexOf($scope.query)!=-1 || item.origin_id.indexOf($scope.query)!=-1 || angular.isUndefined($scope.query)) {           
+            return true;
+        }
+        return false;
+	};
+
     // Push notifications
 	Socket.on('connectionStatus', function (msg) {
 		console.log(msg);

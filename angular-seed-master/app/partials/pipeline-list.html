@@ -2,9 +2,10 @@
 	<div class="row equal">
 		<div class="col col-md-8">
 			<div class="my-inner-container">
+				<input type="text" class="form-control margin-base-vertical" ng-model="query" placeholder="Search">
 				<table class="table table-hover table-top" id="tr_list">
 					<tr><th>Pipeline</th><th>Id</th><th>Datasets</th<tr>
-					<tr ng-repeat="pipeline in pipelines">
+					<tr ng-repeat="pipeline in pipelines | filter:search">
 						<td><a href="#/pipeline-list/{{pipeline.origin_id}}">{{pipeline.name}}</a></td>
 						<td>{{pipeline.origin_id}}</td>
 						<td>      
