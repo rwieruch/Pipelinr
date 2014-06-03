@@ -50,17 +50,15 @@ angular.module('myApp.controllers', [])
 	// Set for refresh
 	$http.defaults.headers.common['token'] = Session.token; 
 
-	//$scope.originId = $routeParams.originId;
+	// Get and resolve pipeline
 	var pipeline = PipelineService.get({originId: $routeParams.originId});
-
-	//$scope.pipeline = pipeline;
-
 	pipeline.$promise.then(function(data) {
 		console.log(data);
 		$scope.pipeline = pipeline;
 		$scope.data = data;
     });
 
+	// Date updates for pipeline
     Socket.on('updatedObject', function (date) {
     	console.log("updatedObject by socket");
 		$scope.date = date;
@@ -71,15 +69,16 @@ angular.module('myApp.controllers', [])
         Socket.getSocket().removeAllListeners();
     });
 
+    // New pipeline request with beginn and end
     $scope.getPipeline = function(){
 		var begin = moment($scope.dateDropDownInput1).format('DD MM YYYY, HH:mm:ss');
 		var end = moment($scope.dateDropDownInput2).format('DD MM YYYY, HH:mm:ss');
 
 		var pipeline = PipelineService.get({originId: $routeParams.originId, begin: begin, end: end});
 
-		pipeline.$promise.then(function(data) {
-			console.log(data);
-			$scope.data = data;
+		pipeline.$promise.then(function(newdata) {
+			console.log(newdata);
+			$scope.newdata = newdata;
     	});
     };
   }]) 

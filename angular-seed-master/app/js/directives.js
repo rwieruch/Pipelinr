@@ -26,7 +26,8 @@ angular.module('myApp.directives', ['d3']).
       restrict: 'EA',
       scope: {
       	date: '=',
-        data: '=' // bi-directional data-binding
+        data: '=',
+        newdata: '='
       },
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
@@ -90,23 +91,72 @@ angular.module('myApp.directives', ['d3']).
 		}, true);
 
 		// Single date update
-		scope.$watch('date', function(newVals, oldVals) {
+		/*scope.$watch('date', function(newVals, oldVals) {
 	        if (scope.date) {
 				if(rendered)
 					return scope.renderUpdate(newVals);
 			}
+		}, true);*/
+
+		// New request update
+		scope.$watch('newdata', function(newVals, oldVals) {
+	        if (scope.newdata) {
+				if(rendered)
+					return scope.renderNew(newVals);
+			}
 		}, true);
+
+		scope.renderNew = function(newdata) {
+			allData = newdata;
+
+		    // Get log data from datasets
+		    for(var i in newdata.datasets) {
+		      if(newdata.datasets[i].type == "string") {
+		        var string_dataset = newdata.datasets[i];
+		        //delete data.datasets[i];
+		        //data.datasets.length--;
+		      }
+		    }
+
+	        // Update context
+	        x2.domain(d3.extent(string_dataset.values, function(d) { return parseDate(d.timestamp); }));
+
+	        // Move context circles
+	        context.selectAll("circle")
+	          .data(string_dataset.values)
+	          .attr("cx", function(d) {
+	               return x2(parseDate(d.timestamp));
+	          })
+	          .attr("cy", function(d) {
+	               return height2/2; 
+	          });
+
+	        // Update context axis
+	        svg.select(".x.axis2").call(xAxis2);
+
+		    brushed();
+		}
 
 		scope.renderUpdate = function(date) {
 	        console.log(date);
 	        if(date.type == "string") {
+
+			    // Get log data from datasets
+			    for(var i in allData.datasets) {
+			      if(allData.datasets[i].type == "string") {
+			         var current_dataset = allData.datasets[i];
+			        //delete data.datasets[i];
+			        //data.datasets.length--;
+			      }
+			    }
+
 	            // Push new value in dataset
-	            string_dataset.values.push({ timestamp: date.timestamp, value: date.value, level: date.level});    
-	            var current_dataset = string_dataset;
+	            current_dataset.values.push({ timestamp: date.timestamp, value: date.value, level: date.level});    
+	            //var current_dataset = string_dataset;
 
 	            // Append new focus circle
 	            d3.select(".focus.scatter").selectAll('circle')
-	              .data(string_dataset.values)
+	              .data(current_dataset.values)
 	              .enter().append("circle")
 	              .attr("clip-path", "url(#clip)")
 	              .attr('class', 'circle')
@@ -119,7 +169,7 @@ angular.module('myApp.directives', ['d3']).
 
 	            // Append new context circle
 	            context.selectAll("circle")
-	             .data(string_dataset.values).enter()
+	             .data(current_dataset.values).enter()
 	             .append("circle")
 	             .attr('class', 'circle')
 	             .style("fill", function (d) { return logColor(d.level);})
