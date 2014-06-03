@@ -30,6 +30,7 @@ angular.module('myApp.directives', ['d3']).
 	    var main_lines = new Array();
 
 	    var context;
+	    var scatterplot;
 	    var xAxis2, yAxis2;
 
         var height = {scatterplot: 50, linechart: 180, context: 25, legend: 250},
@@ -55,6 +56,8 @@ angular.module('myApp.directives', ['d3']).
         var x2, y2;
 
         var tip;
+
+        var transitionDuration = 1000;
 
         var allData;
     	var string_dataset;
@@ -95,29 +98,84 @@ angular.module('myApp.directives', ['d3']).
 		    // Get log data from datasets
 		    for(var i in allData.datasets) {
 		      if(allData.datasets[i].type == "string") {
-		        var string_dataset = allData.datasets[i];
+		        string_dataset = allData.datasets[i];
 		        delete allData.datasets[i];
 		        allData.datasets.length--;
 		      }
 		    }
 
-	        // Update context
+	        // Update scatterplot and context 
 	        x2.domain(d3.extent(string_dataset.values, function(d) { return parseDate(d.timestamp); }));
+	        x_log.domain(brush.empty() ? x2.domain() : brush.extent());
 
-	        // Move context circles
-	        context.selectAll("circle")
-	          .data(string_dataset.values)
+			updateScatterplotCircles(string_dataset);
+            updateContextCircles(string_dataset);
+
+	        svg.select(".x.axis2").transition().duration(transitionDuration).call(xAxis2);
+		    d3.select(".focus").select(".x.axis").transition().duration(transitionDuration).call(xAxis_log);
+
+            // Keep filter
+            for(var i in settings.logFilter) {
+              if(!settings.logFilter[i].value)
+                svg.selectAll("circle")
+                  .filter(function(d) { return d.level === settings.logFilter[i].key; })
+                  .attr("display", "none");
+            }
+
+		    // Line charts update
+		    for(var i in main_lines) {
+		      xs[i].domain(brush.empty() ? x2.domain() : brush.extent());
+		      d3.select(".focus"+i).select(".area").transition().duration(transitionDuration).attr("d", main_lines[i]);
+		      d3.select(".focus"+i).select(".x.axis").transition().duration(transitionDuration).call(xAxes[i]);
+		    }
+		}
+
+		function updateScatterplotCircles(string_dataset) {
+            // Select context circles and rebind data
+            var circle = scatterplot.selectAll("circle")
+             .data(string_dataset.values); 
+
+         	// Enter new circles
+            circle.enter().append("circle") 
+             .attr('class', 'circle')
+             .attr("clip-path", "url(#clip)")
+             .attr('class', 'circle')
+             .attr("r", 5)
+             .on("mouseover", tip.show)
+             .on("mouseout",tip.hide)
+
+ 	        // Remove dispensable circles
+            circle.exit().remove(); 
+
+   	        // Move new circles and set new data
+	        circle.transition().duration(transitionDuration)
+		      .attr("cx",function(d){ return x_log(parseDate(d.timestamp));})
+		      .attr("cy", function(d){ return margin.top;})
+              .style("fill", function (d) { return logColor(d.level);});
+		}
+
+		function updateContextCircles(string_dataset) {
+            // Select context circles and rebind data
+            var circle = context.selectAll("circle")
+              .data(string_dataset.values);
+
+            // Enter new circles
+            circle.enter().append("circle") 
+             .attr('class', 'circle')
+             .attr("r", 3);
+
+   	        // Remove dispensable circles
+            circle.exit().remove(); 
+
+  	        // Move new circles and set new data
+	        circle.transition().duration(transitionDuration)
 	          .attr("cx", function(d) {
 	               return x2(parseDate(d.timestamp));
 	          })
 	          .attr("cy", function(d) {
-	               return height2/2; 
-	          });
-
-	        // Update context axis
-	        svg.select(".x.axis2").call(xAxis2);
-
-		    brushed();
+	               return height.context/2; 
+	          })
+              .style("fill", function (d) { return logColor(d.level);});
 		}
 
 		scope.renderUpdate = function(date) {
@@ -251,16 +309,16 @@ angular.module('myApp.directives', ['d3']).
 			x_log.domain(d3.extent(string_dataset.values.map(function(d) { return parseDate(d.timestamp); })));
 			y_log.domain([0, d3.max(string_dataset.values, function(d) { return d.value; })]);
 
-			var focus = svg.append("g")
+			scatterplot = svg.append("g")
 			    .attr("class", "focus scatter")
 			    .attr("transform", "translate(" + margin.left + "," + 0 + ")");
 
-			focus.append("g")
+			scatterplot.append("g")
 			    .attr("class", "x axis")
 			    .attr("transform", "translate(0," + height.scatterplot + ")")
 			    .call(xAxis_log);
 
-			focus.selectAll('circle')
+			scatterplot.selectAll('circle')
 			  .data(string_dataset.values)
 			  .enter().append("circle")
 			  .attr("clip-path", "url(#clip)")

@@ -74,6 +74,12 @@ angular.module('myApp.controllers', [])
 		var begin = moment($scope.dateDropDownInput1).format('DD MM YYYY, HH:mm:ss');
 		var end = moment($scope.dateDropDownInput2).format('DD MM YYYY, HH:mm:ss');
 
+		//begin = "03 06 2014, 16:55:00";
+		//end = "03 06 2014, 17:00:00";
+
+		console.log(begin);
+		console.log(end);
+
 		var pipeline = PipelineService.get({originId: $routeParams.originId, begin: begin, end: end});
 
 		pipeline.$promise.then(function(newdata) {
