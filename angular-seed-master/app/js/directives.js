@@ -7,20 +7,7 @@ angular.module('myApp.directives', ['d3']).
     return function(scope, elm, attrs) {
       elm.text(version);
     };
-  }]).directive('pwCheck', [function () {
-	return {
-		require: 'ngModel',
-		link: function (scope, elem, attrs, ctrl) {
-			var firstPassword = '#' + attrs.pwCheck;
-			elem.add(firstPassword).on('keyup', function () {
-				scope.$apply(function () {
-					var v = elem.val()===$(firstPassword).val();
-					ctrl.$setValidity('pwmatch', v);
-				});
-			});
-		}
-	}
-  }]) 
+  }])
   .directive('d3Timeline', ['d3Service', '$window', function(d3Service, $window) {
     return {
       restrict: 'EA',
@@ -36,7 +23,6 @@ angular.module('myApp.directives', ['d3']).
 	        .domain(["","warning","error"])
 	        .range(["#FFF", "#FFFF00", "#FF0000"]);
 
-  	    // TODO: Change this
 	    var xAxes = new Array();
 	    var yAxes = new Array();
 	    var xs = new Array();
@@ -46,11 +32,9 @@ angular.module('myApp.directives', ['d3']).
 	    var context;
 	    var xAxis2, yAxis2;
 
-        var margin = {top: 20, right: 10, bottom: 60, left: 40},
-            margin2 = {top: 215, right: 10, bottom: 10, left: 40},
-            width = 840 - margin.left - margin.right,
-            height = 250 - margin.top - margin.bottom,
-            height2 = 250 - margin2.top - margin2.bottom;
+        var height = {scatterplot: 50, linechart: 180, context: 25, legend: 250},
+        	width = {graph: 800, legend: 200},
+        	margin = {left: 40, top: 30, bottom: 40};
 
 	    // TODO: change this to global settings object
 	    var settings = {};
@@ -59,13 +43,11 @@ angular.module('myApp.directives', ['d3']).
 
 	    var color = d3.scale.category20();
 
-        var legendWidth = 200; // Additional legend width
+        //var legendWidth = 200; // Additional legend width
 
         var parseDate = d3.time.format('%d %m %Y, %H:%M:%S').parse;
 
-       	var svg = d3.select(ele[0]).append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", 3*height + 2*margin.top + margin.bottom); // TODO: 3 to x
+       	var svg;
 
         var x_log, y_log, xAxis_log, yAxis_log;
         var brush;
@@ -76,6 +58,7 @@ angular.module('myApp.directives', ['d3']).
 
         var allData;
     	var string_dataset;
+
         var rendered = false;
 
         // Initialize update
@@ -110,11 +93,11 @@ angular.module('myApp.directives', ['d3']).
 			allData = newdata;
 
 		    // Get log data from datasets
-		    for(var i in newdata.datasets) {
-		      if(newdata.datasets[i].type == "string") {
-		        var string_dataset = newdata.datasets[i];
-		        //delete data.datasets[i];
-		        //data.datasets.length--;
+		    for(var i in allData.datasets) {
+		      if(allData.datasets[i].type == "string") {
+		        var string_dataset = allData.datasets[i];
+		        delete allData.datasets[i];
+		        allData.datasets.length--;
 		      }
 		    }
 
@@ -214,91 +197,52 @@ angular.module('myApp.directives', ['d3']).
 		}
 
         scope.render = function(data) {
-	    	if (!data) return;
+	      if (!data) return;
 
-	    	allData = data;
+	      allData = data;
+	   	  console.log(allData.datasets);
 
-	    // TODO: Change this
-	    //for(var i in data.datasets) {
-	    //  data.datasets[i].values.splice(0, 0, { timestamp: "14 05 2014, 12:02:00", value: null});
-	    //}
-	    console.log(data.datasets);
-
-	    // Get log data from datasets
-	    for(var i in data.datasets) {
-	      if(data.datasets[i].type == "string") {
-	        string_dataset = data.datasets[i];
-	        //delete data.datasets[i];
-	        //data.datasets.length--;
-	      }
-	    }
-
-	    createSVGContainer(data.datasets, string_dataset);
-	    createLogScatterplot(string_dataset);
-	    for(var i in data.datasets) {
-	      if(data.datasets[i].type == "int") {
-	        createLineChart(data.datasets[i], i, string_dataset);
-	      }
-	    }
-
-	    // Give every area a different color
-	    d3.selectAll(".area").attr("fill",function(d,i){return color(i);});
-
-	    for(var i in data.datasets) {
-    	  if(data.datasets[i].type == "int") {
-		      createHoverline(data.datasets[i], i);
+		  // Get log data from datasets
+		  for(var i in allData.datasets) {
+		    if(allData.datasets[i].type == "string") {
+		      string_dataset = allData.datasets[i];
+		      delete allData.datasets[i];
+		      allData.datasets.length--;
+		    }
 		  }
-	    }
 
-        function createHoverline(dataset, i) {
-	        var bisectDate = d3.bisector(function(d) { return parseDate(d.timestamp); }).left
+		  createSVGContainer(allData.datasets);
+  		  createLogScatterplot(string_dataset);
+  	      for(var i in allData.datasets) {
+		    createLineChart(allData.datasets[i], i, string_dataset);
+	      }
+  	      // Give every area a different color
+	      d3.selectAll(".area").attr("fill",function(d,i){return color(i);});
+		  createContext(allData.datasets, string_dataset);
+		  createSettingContainer();
 
-	        d3.select(".focus"+i).append("rect")
-	          .datum(dataset)
-	          .attr("class", "overlay")
-	          .attr("width", width)
-	          .attr("height", height)
-	          .on("mouseover", function() { tooltip.style("display", null); text.style("display", null); })
-	          .on("mouseout", function() { tooltip.style("display", "none"); text.style("display", "none"); })
-	          .on("mousemove", mousemove);
+		  function createSVGContainer(datasets) {
+		  	// Tooltip for later use
+			tip = d3.select("body").append("div")
+				.attr("class", "tip")
+				.style("opacity", 0);
 
-	        var tooltip = d3.select(".focus"+i).append("g")
-	            .attr("class", "hover-line " + i)
-	            .attr("clip-path", "url(#clip)")
-	            .style("display", "none");
+			// Draw boundary box for everything
+			svg = d3.select(ele[0]).append("svg")
+            	.attr("width", width.graph)
+            	.attr("height", height.scatterplot + (height.linechart * datasets.length + margin.top * datasets.length) + height.context + margin.top + margin.bottom);
 
-	        tooltip.append("g")
-	            .attr("class", "hover-line")
-	            .append("line")
-	            .attr("x1", 0).attr("x2", 0) 
-	            .attr("y1", 0).attr("y2", height);
+	        // Clip on edges
+	        svg.append("defs").append("clipPath")
+	            .attr("id", "clip")
+	          .append("rect")
+	            .attr("width", width.graph)
+	            .attr("height", height.scatterplot + (height.linechart * datasets.length + margin.top * datasets.length) + height.context + margin.top);
+		  }
 
-	        var text = d3.select(".focus"+i).append("text")
-	            .attr("class", "y"+i)
-	            .attr("x", 5)
-	            .attr("y", height/2)
-	            .attr("dy", ".35em");
-
-	        function mousemove() {
-	          var x0 = xs[xs.length-1].invert(d3.mouse(this)[0]),
-	          i = bisectDate(dataset.values, x0, 1),
-	          d0 = dataset.values[i - 1],
-	          d1 = dataset.values[i];
-
-	          if(d1 != null) { // Last value is sometimes undefined after immediate update
-	            var d = x0 - d0.timestamp > d1.timestamp - x0 ? d1 : d0;
-	          } else {
-	            var d = d0;
-	          }
-
-	          tooltip.attr("transform", "translate(" + xs[xs.length-1](parseDate(d.timestamp)) + "," + 0 + ")");
-	          text.attr("transform", "translate(" + xs[xs.length-1](parseDate(d.timestamp)) + "," + 0 + ")").text(d.value);
-	        }
-	    }
-
-		function createLogScatterplot(string_dataset) {
-			x_log = d3.time.scale().range([0, width]),
-		    	y_log = d3.scale.linear().range([height2, 0]);
+  		  function createLogScatterplot(string_dataset) {
+			x_log = d3.time.scale().range([0, width.graph]),
+		    	y_log = d3.scale.linear().range([height.scatterplot, 0]);
 
 			// Axis
 			xAxis_log = d3.svg.axis().scale(x_log).orient("bottom"),
@@ -309,11 +253,11 @@ angular.module('myApp.directives', ['d3']).
 
 			var focus = svg.append("g")
 			    .attr("class", "focus scatter")
-			    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			    .attr("transform", "translate(" + margin.left + "," + 0 + ")");
 
 			focus.append("g")
 			    .attr("class", "x axis")
-			    .attr("transform", "translate(0," + margin.top * 2 + ")")
+			    .attr("transform", "translate(0," + height.scatterplot + ")")
 			    .call(xAxis_log);
 
 			focus.selectAll('circle')
@@ -329,30 +273,45 @@ angular.module('myApp.directives', ['d3']).
 			    tip.transition().duration(200).style("opacity", .9);      
 			    tip.html(d.value); 
 
-        		// Transformation relative to the page body
+	    		// Transformation relative to the page body
 		        var matrix = this.getScreenCTM().translate(+this.getAttribute("cx"),+this.getAttribute("cy"));
-                tip.style("left", (window.pageXOffset + matrix.e) + "px").style("top", (window.pageYOffset + matrix.f + 30) + "px");
-			  	//.style("left", (parseInt(d3.select(this).attr("cx")) + document.getElementById("timeline").offsetLeft) + "px")     
-				//.style("top", (parseInt(d3.select(this).attr("cy")) + document.getElementById("timeline").offsetTop) + "px");
+	            tip.style("left", (window.pageXOffset + matrix.e) + "px").style("top", (window.pageYOffset + matrix.f + 30) + "px");
 			  })                  
 			  .on("mouseout", function(d) {       
 			    tip.transition().duration(500).style("opacity", 0);   
-			  });
-		}
+		    });
+		  }
 
-		function createLineChart(dataset, i, string_dataset) {
-			// Focus lines
+          function createLineChart(dataset, i, string_dataset) {
+          	// Create axes
+	        var x = d3.time.scale().range([0, width.graph]),
+	            y = d3.scale.linear().range([height.linechart, 0]);
+
+	        var xAxis = d3.svg.axis().scale(x).orient("bottom"),
+	            yAxis = d3.svg.axis().scale(y).orient("left");
+
+	        //x.domain(d3.extent(data.datasets[0].values.map(function(d) { return parseDate(d.timestamp); })));
+	        x.domain(d3.extent(dataset.values.map(function(d) { return parseDate(d.timestamp); })));
+	        y.domain([0, d3.max(dataset.values, function(d) { return d.value; })]);
+
+	        // Save domains and axes for later
+	        xAxes.push(xAxis);
+	        yAxes.push(yAxis);
+	        xs.push(x);
+	        ys.push(y);
+
+	        // Create charts
 			var main_line = d3.svg.area()
 				.interpolate("linear")
-				.x(function(d) { return xs[i](parseDate(d.timestamp)); })
-				.y0(height)
-				.y1(function(d) { return ys[i](d.value); });
+				.x(function(d) { return x(parseDate(d.timestamp)); })
+				.y0(height.linechart)
+				.y1(function(d) { return y(d.value); });
 
 			main_lines.push(main_line);
 
 			var focus = svg.append("g")
 			    .attr("class", "focus" + i)
-			    .attr("transform", "translate(" + margin.left + "," + (margin.top*6 + (margin2.top *i)) + ")");
+			    .attr("transform", "translate(" + margin.left + "," + (margin.top + height.scatterplot + (height.linechart * i + margin.top * i)) + ")");
 
 			focus.append("path")
 			    .datum(dataset.values)
@@ -361,184 +320,143 @@ angular.module('myApp.directives', ['d3']).
 
 			focus.append("g")
 			    .attr("class", "x axis")
-			    .attr("transform", "translate(0," + height + ")")
-			    .call(xAxes[i]);
+			    .attr("transform", "translate(0," + height.linechart + ")")
+			    .call(xAxis);
 
 			focus.append("g")
 			    //.attr("class", "y axis")
 			    .attr("class", "y "+i+ " axis")
-			    .call(yAxes[i]);
+			    .call(yAxis);
 
 	        focus.append("text")
 			    .attr("class", "x label")
 			    .attr("text-anchor", "end")
-			    .attr("x", width -6)
-			    .attr("y", height - 6)
+			    .attr("x", width.graph - margin.left - 6)
+			    .attr("y", height.linechart - 6)
 			    .text(dataset.key);
-		}
-
-      function createSVGContainer(datasets, string_dataset) {
-
-		tip = d3.select("body").append("div")   
-		    .attr("class", "tip")               
-		    .style("opacity", 0);
-
-        for(var i in datasets) {
-        	if(data.datasets[i].type == "int") {
-				drawAxis(datasets[i]);
-			}
-        }
-
-        x2 = d3.time.scale().range([0, width]), // Context
-            y2 = d3.scale.linear().range([height2, 0]); // Context
-
-        xAxis2 = d3.svg.axis().scale(x2).orient("bottom"), // Context
-            yAxis2 = d3.svg.axis().scale(ys[xs.length-1]).orient("left"); // Context
-
-        x2.domain(xs[0].domain());
-        y2.domain(ys[xs.length-1].domain());
-
-        brush = d3.svg.brush()
-            .x(x2)
-            .on("brush", brushed);
-
-        // Context line
-        var context_line = d3.svg.line()
-            .interpolate("linear")
-            .x(function(d) { return x2(parseDate(d.timestamp)); })
-            .y(function(d) { return y2(d.value); });
-
-        // Clip on edges
-        svg.append("defs").append("clipPath")
-            .attr("id", "clip")
-          .append("rect")
-            .attr("width", width)
-            .attr("height", height);
-
-        context = svg.append("g")
-            .attr("class", "context")
-            .attr("transform", "translate(" + margin2.left + "," + (margin.top *6 + margin2.top * (datasets.length-1)) + ")");
-
-        context.selectAll('circle')
-          .data(string_dataset.values)
-          .enter().append("circle")
-          .attr("clip-path", "url(#clip)")
-          .attr('class', 'circle')
-          .style("fill", function (d) { return logColor(d.level);})
-          .attr("cx", function (d) { return x2(parseDate(d.timestamp)); })
-          .attr("cy", function (d) { return height2/2; })
-          .attr("r", function(d){ return 3;});
-
-        context.append("g")
-            .attr("class", "x axis2")
-            .attr("transform", "translate(0," + height2 + ")")
-            .call(xAxis2);
-
-        context.append("g")
-            .attr("class", "x brush")
-            .call(brush)
-          .selectAll("rect")
-            .attr("y", -6)
-            .attr("height", height2 + 7);
-
-        // Setting container
-  		var settingSvg = d3.select("#setting-container").append("svg")
-            .attr("width", legendWidth)
-            .attr("height", height);
-
-        // Draw legend
-       	var legendContainer = settingSvg.append("g").attr("class", "legend_container");
-
-        var legend = legendContainer.selectAll(".legend")
-            .data(logColor.domain())
-          .enter().append("g")
-            .attr("class", "legend")
-            .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-
-        legend.append("rect")
-            .attr("class", "filter_button")
-            .attr("value", function(d) { return d })
-        	.attr("x", 0)
-            .attr("width", 18)
-            .attr("height", 18)
-            .style("fill", logColor);
-
-        legend.append("text")
-            .attr("x", 24)
-            .attr("y", 9)
-            .attr("dy", ".35em")
-            //.style("text-anchor", "end")
-            .text(function(d) { return d;})
-        
-
-        // Filter
-        d3.selectAll(".filter_button").on("click", function() {
-
-          // Retrieve filter key
-          var level = d3.select(this).attr("value");
-          for(var i in settings.logFilter) {
-            if(settings.logFilter[i].key == level) {
-              settings.logFilter[i].value ? settings.logFilter[i].value = false: settings.logFilter[i].value = true; 
-              var display = settings.logFilter[i].value ? "inline" : "none";
-              var fill = settings.logFilter[i].value ? logColor(level) : "#FFF";
-            }
           }
 
-          // Set rect fill
-          d3.select("[value='" + level + "']").style("fill", fill);
+	      function createContext(datasets, string_dataset) {
 
-          // Filter circles
-          svg.selectAll("circle")
-            .filter(function(d) { return d.level === level; })
-            .attr("display", display);
-        });
+	        x2 = d3.time.scale().range([0, width.graph]),
+	            y2 = d3.scale.linear().range([height.context, 0]);
 
-        function drawAxis(dataset) {
-	        var x = d3.time.scale().range([0, width]), // Focus
-	            y = d3.scale.linear().range([height, 0]); // Focus
+	        xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
+	            yAxis2 = d3.svg.axis().scale(ys[xs.length-1]).orient("left");
 
-	        // Axis
-	        var xAxis = d3.svg.axis().scale(x).orient("bottom"), // Focus
-	            yAxis = d3.svg.axis().scale(y).orient("left"); // Focus
+	        x2.domain(xs[0].domain());
+	        y2.domain(ys[xs.length-1].domain());
 
-	        x.domain(d3.extent(data.datasets[0].values.map(function(d) { return parseDate(d.timestamp); })));
-	        y.domain([0, d3.max(dataset.values, function(d) { return d.value; })]);
+	        brush = d3.svg.brush()
+	            .x(x2)
+	            .on("brush", brushed);
 
-	        // Save domains and axes for later retrieval
-	        xAxes.push(xAxis);
-	        yAxes.push(yAxis);
-	        xs.push(x);
-	        ys.push(y);
+	        // Context line
+	        var context_line = d3.svg.line()
+	            .interpolate("linear")
+	            .x(function(d) { return x2(parseDate(d.timestamp)); })
+	            .y(function(d) { return y2(d.value); });
+
+	        context = svg.append("g")
+	            .attr("class", "context")
+	            .attr("transform", "translate(" + margin.left + "," + (margin.top + height.scatterplot + (height.linechart * datasets.length + margin.top * datasets.length)) + ")");
+
+	        context.selectAll('circle')
+	          .data(string_dataset.values)
+	          .enter().append("circle")
+	          .attr("clip-path", "url(#clip)")
+	          .attr('class', 'circle')
+	          .style("fill", function (d) { return logColor(d.level);})
+	          .attr("cx", function (d) { return x2(parseDate(d.timestamp)); })
+	          .attr("cy", function (d) { return height.context/2; })
+	          .attr("r", function(d){ return 3;});
+
+	        context.append("g")
+	            .attr("class", "x axis2")
+	            .attr("transform", "translate(0," + height.context + ")")
+	            .call(xAxis2);
+
+	        context.append("g")
+	            .attr("class", "x brush")
+	            .call(brush)
+	          .selectAll("rect")
+	            .attr("y", -6)
+	            .attr("height", height.context + 7);
 	      }
-      }
+	  	}
 
-      // On hover (e.g. for a circle) move svg to front (instead of z-index)
-      d3.selection.prototype.moveToFront = function() {
-        return this.each(function(){
-          this.parentNode.appendChild(this);
-        });
-      };
-  	}
+	  	function createSettingContainer() {
+	        // Setting container
+	  		var settingSvg = d3.select("#setting-container").append("svg")
+	            .attr("width", width.legend)
+	            .attr("height", height.legend);
 
-	function brushed() {
-	    // Scatterplot update
-	    x_log.domain(brush.empty() ? x2.domain() : brush.extent());
+	        // Draw legend
+	       	var legendContainer = settingSvg.append("g").attr("class", "legend_container");
 
-	    // Move circles
-	    d3.select(".focus.scatter").selectAll("circle")
-	      .data(string_dataset.values)
-	      .attr("cx",function(d){ return x_log(parseDate(d.timestamp));})
-	      .attr("cy", function(d){ return margin.top;});
+	        var legend = legendContainer.selectAll(".legend")
+	            .data(logColor.domain())
+	          .enter().append("g")
+	            .attr("class", "legend")
+	            .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
 
-	    d3.select(".focus").select(".x.axis").call(xAxis_log);
+	        legend.append("rect")
+	            .attr("class", "filter_button")
+	            .attr("value", function(d) { return d })
+	        	.attr("x", 0)
+	            .attr("width", 18)
+	            .attr("height", 18)
+	            .style("fill", logColor);
 
-	    // Line charts update
-	    for(var i in main_lines) {
-	      xs[i].domain(brush.empty() ? x2.domain() : brush.extent());
-	      d3.select(".focus"+i).select(".area").attr("d", main_lines[i]);
-	      d3.select(".focus"+i).select(".x.axis").call(xAxes[i]);
-	    }
-	}
+	        legend.append("text")
+	            .attr("x", 24)
+	            .attr("y", 9)
+	            .attr("dy", ".35em")
+	            //.style("text-anchor", "end")
+	            .text(function(d) { return d;})      
+
+	        // Filter
+	        d3.selectAll(".filter_button").on("click", function() {
+
+	          // Retrieve filter key
+	          var level = d3.select(this).attr("value");
+	          for(var i in settings.logFilter) {
+	            if(settings.logFilter[i].key == level) {
+	              settings.logFilter[i].value ? settings.logFilter[i].value = false: settings.logFilter[i].value = true; 
+	              var display = settings.logFilter[i].value ? "inline" : "none";
+	              var fill = settings.logFilter[i].value ? logColor(level) : "#FFF";
+	            }
+	          }
+
+	          // Set rect fill
+	          d3.select("[value='" + level + "']").style("fill", fill);
+
+	          // Filter circles
+	          svg.selectAll("circle")
+	            .filter(function(d) { return d.level === level; })
+	            .attr("display", display);
+	        });
+	  	}
+
+		function brushed() {
+		    // Scatterplot update
+		    x_log.domain(brush.empty() ? x2.domain() : brush.extent());
+
+		    // Move circles
+		    d3.select(".focus.scatter").selectAll("circle")
+		      .data(string_dataset.values)
+		      .attr("cx",function(d){ return x_log(parseDate(d.timestamp));})
+		      .attr("cy", function(d){ return margin.top;});
+
+		    d3.select(".focus").select(".x.axis").call(xAxis_log);
+
+		    // Line charts update
+		    for(var i in main_lines) {
+		      xs[i].domain(brush.empty() ? x2.domain() : brush.extent());
+		      d3.select(".focus"+i).select(".area").attr("d", main_lines[i]);
+		      d3.select(".focus"+i).select(".x.axis").call(xAxes[i]);
+		    }
+		}
 
     });
   }};
