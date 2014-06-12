@@ -531,7 +531,7 @@ angular.module('myApp.directives', ['d3']).
 		}
 
 		function rearrangeGraphs(){
-	        // Translate and visibility for line graphs
+	        // Translate and visibility attributes for line graphs
 		    var move = 0;
 		    for(var i in main_lines) {
 	  		  for(var j in allData.datasets) {
