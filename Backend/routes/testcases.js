@@ -6,6 +6,7 @@ exports.findById = function(moment) {
 
         var begin = req.query.begin;
         var end = req.query.end;
+        var keys = req.query.keys;
 
         console.log('find pipeline: ' + id);
 
@@ -16,12 +17,15 @@ exports.findById = function(moment) {
             Testcase.findOne({ origin_id: id }, function(err, testcase) {
               if (err || !testcase) { res.send(404); return; }
 
+              console.log(begin + " " + end);
+              console.log(keys);
+
               if(begin == "" && end == "") {
                   // TODO: Last hour, later this is done by setting, TODO: last hour from last value
-                  var oneHourAgo = moment().subtract('minutes', 600).format('DD MM YYYY, HH:mm:ss');
+                  var oneHourAgo = moment().subtract('hours', 600).format('DD MM YYYY, HH:mm:ss');
                   for(var i = 0; i < testcase.datasets.length; i++) {
                     for(var j = testcase.datasets[i].values.length-1; j >= 0; j--){
-                        if(testcase.datasets[i].values[j].timestamp < oneHourAgo) {
+                        if(testcase.datasets[i].values[j].timestamp > oneHourAgo) {
                             testcase.datasets[i].values.splice(j,1);
                         }
                     }
@@ -33,6 +37,22 @@ exports.findById = function(moment) {
                             testcase.datasets[i].values.splice(j,1);
                         }
                     }
+                }
+              }
+
+              if(keys != "") {
+                var i = testcase.datasets.length;
+                while(i--)
+                {
+                  if(testcase.datasets[i].type == "int") {
+                    var isIn = false;
+                    for(var j in keys) {
+                      if(testcase.datasets[i].key == keys[j]) 
+                        isIn = true;
+                    }
+                    if(!isIn) 
+                      testcase.datasets[i].values = null;
+                  }
                 }
               }
 

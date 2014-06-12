@@ -2,19 +2,17 @@
 	<div class="row equal">
 		<div class="col col-md-2">
 			<div class="my-inner-container">
-				<h2>Details</h2>
-				<form class="form-horizontal" role="form">
-					<label>Id:</label><p>{{pipeline.origin_id}}</p>
-					<label>Name:</label><p>{{pipeline.name}}</p>
-				</form>
+				<label>Id:</label><p>{{pipeline.origin_id}}</p>
+				<label>Name:</label><p>{{pipeline.name}}</p>
+				<label>Begin:</label><p>{{earliestDate}}</p>
+				<label>End:</label><p>{{latestDate}}</p>
 			</div>
 		</div>
 		<div class="col col-md-6">
 			<div class="my-inner-container">
-				<h2>Search</h2>
 		      	<form name="getPipelineForm" class="form-horizontal" role="form" ng-submit="getPipeline()" novalidate>
 		      		<div class="form-group">
-				        <label class="col-sm-1 control-label" for="beginSearchInput">Start:</label>
+				        <label class="col-sm-1 control-label" for="beginSearchInput">Begin:</label>
 				        <div class="dropdown col-sm-5">
 						  <a class="dropdown-toggle" id="dropdown1" role="button" data-toggle="dropdown" data-target="#" href="#">
 						    <div class="input-group"><input type="text" class="form-control" data-ng-model="dateDropDownInput1" required><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
@@ -37,7 +35,21 @@
 						  </ul>
 						</div>
 					</div>
-			        <button type="submit" class="col-sm-offset-1 btn btn-default">Send</button> <!--ng-disabled="!getPipelineForm.$valid"-->
+					<div class="form-group">
+					  <div class="col-sm-offset-1 col-sm-10">
+					    <div class="checkbox" ng-repeat="key in keys">
+							<label>
+							  <input
+							    type="checkbox"
+							    name="selectedKeys[]"
+							    value="{{key}}"
+							    ng-checked="selection.indexOf(key) > -1"
+							    ng-click="toggleSelection(key)"> {{key}}
+							</label>
+					    </div>
+					  </div>
+					</div>
+			        <button type="submit" class="col-sm-offset-1 btn btn-default">Send</button><!--ng-disabled="!getPipelineForm.$valid"-->
 		      	</form>
 			</div>
 		</div>
@@ -50,7 +62,6 @@
 		</div>
 		<div class="col col-md-2">
 			<div class="my-inner-container">
-				<h2>Legend</h2>
 				<div id="setting-container"></div>
 			</div>
 		</div>

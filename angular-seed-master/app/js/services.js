@@ -40,7 +40,7 @@ angular.module('myApp.services', ['ngResource'])
 .factory('PipelineService', function($resource) {
     return $resource(pipelinrURL + '/testcases/:originId', {}, {  
         query: {method: 'GET', isArray: true},
-        get: {method:'GET', params:{originId:'originId', begin: '', end: ''}}
+        get: {method:'GET', params:{originId:'originId', begin: '', end: '', keys: ''}}
     });
   })
 .factory('UserService', function($resource) {
@@ -71,7 +71,45 @@ angular.module('myApp.services', ['ngResource'])
       token: $cookieStore.get("token")
     };
     return session;
-  });
+  }).
+  factory('DataProcessing', function() {
+     
+    var factory = {}; 
+ 
+    factory.earliestDate = function(pipeline) {
+      var earliestDate = moment().format('DD MM YYYY, HH:mm:ss');
+      for(var i = 0; i < pipeline.datasets.length; i++) {
+        for(var j = 0; j < pipeline.datasets[i].values.length; j++) {
+          if(pipeline.datasets[i].values[j].timestamp < earliestDate) {
+            earliestDate = pipeline.datasets[i].values[j].timestamp;
+          }
+        }
+      }
+      return earliestDate;
+    }
+ 
+    factory.latestDate = function(pipeline) {
+      var latestDate = moment().format('DD MM YYYY, HH:mm:ss');
+      for(var i = 0; i < pipeline.datasets.length; i++) {
+        for(var j = 0; j < pipeline.datasets[i].values.length; j++) {
+          if(pipeline.datasets[i].values[j].timestamp > latestDate) {
+            latestDate = pipeline.datasets[i].values[j].timestamp;
+          }
+        }
+      }
+      return latestDate;
+    }
+
+    factory.getDatasetKeys = function(pipeline) {
+      var keys = new Array();
+      for(var i = 0; i < pipeline.datasets.length; i++) {
+        keys.push(pipeline.datasets[i].key);
+      }
+      return keys;
+    }
+ 
+    return factory;
+});
 
 // D3 module
 angular.module('d3', [])

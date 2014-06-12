@@ -46,16 +46,39 @@ angular.module('myApp.controllers', [])
         Socket.getSocket().removeAllListeners();
     });
   }])  
- .controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'Session', function($scope, $http, $routeParams, Socket, PipelineService, Session) {
+ .controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'DataProcessing', 'Session', function($scope, $http, $routeParams, Socket, PipelineService, DataProcessing, Session) {
 	// Set for refresh
 	$http.defaults.headers.common['token'] = Session.token; 
 
 	// Get and resolve pipeline
 	var pipeline = PipelineService.get({originId: $routeParams.originId});
-	pipeline.$promise.then(function(data) {
-		console.log(data);
+	pipeline.$promise.then(function(pipeline) {
+		console.log(pipeline);
+
+		// D3 directive
+		$scope.data = pipeline;
+
+		// Detail window
 		$scope.pipeline = pipeline;
-		$scope.data = data;
+		$scope.earliestDate = DataProcessing.earliestDate(pipeline);
+		$scope.latestDate = DataProcessing.latestDate(pipeline);
+
+		// Checkboxes
+		$scope.keys = DataProcessing.getDatasetKeys(pipeline);
+		$scope.selection = DataProcessing.getDatasetKeys(pipeline);
+		$scope.toggleSelection = function toggleSelection(key) {
+		  var idx = $scope.selection.indexOf(key);
+
+		  // Is currently selected
+		  if (idx > -1) {
+		    $scope.selection.splice(idx, 1);
+		  }
+
+		  // Is newly selected
+		  else {
+		    $scope.selection.push(key);
+		  }
+		};
     });
 
 	// Date updates for pipeline
@@ -73,6 +96,7 @@ angular.module('myApp.controllers', [])
     $scope.getPipeline = function(){
 		var begin = moment($scope.dateDropDownInput1).format('DD MM YYYY, HH:mm:ss');
 		var end = moment($scope.dateDropDownInput2).format('DD MM YYYY, HH:mm:ss');
+		var keys = $scope.selection;
 
 		//begin = "03 06 2014, 16:55:00";
 		//end = "03 06 2014, 17:00:00";
@@ -80,7 +104,9 @@ angular.module('myApp.controllers', [])
 		console.log(begin);
 		console.log(end);
 
-		var pipeline = PipelineService.get({originId: $routeParams.originId, begin: begin, end: end});
+		// TODO use selection for datasets $scope.selection
+
+		var pipeline = PipelineService.get({originId: $routeParams.originId, begin: begin, end: end, keys: keys});
 
 		pipeline.$promise.then(function(newdata) {
 			console.log(newdata);
