@@ -92,6 +92,7 @@ angular.module('myApp.directives', ['d3']).
 			}
 		}, true);
 
+		// Render for new request
 		scope.renderNew = function(newdata) {
 			allData = newdata;
 
@@ -123,11 +124,15 @@ angular.module('myApp.directives', ['d3']).
             }
 
 		    // Line charts update
+
 		    for(var i in main_lines) {
+		      // New data
 		      xs[i].domain(brush.empty() ? x2.domain() : brush.extent());
-		      d3.select(".focus"+i).select(".area").transition().duration(transitionDuration).attr("d", main_lines[i]);
-		      d3.select(".focus"+i).select(".x.axis").transition().duration(transitionDuration).call(xAxes[i]);
+		      d3.select(".focus_"+i).select(".area").transition().duration(transitionDuration).attr("d", main_lines[i]);
+		      d3.select(".focus_"+i).select(".x.axis").transition().duration(transitionDuration).call(xAxes[i]);
 		    }
+
+		    rearrangeGraphs();
 		}
 
 		function updateScatterplotCircles(string_dataset) {
@@ -178,6 +183,7 @@ angular.module('myApp.directives', ['d3']).
               .style("fill", function (d) { return logColor(d.level);});
 		}
 
+		// Update for single date object
 		scope.renderUpdate = function(date) {
 	        console.log(date);
 	        if(date.type == "string") {
@@ -254,6 +260,7 @@ angular.module('myApp.directives', ['d3']).
 	        brushed();
 		}
 
+		// Initial render
         scope.render = function(data) {
 	      if (!data) return;
 
@@ -353,10 +360,15 @@ angular.module('myApp.directives', ['d3']).
 	        y.domain([0, d3.max(dataset.values, function(d) { return d.value; })]);
 
 	        // Save domains and axes for later
-	        xAxes.push(xAxis);
-	        yAxes.push(yAxis);
-	        xs.push(x);
-	        ys.push(y);
+	        //xAxes.push(xAxis);
+	        //yAxes.push(yAxis);
+	        //xs.push(x);
+	        //ys.push(y);
+
+	        xAxes[dataset.key] = xAxis;
+	        yAxes[dataset.key] = yAxis;
+	        xs[dataset.key] = x;
+	        ys[dataset.key] = y;
 
 	        // Create charts
 			var main_line = d3.svg.area()
@@ -365,10 +377,10 @@ angular.module('myApp.directives', ['d3']).
 				.y0(height.linechart)
 				.y1(function(d) { return y(d.value); });
 
-			main_lines.push(main_line);
+			main_lines[dataset.key] = main_line;
 
 			var focus = svg.append("g")
-			    .attr("class", "focus" + i)
+			    .attr("class", "focus_" + dataset.key)
 			    .attr("transform", "translate(" + margin.left + "," + (margin.top + height.scatterplot + (height.linechart * i + margin.top * i)) + ")");
 
 			focus.append("path")
@@ -402,8 +414,8 @@ angular.module('myApp.directives', ['d3']).
 	        xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
 	            yAxis2 = d3.svg.axis().scale(ys[xs.length-1]).orient("left");
 
-	        x2.domain(xs[0].domain());
-	        y2.domain(ys[xs.length-1].domain());
+	        x2.domain(xs[datasets[0].key].domain());
+	        y2.domain(ys[datasets[0].key].domain());
 
 	        brush = d3.svg.brush()
 	            .x(x2)
@@ -496,6 +508,8 @@ angular.module('myApp.directives', ['d3']).
 	        });
 	  	}
 
+	  	// Helper functions
+
 		function brushed() {
 		    // Scatterplot update
 		    x_log.domain(brush.empty() ? x2.domain() : brush.extent());
@@ -511,9 +525,36 @@ angular.module('myApp.directives', ['d3']).
 		    // Line charts update
 		    for(var i in main_lines) {
 		      xs[i].domain(brush.empty() ? x2.domain() : brush.extent());
-		      d3.select(".focus"+i).select(".area").attr("d", main_lines[i]);
-		      d3.select(".focus"+i).select(".x.axis").call(xAxes[i]);
+		      d3.select(".focus_"+i).select(".area").attr("d", main_lines[i]);
+		      d3.select(".focus_"+i).select(".x.axis").call(xAxes[i]);
 		    }
+		}
+
+		function rearrangeGraphs(){
+	        // Translate and visibility for line graphs
+		    var move = 0;
+		    for(var i in main_lines) {
+	  		  for(var j in allData.datasets) {
+			   	if(allData.datasets[j].key == i) {
+			   		if(allData.datasets[j].values == null) {
+				      d3.select(".focus_"+i).transition().duration(transitionDuration).style("opacity", 0).transition().duration(transitionDuration);
+			  		}
+			  		else {
+		  			  d3.select(".focus_"+i).transition().duration(transitionDuration).style("opacity", 1).attr("transform", "translate(" + margin.left + "," + (margin.top + height.scatterplot + (height.linechart * move + margin.top * move)) + ")");
+		  			  move++;
+			  		}
+			   	}
+			  }
+		    }
+
+		    // Translate context
+		    var translateBack = 0;
+		    for(var j in allData.datasets) {
+	   		  if(allData.datasets[j].values == null) {
+	   			translateBack++;
+	   		  }
+		    }
+		    d3.select(".context").transition().duration(transitionDuration).attr("transform", "translate(" + margin.left + "," + (margin.top + height.scatterplot + (height.linechart * (allData.datasets.length-translateBack) + margin.top * (allData.datasets.length-translateBack))) + ")");
 		}
 
     });

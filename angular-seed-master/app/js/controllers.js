@@ -96,10 +96,13 @@ angular.module('myApp.controllers', [])
     $scope.getPipeline = function(){
 		var begin = moment($scope.dateDropDownInput1).format('DD MM YYYY, HH:mm:ss');
 		var end = moment($scope.dateDropDownInput2).format('DD MM YYYY, HH:mm:ss');
+		
+		console.log($scope.selection);
+
 		var keys = $scope.selection;
 
-		//begin = "03 06 2014, 16:55:00";
-		//end = "03 06 2014, 17:00:00";
+		begin = "03 06 2014, 10:00:00";
+		end = "03 06 2014, 11:00:00";
 
 		console.log(begin);
 		console.log(end);

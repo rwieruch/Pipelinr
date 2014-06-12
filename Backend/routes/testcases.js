@@ -47,11 +47,14 @@ exports.findById = function(moment) {
                   if(testcase.datasets[i].type == "int") {
                     var isIn = false;
                     for(var j in keys) {
+                      console.log(keys[j]);
                       if(testcase.datasets[i].key == keys[j]) 
                         isIn = true;
                     }
-                    if(!isIn) 
+                    if(!isIn) {
+                      console.log(testcase.datasets[i].key);
                       testcase.datasets[i].values = null;
+                    }
                   }
                 }
               }
