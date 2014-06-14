@@ -18,9 +18,15 @@
 
     <h2>Nesse Core: Client Stub</h2>
 
-    <label for="nameInput">Name:</label>
-    <input type="text" id="nameInput" value="" />
-    <button type="button" id="addObject">Add</button>
+    <div style="margin:20px;">
+      <label for="nameInput">New Pipeline:</label>
+      <input type="text" id="nameInput" value="" />
+      <button type="button" id="addObject">Add</button>
+    </div>
+    <hr>
+
+    <div id="trlist"></div>
+    <button type="button" id="dataset_save">Save</button>
 
     <script>
 
@@ -32,6 +38,8 @@
                       name: $("#nameInput").val(), 
                       datasets: [], 
                       origin_id: _.random(1000000, 9999999) });
+
+        var alltestcases;
 
         $.ajax({
           url : "http://localhost:1080/testcases",
@@ -51,84 +59,120 @@
 
       // Get all objects and update them periodically
       $.get("http://localhost:1080/testcases", function( testcases ) {
+        alltestcases = testcases;
         for(var i in testcases) {
-            updateEveryObjectsCPU(testcases[i]);
-            updateEveryObjectsAgentNumber(testcases[i]);
-            updateLog(testcases[i]);
+
+            $("#trlist").append('<table id="testcase_table_'+testcases[i].origin_id+'" style="margin:20px;"><tr><th align="left" style="width:200px">'+testcases[i].origin_id+'</th><th align="left" style="width:200px">'+testcases[i].name+'</th><th style="width:200px;" align="left">Datasets: '+ testcases[i].datasets.length +'</th><th align="left">Enable Upgrades</th></tr></table><div style="margin:20px;"><label>New dataset:</label><input type="text" id="new_dataset_input_'+testcases[i].origin_id+'" value="" /><button type="button" class="new_dataset_button" id="new_dataset_send?id='+testcases[i].origin_id+'">Add</button></div><hr>');
+
+            for(var j = 0; j < testcases[i].datasets.length; j++) {
+              $("#testcase_table_" + testcases[i].origin_id).append('<tr><td style="width:200px"></td><td style="width:200px"></td><td>'+ testcases[i].datasets[j].key +'</td><td><input id="dataset_checkbox_'+testcases[i].origin_id+'_'+testcases[i].datasets[j].key+'" type="checkbox" name="enable" value="enable"><input type="text" id="dataset_input_'+testcases[i].origin_id+'_'+testcases[i].datasets[j].key+'" value="10000" /></td></tr>');
+            }
         }
       });
 
-      // Update functions
-      function updateEveryObjectsCPU(testcase) {
-        window.setInterval(function(){
-          //var id = testcase._id;
-          var id = testcase.origin_id;
-          var newCpuValue = _.random(1, 100);
+      $(document).ready(function() {
+         $('body').on('click', '#dataset_save', function() {
+
+          if(updateSet) {
+            for(var i in updateSet) {
+              clearInterval(updateSet[i]);
+            }
+          }
+
+          for(var i in alltestcases) {
+            for(var j in alltestcases[i].datasets) {
+              var id = alltestcases[i].origin_id;
+              var key = alltestcases[i].datasets[j].key;
+              var type = alltestcases[i].datasets[j].type;
+
+              var checked = $("#dataset_checkbox_"+id+"_"+key).is(":checked");
+              var updateRate = $("#dataset_input_"+id+"_"+key).val();
+
+              console.log(id);
+              console.log(key);
+              console.log(type);
+
+              console.log(checked);
+              console.log(updateRate);
+
+              if(checked)
+                update(id, key, type, updateRate);
+            }
+          }
+         });
+
+         $('body').on('click', '.new_dataset_button', function() {
+            var url = this.id;
+            console.log(url);
+
+            var id = getParameter(url, "id");
+            console.log(id);
+
+            var key = $("#new_dataset_input_"+id).val();
+            console.log(key);
+
+            var newValue = _.random(1, 100);
+            console.log(newValue);
+
+            $.ajax({
+              url : "http://localhost:1080/testcases/" + id,
+              type: "PUT",
+              contentType: 'application/json',
+              data : JSON.stringify({ key: key, type: "int", value: newValue, timestamp: moment().format('DD MM YYYY, HH:mm:ss:SSS')}),
+              success: function(data, textStatus, jqXHR) {
+                  console.log("put success");
+                  console.log(data);
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                console.log("put error");
+              }
+            });
+
+         });
+      });
+
+      var updateSet = {};
+      function update(id, key, type, updateRate) {
+        var save_string = id + "_" + key;
+        console.log("!!!");
+        console.log(updateSet[save_string]);
+        console.log("!!!");
+
+        updateSet[save_string] = setInterval(function(){
+          var newValue = _.random(1, 100);
+          console.log(newValue);
+          var updateSendTime = moment().format('DD MM YYYY, HH:mm:ss:SSS');
 
           $.ajax({
             url : "http://localhost:1080/testcases/" + id,
             type: "PUT",
             contentType: 'application/json',
-            data : JSON.stringify({ key: "cpuLoad", type: "int", value: newCpuValue, timestamp: moment().format('DD MM YYYY, HH:mm:ss')}),
+            data : JSON.stringify({ key: key, type: type, value: newValue, timestamp: updateSendTime }),
             success: function(data, textStatus, jqXHR) {
                 console.log("put success");
                 console.log(data);
+
+                var updateSuccessTime = moment().format('DD MM YYYY, HH:mm:ss:SSS');
+                var sendDate = moment(updateSendTime, 'DD MM YYYY, HH:mm:ss:SSS');
+                var successDate = moment(updateSuccessTime, 'DD MM YYYY, HH:mm:ss:SSS');
+                var timeDiff = sendDate.diff(successDate);
+
+                var elem = document.getElementById('messages');
+                elem.innerHTML += 'Update success: '+id+':'+key+' at '+timeDiff+'<br/>';
+                elem.scrollTop = elem.scrollHeight;
             },
             error: function (jqXHR, textStatus, errorThrown) {
               console.log("put error");
             }
           });
-        }, 4000);
+
+        }, 1000);
       }
 
-      function updateEveryObjectsAgentNumber(testcase) {
-        window.setInterval(function(){
-          //var id = testcase._id;
-          var id = testcase.origin_id;
-          var newAgentNumber = _.random(3, 10);
-
-          $.ajax({
-            url : "http://localhost:1080/testcases/" + id,
-            type: "PUT",
-            contentType: 'application/json',
-            data : JSON.stringify({ key: "agentNumber", type: "int", value: newAgentNumber, timestamp: moment().format('DD MM YYYY, HH:mm:ss')}),
-            success: function(data, textStatus, jqXHR) {
-                console.log("put success");
-                console.log(data);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.log("put error");
-            }
-          });
-        }, 6000);
-      }
-
-      function updateLog(testcase) {
-        window.setInterval(function(){
-          //var id = testcase._id;
-          var id = testcase.origin_id;
-          var rndNumber = _.random(3, 100000);
-
-          var levelArray = [
-              'warning',
-              'error'
-          ];
-          var randomNumber = Math.floor(Math.random()*levelArray.length);
-
-          $.ajax({
-            url : "http://localhost:1080/testcases/" + id,
-            type: "PUT",
-            contentType: 'application/json',
-            data : JSON.stringify({ key: "log", level: levelArray[randomNumber], type: "string", value: rndNumber, timestamp: moment().format('DD MM YYYY, HH:mm:ss')}),
-            success: function(data, textStatus, jqXHR) {
-                console.log("put success");
-                console.log(data);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.log("put error");
-            }
-          });
-        }, 7000);
+      function getParameter(url, name) {
+          return decodeURI(
+              (RegExp(name + '=' + '(.+?)(&|$)').exec(url) || [, null])[1]
+          );
       }
     </script>
 
