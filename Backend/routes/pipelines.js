@@ -19,10 +19,12 @@ exports.addPipeline = function(req, res) {
 exports.findAllPipelines = function(req, res) {
   console.log('Find all pipelines');
 
-  Pipeline.find(function(err, pipelines) {
-    if (err) return res.send(pipelinr_util.handleError(err));
-    res.send(pipelines);
-  });
+  Pipeline.find()
+    .populate('datasets', 'key type')
+    .exec(function(err, pipelines) {
+      if (err) return res.send(pipelinr_util.handleError(err));
+      res.send(pipelines);
+    });
 };
 
 exports.findOnePipeline = function(req, res) {

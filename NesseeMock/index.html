@@ -58,11 +58,7 @@
 
             // Add new object button
       $("#test_it").click(function(){
-
         console.log("test");
-
-
-
       });
 
       // Get all objects and update them periodically
@@ -70,7 +66,7 @@
         console.log(testcases)
         alltestcases = testcases;
 
-            $.ajax({
+           /* $.ajax({
               url : "http://localhost:1080/pipelines/" + testcases[0]._id + "/datasets",
               type: "GET",
               contentType: 'application/json',
@@ -81,7 +77,7 @@
               error: function (jqXHR, textStatus, errorThrown) {
                 console.log("post error");
               }
-            });
+            });*/
 
         for(var i in testcases) {
 
