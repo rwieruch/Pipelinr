@@ -27,8 +27,20 @@ exports.addDataset = function(req, res) {
           if (err) return res.send(pipelinr_util.handleError(err));
 
           res.send(200, {dataset: dataset});
-      });
+        });
     });
   });
+};
 
+exports.findAllDatasetsByPipeline = function(req, res) {
+  console.log('Find all datasets by pipeline');
+  var _pipeline_id = req.params.id;
+
+  Dataset
+    .find({ _pipeline: _pipeline_id })
+    .exec(function (err, datasets) {
+      if (err) return res.send(pipelinr_util.handleError(err));
+      console.log(datasets);
+      res.send(datasets);
+  });
 };

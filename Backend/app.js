@@ -175,6 +175,7 @@ app.get('/pipelines', pipeline.findAllPipelines);
 app.get('/pipelines/:id', pipeline.findOnePipeline);
 
 app.post('/pipelines/:id/datasets', dataset.addDataset);
+app.get('/pipelines/:id/datasets', dataset.findAllDatasetsByPipeline);
 
 app.get('/testcases/:id', testcase.findById(moment));
 app.get('/testcases', testcase.findAll);

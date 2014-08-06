@@ -70,6 +70,19 @@
         console.log(testcases)
         alltestcases = testcases;
 
+            $.ajax({
+              url : "http://localhost:1080/pipelines/" + testcases[0]._id + "/datasets",
+              type: "GET",
+              contentType: 'application/json',
+              success: function(data, textStatus, jqXHR) {
+                  console.log("get ..... success");
+                  console.log(data);
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                console.log("post error");
+              }
+            });
+
         for(var i in testcases) {
 
             $("#trlist").append('<table id="testcase_table_'+testcases[i].origin_id+'" style="margin:20px;"><tr><th align="left" style="width:200px">'+testcases[i].origin_id+'</th><th align="left" style="width:200px">'+testcases[i].name+'</th><th style="width:200px;" align="left">Datasets: '+ testcases[i].datasets.length +'</th><th align="left">Enable Upgrades</th><th align="left">Max Value</th></tr></table><div style="margin:20px;"><label>New dataset:</label><input type="text" id="new_dataset_input_'+testcases[i]._id+'" value="" placeholder="dataset_name"/><input type="text" id="new_dataset_input_type_'+testcases[i]._id+'" value="" placeholder="dataset_type:int, string"/><button type="button" class="new_dataset_button" id="new_dataset_send?id='+testcases[i]._id+'">Add</button></div><hr>');
