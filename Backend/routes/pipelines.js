@@ -25,6 +25,16 @@ exports.findAllPipelines = function(req, res) {
   });
 };
 
+exports.findOnePipeline = function(req, res) {
+  console.log('Find one pipeline');
+  var _id = req.params.id;
+
+  Pipeline.findOne({ _id: _id }, function(err, pipeline) {
+    if (err) return res.send(pipelinr_util.handleError(err));
+    res.send(pipeline);
+  });
+};
+
 // Vorlage
 //exports.myMethod = function(req, res) {
     //var token = req.headers.token;

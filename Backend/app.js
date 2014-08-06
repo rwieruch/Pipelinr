@@ -30,7 +30,7 @@ var db = mongoose.connection;
 
 db.on('error', console.error);
 db.once('open', function() {
-  
+
   // Create your schemas and models here
   var userSchema = new mongoose.Schema({
     email: {
@@ -172,6 +172,7 @@ app.post('/logout', sessions.logout);
 
 app.post('/pipelines', pipeline.addPipeline);
 app.get('/pipelines', pipeline.findAllPipelines);
+app.get('/pipelines/:id', pipeline.findOnePipeline);
 
 app.post('/pipelines/:id/datasets', dataset.addDataset);
 
