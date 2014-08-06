@@ -101,8 +101,8 @@ angular.module('myApp.controllers', [])
 
 		var keys = $scope.selection;
 
-		begin = "03 06 2014, 10:00:00";
-		end = "03 06 2014, 11:00:00";
+		//begin = "03 06 2014, 10:00:00";
+		//end = "03 06 2014, 11:00:00";
 
 		console.log(begin);
 		console.log(end);

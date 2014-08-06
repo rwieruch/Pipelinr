@@ -28,6 +28,8 @@
     <div id="trlist"></div>
     <button type="button" id="dataset_save">Save</button>
 
+
+<button type="button" id="test_it">Test it</button>
     <script>
 
       // Add new object button
@@ -36,13 +38,10 @@
         // Build mock object
         var data = JSON.stringify({ 
                       name: $("#nameInput").val(), 
-                      datasets: [], 
                       origin_id: _.random(1000000, 9999999) });
 
-        var alltestcases;
-
         $.ajax({
-          url : "http://localhost:1080/testcases",
+          url : "http://localhost:1080/pipelines",
           type: "POST",
           contentType: 'application/json',
           data : data,
@@ -57,15 +56,23 @@
         });
       });
 
+            // Add new object button
+      $("#test_it").click(function(){
+
+        console.log("test");
+
+      });
+
       // Get all objects and update them periodically
-      $.get("http://localhost:1080/testcases", function( testcases ) {
+      $.get("http://localhost:1080/pipelines", function( testcases ) {
+        console.log(testcases)
         alltestcases = testcases;
         for(var i in testcases) {
 
-            $("#trlist").append('<table id="testcase_table_'+testcases[i].origin_id+'" style="margin:20px;"><tr><th align="left" style="width:200px">'+testcases[i].origin_id+'</th><th align="left" style="width:200px">'+testcases[i].name+'</th><th style="width:200px;" align="left">Datasets: '+ testcases[i].datasets.length +'</th><th align="left">Enable Upgrades</th></tr></table><div style="margin:20px;"><label>New dataset:</label><input type="text" id="new_dataset_input_'+testcases[i].origin_id+'" value="" /><button type="button" class="new_dataset_button" id="new_dataset_send?id='+testcases[i].origin_id+'">Add</button></div><hr>');
+            $("#trlist").append('<table id="testcase_table_'+testcases[i].origin_id+'" style="margin:20px;"><tr><th align="left" style="width:200px">'+testcases[i].origin_id+'</th><th align="left" style="width:200px">'+testcases[i].name+'</th><th style="width:200px;" align="left">Datasets: '+ testcases[i].datasets.length +'</th><th align="left">Enable Upgrades</th><th align="left">Max Value</th></tr></table><div style="margin:20px;"><label>New dataset:</label><input type="text" id="new_dataset_input_'+testcases[i]._id+'" value="" placeholder="dataset_name"/><input type="text" id="new_dataset_input_type_'+testcases[i]._id+'" value="" placeholder="dataset_type:int, string"/><button type="button" class="new_dataset_button" id="new_dataset_send?id='+testcases[i]._id+'">Add</button></div><hr>');
 
             for(var j = 0; j < testcases[i].datasets.length; j++) {
-              $("#testcase_table_" + testcases[i].origin_id).append('<tr><td style="width:200px"></td><td style="width:200px"></td><td>'+ testcases[i].datasets[j].key +'</td><td><input id="dataset_checkbox_'+testcases[i].origin_id+'_'+testcases[i].datasets[j].key+'" type="checkbox" name="enable" value="enable"><input type="text" id="dataset_input_'+testcases[i].origin_id+'_'+testcases[i].datasets[j].key+'" value="10000" /></td></tr>');
+              $("#testcase_table_" + testcases[i].origin_id).append('<tr><td style="width:200px"></td><td style="width:200px"></td><td>'+ testcases[i].datasets[j].key +'</td><td><input id="dataset_checkbox_'+testcases[i].origin_id+'_'+testcases[i].datasets[j].key+'" type="checkbox" name="enable" value="enable"><input type="text" id="dataset_input_'+testcases[i].origin_id+'_'+testcases[i].datasets[j].key+'" value="10000" /></td><td><input type="text" id="dataset_input_max_'+testcases[i].origin_id+'_'+testcases[i].datasets[j].key+'" value="100" /></td></tr>');
             }
         }
       });
@@ -87,6 +94,7 @@
 
               var checked = $("#dataset_checkbox_"+id+"_"+key).is(":checked");
               var updateRate = $("#dataset_input_"+id+"_"+key).val();
+              var maxValue = $("#dataset_input_max_"+id+"_"+key).val();
 
               console.log(id);
               console.log(key);
@@ -96,7 +104,7 @@
               console.log(updateRate);
 
               if(checked)
-                update(id, key, type, updateRate);
+                update(id, key, type, updateRate, maxValue);
             }
           }
          });
@@ -111,20 +119,20 @@
             var key = $("#new_dataset_input_"+id).val();
             console.log(key);
 
-            var newValue = _.random(1, 100);
-            console.log(newValue);
+            var type = $("#new_dataset_input_type_"+id).val();
+            console.log(type);
 
             $.ajax({
-              url : "http://localhost:1080/testcases/" + id,
-              type: "PUT",
+              url : "http://localhost:1080/pipelines/" + id + "/datasets",
+              type: "POST",
               contentType: 'application/json',
-              data : JSON.stringify({ key: key, type: "int", value: newValue, timestamp: moment().format('DD MM YYYY, HH:mm:ss:SSS')}),
+              data : JSON.stringify({ key: key, type: type }),
               success: function(data, textStatus, jqXHR) {
-                  console.log("put success");
+                  console.log("post success");
                   console.log(data);
               },
               error: function (jqXHR, textStatus, errorThrown) {
-                console.log("put error");
+                console.log("post error");
               }
             });
 
@@ -132,14 +140,26 @@
       });
 
       var updateSet = {};
-      function update(id, key, type, updateRate) {
+      function update(id, key, type, updateRate, maxValue) {
         var save_string = id + "_" + key;
         console.log("!!!");
         console.log(updateSet[save_string]);
         console.log("!!!");
 
         updateSet[save_string] = setInterval(function(){
-          var newValue = _.random(1, 100);
+          var newValue = _.random(1, maxValue);
+
+          var level = null;
+          if(type == "string") {
+            var levelArray = [
+                'warning',
+                'error'
+            ];
+            var randomNumber = Math.floor(Math.random()*levelArray.length);
+
+            level = levelArray[randomNumber];
+          }
+
           console.log(newValue);
           var updateSendTime = moment().format('DD MM YYYY, HH:mm:ss:SSS');
 
@@ -147,7 +167,7 @@
             url : "http://localhost:1080/testcases/" + id,
             type: "PUT",
             contentType: 'application/json',
-            data : JSON.stringify({ key: key, type: type, value: newValue, timestamp: updateSendTime }),
+            data : JSON.stringify({ key: key, type: type, value: newValue, level: level, timestamp: updateSendTime }),
             success: function(data, textStatus, jqXHR) {
                 console.log("put success");
                 console.log(data);
@@ -166,7 +186,7 @@
             }
           });
 
-        }, 1000);
+        }, updateRate);
       }
 
       function getParameter(url, name) {

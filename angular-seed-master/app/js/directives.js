@@ -46,7 +46,7 @@ angular.module('myApp.directives', ['d3']).
 
         //var legendWidth = 200; // Additional legend width
 
-        var parseDate = d3.time.format('%d %m %Y, %H:%M:%S').parse;
+        var parseDate = d3.time.format('%d %m %Y, %H:%M:%S:%L').parse;
 
        	var svg;
 
@@ -77,12 +77,12 @@ angular.module('myApp.directives', ['d3']).
 		}, true);
 
 		// Single date update
-		/*scope.$watch('date', function(newVals, oldVals) {
+		scope.$watch('date', function(newVals, oldVals) {
 	        if (scope.date) {
 				if(rendered)
 					return scope.renderUpdate(newVals);
 			}
-		}, true);*/
+		}, true);
 
 		// New request update
 		scope.$watch('newdata', function(newVals, oldVals) {
@@ -186,20 +186,12 @@ angular.module('myApp.directives', ['d3']).
 		// Update for single date object
 		scope.renderUpdate = function(date) {
 	        console.log(date);
+	        var current_dataset = null;
 	        if(date.type == "string") {
 
-			    // Get log data from datasets
-			    for(var i in allData.datasets) {
-			      if(allData.datasets[i].type == "string") {
-			         var current_dataset = allData.datasets[i];
-			        //delete data.datasets[i];
-			        //data.datasets.length--;
-			      }
-			    }
-
 	            // Push new value in dataset
+                current_dataset = string_dataset;
 	            current_dataset.values.push({ timestamp: date.timestamp, value: date.value, level: date.level});    
-	            //var current_dataset = string_dataset;
 
 	            // Append new focus circle
 	            d3.select(".focus.scatter").selectAll('circle')
@@ -221,7 +213,7 @@ angular.module('myApp.directives', ['d3']).
 	             .attr('class', 'circle')
 	             .style("fill", function (d) { return logColor(d.level);})
 	             .attr("r", 3)
-	             .attr("cy", function (d) { return height2/2; });
+	             .attr("cy", function (d) { return height.context/2; });
 
 	            // Keep filter
 	            for(var i in settings.logFilter) {
@@ -232,11 +224,13 @@ angular.module('myApp.directives', ['d3']).
 	            }
 	        } else {
 	          // Find according dataset
+	          console.log(date.key);
+
 	          for(var i in allData.datasets) {
 	            if(allData.datasets[i].key == date.key) {
 	              // Push new value in dataset
 	              allData.datasets[i].values.push({ timestamp: date.timestamp, value: date.value});
-	              var current_dataset = allData.datasets[i];
+	              current_dataset = allData.datasets[i];
 	            }
 	          }
 	        } 
@@ -250,7 +244,7 @@ angular.module('myApp.directives', ['d3']).
 	               return x2(parseDate(d.timestamp));
 	          })
 	          .attr("cy", function(d) {
-	               return height2/2; 
+	               return height.context/2; 
 	          });
 
 	        // Update context axis
@@ -306,6 +300,8 @@ angular.module('myApp.directives', ['d3']).
 		  }
 
   		  function createLogScatterplot(string_dataset) {
+  		  	console.log(string_dataset);
+
 			x_log = d3.time.scale().range([0, width.graph]),
 		    	y_log = d3.scale.linear().range([height.scatterplot, 0]);
 
@@ -355,9 +351,12 @@ angular.module('myApp.directives', ['d3']).
 	        var xAxis = d3.svg.axis().scale(x).orient("bottom"),
 	            yAxis = d3.svg.axis().scale(y).orient("left");
 
+	            console.log("yyy");
+	            console.log(dataset.values);
+
 	        //x.domain(d3.extent(data.datasets[0].values.map(function(d) { return parseDate(d.timestamp); })));
 	        x.domain(d3.extent(dataset.values.map(function(d) { return parseDate(d.timestamp); })));
-	        y.domain([0, d3.max(dataset.values, function(d) { return d.value; })]);
+	        y.domain([0, d3.max(dataset.values, function(d) { return parseInt(d.value); })]);
 
 	        // Save domains and axes for later
 	        //xAxes.push(xAxis);
