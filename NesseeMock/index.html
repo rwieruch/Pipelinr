@@ -59,6 +59,35 @@
             // Add new object button
       $("#test_it").click(function(){
         console.log("test");
+
+         $.ajax({
+          url : "http://localhost:1080/pipelines/" + alltestcases[0]._id + "/datasets",
+          type: "GET",
+          contentType: 'application/json',
+          success: function(data, textStatus, jqXHR) {
+              console.log("get ..... success");
+              console.log(data);
+
+
+              $.ajax({
+                url : "http://localhost:1080/pipelines/" + alltestcases[0]._id + "/datasets/" + data[0]._id + "/values",
+                type: "POST",
+                contentType: 'application/json',
+                success: function(data, textStatus, jqXHR) {
+                    console.log("get ..... success");
+                    console.log(data);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                  console.log("post error");
+                }
+              });
+
+
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.log("post error");
+          }
+        });
       });
 
       // Get all objects and update them periodically
@@ -66,25 +95,12 @@
         console.log(testcases)
         alltestcases = testcases;
 
-           /* $.ajax({
-              url : "http://localhost:1080/pipelines/" + testcases[0]._id + "/datasets",
-              type: "GET",
-              contentType: 'application/json',
-              success: function(data, textStatus, jqXHR) {
-                  console.log("get ..... success");
-                  console.log(data);
-              },
-              error: function (jqXHR, textStatus, errorThrown) {
-                console.log("post error");
-              }
-            });*/
-
         for(var i in testcases) {
 
-            $("#trlist").append('<table id="testcase_table_'+testcases[i].origin_id+'" style="margin:20px;"><tr><th align="left" style="width:200px">'+testcases[i].origin_id+'</th><th align="left" style="width:200px">'+testcases[i].name+'</th><th style="width:200px;" align="left">Datasets: '+ testcases[i].datasets.length +'</th><th align="left">Enable Upgrades</th><th align="left">Max Value</th></tr></table><div style="margin:20px;"><label>New dataset:</label><input type="text" id="new_dataset_input_'+testcases[i]._id+'" value="" placeholder="dataset_name"/><input type="text" id="new_dataset_input_type_'+testcases[i]._id+'" value="" placeholder="dataset_type:int, string"/><button type="button" class="new_dataset_button" id="new_dataset_send?id='+testcases[i]._id+'">Add</button></div><hr>');
+            $("#trlist").append('<table id="testcase_table_'+testcases[i]._id+'" style="margin:20px;"><tr><th align="left" style="width:200px">'+testcases[i]._id+'</th><th align="left" style="width:200px">'+testcases[i].name+'</th><th style="width:200px;" align="left">Datasets: '+ testcases[i].datasets.length +'</th><th align="left">Enable Upgrades</th><th align="left">Max Value</th></tr></table><div style="margin:20px;"><label>New dataset:</label><input type="text" id="new_dataset_input_'+testcases[i]._id+'" value="" placeholder="dataset_name"/><input type="text" id="new_dataset_input_type_'+testcases[i]._id+'" value="" placeholder="dataset_type:int, string"/><button type="button" class="new_dataset_button" id="new_dataset_send?id='+testcases[i]._id+'">Add</button></div><hr>');
 
             for(var j = 0; j < testcases[i].datasets.length; j++) {
-              $("#testcase_table_" + testcases[i].origin_id).append('<tr><td style="width:200px"></td><td style="width:200px"></td><td>'+ testcases[i].datasets[j].key +'</td><td><input id="dataset_checkbox_'+testcases[i].origin_id+'_'+testcases[i].datasets[j].key+'" type="checkbox" name="enable" value="enable"><input type="text" id="dataset_input_'+testcases[i].origin_id+'_'+testcases[i].datasets[j].key+'" value="10000" /></td><td><input type="text" id="dataset_input_max_'+testcases[i].origin_id+'_'+testcases[i].datasets[j].key+'" value="100" /></td></tr>');
+              $("#testcase_table_" + testcases[i]._id).append('<tr><td style="width:200px"></td><td style="width:200px"></td><td>'+ testcases[i].datasets[j].key +'</td><td><input id="dataset_checkbox_'+testcases[i]._id+'_'+testcases[i].datasets[j].key+'" type="checkbox" name="enable" value="enable"><input type="text" id="dataset_input_'+testcases[i]._id+'_'+testcases[i].datasets[j].key+'" value="10000" /></td><td><input type="text" id="dataset_input_max_'+testcases[i]._id+'_'+testcases[i].datasets[j].key+'" value="100" /></td></tr>');
             }
         }
       });
@@ -100,7 +116,8 @@
 
           for(var i in alltestcases) {
             for(var j in alltestcases[i].datasets) {
-              var id = alltestcases[i].origin_id;
+              var id = alltestcases[i]._id;
+              var dataset_id = alltestcases[i].datasets[j]._id;
               var key = alltestcases[i].datasets[j].key;
               var type = alltestcases[i].datasets[j].type;
 
@@ -109,6 +126,7 @@
               var maxValue = $("#dataset_input_max_"+id+"_"+key).val();
 
               console.log(id);
+              console.log(dataset_id);
               console.log(key);
               console.log(type);
 
@@ -116,7 +134,7 @@
               console.log(updateRate);
 
               if(checked)
-                update(id, key, type, updateRate, maxValue);
+                update(id, dataset_id, key, type, updateRate, maxValue);
             }
           }
          });
@@ -152,7 +170,7 @@
       });
 
       var updateSet = {};
-      function update(id, key, type, updateRate, maxValue) {
+      function update(id, dataset_id, key, type, updateRate, maxValue) {
         var save_string = id + "_" + key;
         console.log("!!!");
         console.log(updateSet[save_string]);
@@ -175,7 +193,7 @@
           console.log(newValue);
           var updateSendTime = moment().format('DD MM YYYY, HH:mm:ss:SSS');
 
-          $.ajax({
+          /*$.ajax({
             url : "http://localhost:1080/testcases/" + id,
             type: "PUT",
             contentType: 'application/json',
@@ -195,6 +213,29 @@
             },
             error: function (jqXHR, textStatus, errorThrown) {
               console.log("put error");
+            }
+          });*/
+
+          $.ajax({
+            url : "http://localhost:1080/pipelines/" + id + "/datasets/" + dataset_id + "/values",
+            type: "POST",
+            contentType: 'application/json',
+            data : JSON.stringify({ value: newValue, level: level, timestamp: updateSendTime }),
+            success: function(data, textStatus, jqXHR) {
+                console.log("post success");
+                console.log(data);
+
+                var updateSuccessTime = moment().format('DD MM YYYY, HH:mm:ss:SSS');
+                var sendDate = moment(updateSendTime, 'DD MM YYYY, HH:mm:ss:SSS');
+                var successDate = moment(updateSuccessTime, 'DD MM YYYY, HH:mm:ss:SSS');
+                var timeDiff = sendDate.diff(successDate);
+
+                var elem = document.getElementById('messages');
+                elem.innerHTML += 'Update success: '+id+':'+dataset_id+' at '+timeDiff+'<br/>';
+                elem.scrollTop = elem.scrollHeight;
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              console.log("post error");
             }
           });
 

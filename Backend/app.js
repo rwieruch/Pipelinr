@@ -21,6 +21,7 @@ var _ = require("underscore");
 testcase = require('./routes/testcases');
 pipeline = require('./routes/pipelines');
 dataset = require('./routes/datasets');
+value = require('./routes/values');
 user = require('./routes/users');
 sessions = require('./routes/sessions');
 
@@ -93,8 +94,15 @@ db.once('open', function() {
   var datasetSchema = new mongoose.Schema({
     _pipeline: {type: mongoose.Schema.Types.ObjectId, ref: 'Pipeline'},
     key: String,
-    type: String//,
-    //TODO values
+    type: String,
+    values: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Value' }]
+  });
+
+  var valueSchema = new mongoose.Schema({
+    _dataset: {type: mongoose.Schema.Types.ObjectId, ref: 'Dataset'},
+    value: String,
+    timestamp: String,
+    level: String
   });
 
   // Compile models using the schema as the structure
@@ -104,6 +112,7 @@ db.once('open', function() {
   Testcase = mongoose.model('Testcase', testcaseSchema);
   Pipeline = mongoose.model('Pipeline', pipelineSchema);
   Dataset = mongoose.model('Dataset', datasetSchema);
+  Value = mongoose.model('Value', valueSchema);
 });
 
 /*console.log("nostradamus");
@@ -176,6 +185,8 @@ app.get('/pipelines/:id', pipeline.findOnePipeline);
 
 app.post('/pipelines/:id/datasets', dataset.addDataset);
 app.get('/pipelines/:id/datasets', dataset.findAllDatasetsByPipeline);
+
+app.post('/pipelines/:pipeline_id/datasets/:dataset_id/values', value.updateValue);
 
 app.get('/testcases/:id', testcase.findById(moment));
 app.get('/testcases', testcase.findAll);

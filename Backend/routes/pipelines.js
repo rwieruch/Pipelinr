@@ -20,7 +20,7 @@ exports.findAllPipelines = function(req, res) {
   console.log('Find all pipelines');
 
   Pipeline.find()
-    .populate('datasets', 'key type')
+    .populate('datasets', 'key type values') // TODO: remove values, only for testing
     .exec(function(err, pipelines) {
       if (err) return res.send(pipelinr_util.handleError(err));
       res.send(pipelines);
