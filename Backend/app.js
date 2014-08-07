@@ -46,6 +46,7 @@ app.post('/logout', sessions.logout);
 app.post('/pipelines', pipeline.addPipeline);
 app.get('/pipelines', pipeline.findAllPipelines);
 app.get('/pipelines/:id', pipeline.findOnePipeline);
+app.delete('/pipelines/:id', pipeline.deletePipeline);
 
 app.post('/pipelines/:id/datasets', dataset.addDataset);
 // TODO: do i really need this?

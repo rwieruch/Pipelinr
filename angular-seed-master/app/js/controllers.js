@@ -7,18 +7,33 @@ angular.module('myApp.controllers', [])
     // Set for refresh
 	$http.defaults.headers.common['token'] = Session.token;
 
+	$scope.alerts = [];
+
 	// Set data
 	var pipelines = PipelineService.query();
-    $scope.pipelines = pipelines;
-    console.log(pipelines);
+  $scope.pipelines = pipelines;
+  console.log(pipelines);
 
-    // Search input
-    $scope.search = function(item) {
-    	if (item.name.indexOf($scope.query)!=-1 || item.origin_id.indexOf($scope.query)!=-1 || angular.isUndefined($scope.query)) {           
-            return true;
-        }
-        return false;
+  // Search input
+  $scope.search = function(item) {
+  	if (item.name.indexOf($scope.query)!=-1 || item.origin_id.indexOf($scope.query)!=-1 || angular.isUndefined($scope.query)) {           
+      return true;
+    }
+    return false;
 	};
+
+	$scope.deletePipeline = function (_id) {
+    PipelineService.remove({ id: _id }, function (response) {
+    	$scope.pipelines = PipelineService.query();
+    	$scope.alerts.push({ type: 'success', msg: 'Pipeline deleted successfully.'});
+    }, function (error) {
+      $scope.alerts.push({ type: 'danger', msg: error.status + ": " + error.data});
+    });
+  };
+
+  $scope.closeAlert = function(index) {
+    $scope.alerts.splice(index, 1);
+  };
 
     // Push notifications
 	Socket.on('connectionStatus', function (msg) {

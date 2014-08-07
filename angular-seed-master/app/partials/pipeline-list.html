@@ -1,17 +1,48 @@
 <div class="container">
 	<div class="row equal">
 		<div class="col col-md-8">
+			<div style="width:100%;">
+				<alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container">
+	<div class="row equal">
+		<div class="col col-md-8">
+			<input type="text" class="form-control margin-base-vertical" ng-model="query" placeholder="Search">
+		</div>
+	</div>
+</div>
+<div class="container">
+	<div class="row equal">
+		<div class="col col-md-8">
 			<div class="my-inner-container">
-				<input type="text" class="form-control margin-base-vertical" ng-model="query" placeholder="Search">
 				<table class="table table-hover table-top" id="tr_list">
-					<tr><th>Pipeline</th><th>Id</th><th>Datasets</th<tr>
+					<tr><th>Pipeline</th><th></th><th>Origin Id</th><th>Datasets</th><th></th><tr>
 					<tr ng-repeat="pipeline in pipelines | filter:search">
-						<td><a href="#/pipeline-list/{{pipeline._id}}">{{pipeline.name}}</a></td>
-						<td>{{pipeline.origin_id}}</td>
+						<td>
+							<p>{{pipeline.name}}</p>
+						</td>
+						<td>
+							<p>{{pipeline.origin_id}}</p>
+						</td>
+						<td>
+							<a href="#/pipeline-list/{{pipeline._id}}">
+							<button type="button" class="btn btn-default">
+							  <span class="glyphicon glyphicon-stats"></span>
+							</button></a>
+							<button type="button" class="btn btn-default">
+							  <span class="glyphicon glyphicon-edit"></span> Edit
+							</button>
+							<button type="button" class="btn btn-danger" ng-click="deletePipeline(pipeline._id)">
+							  <span class="glyphicon glyphicon-trash"></span>
+							</button>
+						</td>
 						<td>      
 							<ul>
 					         <li class="non-styled" ng-repeat="dataset in pipeline.datasets"> 
-					           {{dataset.key}} 
+					            <p>{{dataset.key}}</p>
 					         </li>
 					       </ul>
 				   	   </td>

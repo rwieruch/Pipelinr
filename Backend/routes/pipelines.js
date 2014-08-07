@@ -47,6 +47,15 @@ exports.findOnePipeline = function(req, res) {
   });
 };
 
+exports.deletePipeline = function(req, res) {
+  console.log('Delete pipeline');
+  console.log(req.params.id);
+  models.Pipeline.remove({ _id: req.params.id }).exec(function (err) {
+    if (err) return res.send(pipelinr_util.handleError(err));
+    res.send(200, {});
+  });
+};
+
 // Vorlage
 //exports.myMethod = function(req, res) {
     //var token = req.headers.token;
