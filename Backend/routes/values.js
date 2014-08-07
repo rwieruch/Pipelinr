@@ -23,7 +23,7 @@ exports.updateValue = function(req, res) {
 	models.Dataset.findOneAndUpdate({_id: _dataset_id}, {$push: {"values": value._id}}, {safe: true, upsert: true})
 	.exec(function (err, dataset) {
 	        if (err) return res.send(pipelinr_util.handleError(err));
-          	res.send(200, {value: value});
+          	res.send(200);
 	    }
 	);
 

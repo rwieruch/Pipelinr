@@ -62,6 +62,9 @@ angular.module('myApp.directives', ['d3']).
         var allData;
     	var string_dataset;
 
+    	var int_datasets = []; // TODO: Use this later to hold datasets
+    	var string_datasets = []; // TODO: Use this later to hold datasets
+
         var rendered = false;
 
         // Initialize update
@@ -259,14 +262,16 @@ angular.module('myApp.directives', ['d3']).
 	      if (!data) return;
 
 	      allData = data;
+	      console.log("here");
 	   	  console.log(allData.datasets);
 
 		  // Get log data from datasets
 		  for(var i in allData.datasets) {
 		    if(allData.datasets[i].type == "string") {
 		      string_dataset = allData.datasets[i];
-		      delete allData.datasets[i];
-		      allData.datasets.length--;
+		      //delete allData.datasets[i];
+		      //allData.datasets.length--;
+		      allData.datasets.splice(i,1);
 		    }
 		  }
 

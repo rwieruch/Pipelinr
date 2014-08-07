@@ -193,32 +193,10 @@
           console.log(newValue);
           var updateSendTime = moment().format('DD MM YYYY, HH:mm:ss:SSS');
 
-          /*$.ajax({
-            url : "http://localhost:1080/testcases/" + id,
-            type: "PUT",
-            contentType: 'application/json',
-            data : JSON.stringify({ key: key, type: type, value: newValue, level: level, timestamp: updateSendTime }),
-            success: function(data, textStatus, jqXHR) {
-                console.log("put success");
-                console.log(data);
-
-                var updateSuccessTime = moment().format('DD MM YYYY, HH:mm:ss:SSS');
-                var sendDate = moment(updateSendTime, 'DD MM YYYY, HH:mm:ss:SSS');
-                var successDate = moment(updateSuccessTime, 'DD MM YYYY, HH:mm:ss:SSS');
-                var timeDiff = sendDate.diff(successDate);
-
-                var elem = document.getElementById('messages');
-                elem.innerHTML += 'Update success: '+id+':'+key+' at '+timeDiff+'<br/>';
-                elem.scrollTop = elem.scrollHeight;
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-              console.log("put error");
-            }
-          });*/
-
           $.ajax({
             url : "http://localhost:1080/pipelines/" + id + "/datasets/" + dataset_id + "/values",
             type: "POST",
+            async: true,
             contentType: 'application/json',
             data : JSON.stringify({ value: newValue, level: level, timestamp: updateSendTime }),
             success: function(data, textStatus, jqXHR) {
