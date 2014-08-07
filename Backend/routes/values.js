@@ -16,14 +16,14 @@ exports.updateValue = function(io) {
 	    level: object.level
 	  });
 
+	  // Save new value
 	  value.save(function(err, value) {
 	    if (err) return res.send(pipelinr_util.handleError(err));
 
+	    // Save ref in dataset
 		models.Dataset.findOneAndUpdate({_id: _dataset_id}, {$push: {"values": value._id}}, {safe: true, upsert: true})
 		.exec(function (err, dataset) {
 		        if (err) return res.send(pipelinr_util.handleError(err));
-	          	// TODO: io
-	            //io.sockets.in('flow').emit('updatedObject', JSON.parse(JSON.stringify({ id: _dataset_id, key: object.key, value: object.value, timestamp: object.timestamp, type: object.type, level: object.level })));
 	          	res.send(200, {value: value});
 		    }
 		);

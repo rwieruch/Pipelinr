@@ -16,12 +16,12 @@ http.listen(1080);
 var _ = require("underscore");
 
 // Rest models
-testcase = require('./routes/testcases');
-pipeline = require('./routes/pipelines');
-dataset = require('./routes/datasets');
-value = require('./routes/values');
-user = require('./routes/users');
-sessions = require('./routes/sessions');
+var testcase = require('./routes/testcases');
+var pipeline = require('./routes/pipelines');
+var dataset = require('./routes/datasets');
+var value = require('./routes/values');
+var user = require('./routes/users');
+var sessions = require('./routes/sessions');
 
 // Realtime
 io.sockets.on('connection', function (socket) {
@@ -56,3 +56,13 @@ app.get('/testcases/:id', testcase.findById(moment));
 app.get('/testcases', testcase.findAll);
 app.post('/testcases', testcase.addObject(io));
 app.put('/testcases/:id', testcase.updateObject(io));
+
+// Websockets
+var models = require('./models/models.js');
+
+models.valueSchema.post('save', function (value) {
+  console.log('%s has been saved ............... ', value._id);
+  console.log(value);
+
+  //io.sockets.in('flow').emit('updatedObject', JSON.parse(JSON.stringify({ id: _dataset_id, key: object.key, value: object.value, timestamp: object.timestamp, type: object.type, level: object.level })));
+});

@@ -72,12 +72,6 @@ var valueSchema = new mongoose.Schema({
   level: String
 });
 
-valueSchema.post('save', function (doc) {
-  console.log('%s has been saved ............... ', doc._id);
-});
-
-// Compile models using the schema as the structure
-// Mongoose also creates a MongoDB collection called 'User' for these documents.
 var User = mongoose.model('User', userSchema);
 var Session = mongoose.model('Session', sessionSchema);
 var Testcase = mongoose.model('Testcase', testcaseSchema);
@@ -93,3 +87,5 @@ exports.Testcase = Testcase;
 exports.Pipeline = Pipeline;
 exports.Dataset = Dataset;
 exports.Value = Value;
+
+exports.valueSchema = valueSchema;
