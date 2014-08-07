@@ -51,7 +51,7 @@ angular.module('myApp.controllers', [])
 	$http.defaults.headers.common['token'] = Session.token; 
 
 	// Get and resolve pipeline
-	var pipeline = PipelineService.get({originId: $routeParams.originId});
+	var pipeline = PipelineService.get({id: $routeParams.id});
 	pipeline.$promise.then(function(pipeline) {
 		console.log(pipeline);
 
@@ -109,7 +109,7 @@ angular.module('myApp.controllers', [])
 
 		// TODO use selection for datasets $scope.selection
 
-		var pipeline = PipelineService.get({originId: $routeParams.originId, begin: begin, end: end, keys: keys});
+		var pipeline = PipelineService.get({id: $routeParams.id, begin: begin, end: end, keys: keys});
 
 		pipeline.$promise.then(function(newdata) {
 			console.log(newdata);

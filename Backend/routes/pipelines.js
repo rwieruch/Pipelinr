@@ -33,10 +33,17 @@ exports.findOnePipeline = function(req, res) {
   var _id = req.params.id;
 
   models.Pipeline.findOne({ _id: _id })
-  .populate('datasets', 'key type values')
-  .exec(function(err, pipelines) {
+  .populate('datasets')
+  .exec(function(err, pipeline) {
     if (err) return res.send(pipelinr_util.handleError(err));
-    res.send(pipelines);
+
+    // Populate nested values in pipeline
+    models.Dataset.populate(pipeline.datasets, {path:'values'},
+       function(err, data){
+          if (err) return res.send(pipelinr_util.handleError(err));
+          res.send(pipeline);
+       }
+    );  
   });
 };
 

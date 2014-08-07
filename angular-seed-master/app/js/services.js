@@ -38,9 +38,9 @@ angular.module('myApp.services', ['ngResource'])
   };
 })
 .factory('PipelineService', function($resource) {
-    return $resource(pipelinrURL + '/pipelines/:originId', {}, {  
+    return $resource(pipelinrURL + '/pipelines/:id', {}, {  
         query: {method: 'GET', isArray: true},
-        get: {method:'GET', params:{originId:'originId', begin: '', end: '', keys: ''}}
+        get: {method:'GET', params:{id:'id', begin: '', end: '', keys: ''}}
     });
   })
 .factory('UserService', function($resource) {
