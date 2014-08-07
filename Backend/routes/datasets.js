@@ -1,4 +1,5 @@
 var pipelinr_util = require("../util/util.js");
+var models = require('../models/models.js');
 
 exports.addDataset = function(req, res) {
   var object = req.body;
@@ -6,7 +7,7 @@ exports.addDataset = function(req, res) {
   console.log('addDataset: ' + JSON.stringify(object));
   console.log('in Pipeline: ' + _pipeline_id);
 
-  var dataset = new Dataset({
+  var dataset = new models.Dataset({
     _pipeline: _pipeline_id,
     key: object.key,
     type: object.type
@@ -17,7 +18,7 @@ exports.addDataset = function(req, res) {
     if (err) return res.send(pipelinr_util.handleError(err));
 
     // Save ref in pipeline
-    Pipeline
+    models.Pipeline
       .findOne({ _id: _pipeline_id })
       .exec(function (err, pipeline) {
         if (err) return res.send(pipelinr_util.handleError(err));
@@ -36,7 +37,7 @@ exports.findAllDatasetsByPipeline = function(req, res) {
   console.log('Find all datasets by pipeline');
   var _pipeline_id = req.params.id;
 
-  Dataset
+  models.Dataset
     .find({ _pipeline: _pipeline_id })
     .exec(function (err, datasets) {
       if (err) return res.send(pipelinr_util.handleError(err));

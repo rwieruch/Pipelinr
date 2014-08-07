@@ -1,8 +1,10 @@
+var models = require('../models/models.js'); 
+
 exports.addUser = function(req, res) {
     var object = req.body;
     console.log('add user: ' + JSON.stringify(object));
 
-    var user = new User({
+    var user = new models.User({
           email: object.email
         , username: object.name
         , password: object.password
@@ -21,7 +23,7 @@ exports.addUser = function(req, res) {
 
 exports.findAll = function(req, res) {
     console.log('Find all users');
-    User.find(function(err, users) {
+    models.User.find(function(err, users) {
       if (err) { res.send(404); return; }
       res.send(users);
     });

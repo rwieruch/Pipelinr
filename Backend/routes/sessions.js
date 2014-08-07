@@ -1,9 +1,11 @@
+var models = require('../models/models.js'); 
+
 exports.login = function(req, res) {
     var object = req.body;
     console.log('add session: ' + JSON.stringify(object));
 
     // Get registered user
-    User.findOne({ email: object.email, password: object.password }, function(err, user) {
+    models.User.findOne({ email: object.email, password: object.password }, function(err, user) {
       if (err || !user) { res.send(404); return; }
 
       // Create session with token
@@ -13,7 +15,7 @@ exports.login = function(req, res) {
 
       console.log("Token created: " + token);
 
-      var session = new Session({
+      var session = new models.Session({
             email: object.email,
             timestamp: timestamp,
             token: token
@@ -34,7 +36,7 @@ exports.logout = function(req, res) {
     console.log('remove session: ' + token);
 
     // Find session
-    Session.findOne({ token: token }, function(err, session) {
+    models.Session.findOne({ token: token }, function(err, session) {
       if (err || !session) { res.send(401); return; }
       
       console.log("Session retireved: " + session);
