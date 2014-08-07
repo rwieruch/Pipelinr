@@ -48,9 +48,10 @@ app.get('/pipelines', pipeline.findAllPipelines);
 app.get('/pipelines/:id', pipeline.findOnePipeline);
 
 app.post('/pipelines/:id/datasets', dataset.addDataset);
-app.get('/pipelines/:id/datasets', dataset.findAllDatasetsByPipeline);
+// TODO: do i really need this?
+//app.get('/pipelines/:id/datasets', dataset.findAllDatasetsByPipeline);
 
-app.post('/pipelines/:pipeline_id/datasets/:dataset_id/values', value.updateValue(io));
+app.post('/pipelines/:pipeline_id/datasets/:dataset_id/values', value.updateValue);
 
 app.get('/testcases/:id', testcase.findById(moment));
 app.get('/testcases', testcase.findAll);

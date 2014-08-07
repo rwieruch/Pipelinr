@@ -157,7 +157,8 @@ angular.module('myApp.controllers', [])
 		});
 	};
 	$scope.logoutUser = function(){
-		SessionOutService.create(function(data){
+		SessionOutService.create(function(data) {
+
 		  Session.isLogged = false;
 		  Session.token = "";
 		  $cookieStore.remove("token");

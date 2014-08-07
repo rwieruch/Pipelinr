@@ -6,7 +6,7 @@
 				<table class="table table-hover table-top" id="tr_list">
 					<tr><th>Pipeline</th><th>Id</th><th>Datasets</th<tr>
 					<tr ng-repeat="pipeline in pipelines | filter:search">
-						<td><a href="#/pipeline-list/{{pipeline.origin_id}}">{{pipeline.name}}</a></td>
+						<td><a href="#/pipeline-list/{{pipeline._id}}">{{pipeline.name}}</a></td>
 						<td>{{pipeline.origin_id}}</td>
 						<td>      
 							<ul>

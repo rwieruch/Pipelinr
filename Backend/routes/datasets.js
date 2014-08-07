@@ -33,7 +33,8 @@ exports.addDataset = function(req, res) {
   });
 };
 
-exports.findAllDatasetsByPipeline = function(req, res) {
+// TODO: do i really need this?
+/*exports.findAllDatasetsByPipeline = function(req, res) {
   console.log('Find all datasets by pipeline');
   var _pipeline_id = req.params.id;
 
@@ -44,4 +45,4 @@ exports.findAllDatasetsByPipeline = function(req, res) {
       console.log(datasets);
       res.send(datasets);
   });
-};
+};*/

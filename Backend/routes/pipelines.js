@@ -21,7 +21,7 @@ exports.findAllPipelines = function(req, res) {
   console.log('Find all pipelines');
 
   models.Pipeline.find()
-    .populate('datasets', 'key type values') // TODO: remove values, only for testing
+    .populate('datasets', 'key type')
     .exec(function(err, pipelines) {
       if (err) return res.send(pipelinr_util.handleError(err));
       res.send(pipelines);
@@ -32,9 +32,11 @@ exports.findOnePipeline = function(req, res) {
   console.log('Find one pipeline');
   var _id = req.params.id;
 
-  models.Pipeline.findOne({ _id: _id }, function(err, pipeline) {
+  models.Pipeline.findOne({ _id: _id })
+  .populate('datasets', 'key type values')
+  .exec(function(err, pipelines) {
     if (err) return res.send(pipelinr_util.handleError(err));
-    res.send(pipeline);
+    res.send(pipelines);
   });
 };
 
