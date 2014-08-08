@@ -20,20 +20,21 @@ angular.module('myApp.directives', ['d3']).
         d3Service.d3().then(function(d3) {
 
         var logColor = d3.scale.ordinal()
-	        .domain(["","warning","error"])
-	        .range(["#FFF", "#FFFF00", "#FF0000"]);
+	        .domain(["warning","error"])
+	        .range(["#f1c40f", "#e74c3c"]);
 
-	    var xAxes = new Array();
-	    var yAxes = new Array();
-	    var xs = new Array();
-	    var ys = new Array();
-	    var main_lines = new Array();
+	    var xAxes = [];
+	    var yAxes = [];
+	    var xs = [];
+	    var ys = [];
+	    var main_lines = [];
+	    var main_areas = [];
 
 	    var context;
 	    var scatterplot;
 	    var xAxis2, yAxis2;
 
-        var height = {scatterplot: 50, linechart: 180, context: 25, legend: 250},
+        var height = {scatterplot: 50, linechart: 100, context: 25, legend: 250},
         	width = {graph: 800, graph_right_padding: 50, legend: 200},
         	margin = {left: 40, top: 30, bottom: 40};
 
@@ -42,7 +43,14 @@ angular.module('myApp.directives', ['d3']).
 	    settings.logFilter = new Array();
 	    settings.logFilter.push({ key: "warning", value: true }, { key: "error", value: true });
 
-	    var color = d3.scale.category20();
+	    //var color = d3.scale.category20();
+	    var color_lines = d3.scale.ordinal()
+			  .domain([0, 1, 2, 3, 4, 5, 6, 7])
+			  .range(["#16a085", "#27ae60" , "#2980b9", "#8e44ad", "#f39c12", "#d35400", "#c0392b"]);
+
+	    var color_areas = d3.scale.ordinal()
+			  .domain([0, 1, 2, 3, 4, 5, 6, 7])
+			  .range(["#1abc9c", "#2ecc71" , "#3498db", "#9b59b6", "#f1c40f", "#e67e22", "#e74c3c"]);
 
         //var legendWidth = 200; // Additional legend width
 
@@ -103,8 +111,6 @@ angular.module('myApp.directives', ['d3']).
 		    for(var i in allData.datasets) {
 		      if(allData.datasets[i].type == "string") {
 		        string_dataset = allData.datasets[i];
-		        //delete allData.datasets[i];
-		        //allData.datasets.length--;
 		        allData.datasets.splice(i,1);
 		      }
 		  	}
@@ -132,7 +138,8 @@ angular.module('myApp.directives', ['d3']).
 		    for(var i in main_lines) {
 		      // New data
 		      xs[i].domain(brush.empty() ? x2.domain() : brush.extent());
-		      d3.select(".focus_"+i).select(".area").transition().duration(transitionDuration).attr("d", main_lines[i]);
+		      d3.select(".focus_"+i).select(".area").transition().duration(transitionDuration).attr("d", main_areas[i]);
+		      d3.select(".focus_"+i).select(".line").transition().duration(transitionDuration).attr("d", main_lines[i]);
 		      d3.select(".focus_"+i).select(".x.axis").transition().duration(transitionDuration).call(xAxes[i]);
 		    }
 
@@ -281,7 +288,9 @@ angular.module('myApp.directives', ['d3']).
 		    createLineChart(allData.datasets[i], i, string_dataset);
 	      }
   	      // Give every area a different color
-	      d3.selectAll(".area").attr("fill",function(d,i){return color(i);});
+	    d3.selectAll(".area").attr("fill",function(d,i){return color_areas(i);});
+	    	    d3.selectAll(".line").attr("stroke",function(d,i){return color_lines(i);});
+		  
 		  createContext(allData.datasets, string_dataset);
 		  createSettingContainer();
 
@@ -354,7 +363,7 @@ angular.module('myApp.directives', ['d3']).
 	            y = d3.scale.linear().range([height.linechart, 0]);
 
 	        var xAxis = d3.svg.axis().scale(x).orient("bottom"),
-	            yAxis = d3.svg.axis().scale(y).orient("left");
+	            yAxis = d3.svg.axis().scale(y).orient("left").ticks(5).tickSize(-width.graph, 0, 0).tickPadding(5);
 
 	            console.log("yyy");
 	            console.log(dataset.values);
@@ -375,13 +384,20 @@ angular.module('myApp.directives', ['d3']).
 	        ys[dataset.key] = y;
 
 	        // Create charts
-			var main_line = d3.svg.area()
+			var main_line = d3.svg.line()
+				.interpolate("linear")
+				.x(function(d) { return x(parseDate(d.timestamp)); })
+				.y(function(d) { return y(d.value); });
+
+			main_lines[dataset.key] = main_line;
+
+			var main_area = d3.svg.area()
 				.interpolate("linear")
 				.x(function(d) { return x(parseDate(d.timestamp)); })
 				.y0(height.linechart)
 				.y1(function(d) { return y(d.value); });
 
-			main_lines[dataset.key] = main_line;
+				main_areas[dataset.key] = main_area;
 
 			var focus = svg.append("g")
 			    .attr("class", "focus_" + dataset.key)
@@ -389,8 +405,13 @@ angular.module('myApp.directives', ['d3']).
 
 			focus.append("path")
 			    .datum(dataset.values)
-			    .attr("class", "area")
+			    .attr("class", "line")
 			    .attr("d", main_line);
+
+  			focus.append("path")
+			    .datum(dataset.values)
+			    .attr("class", "area")
+			    .attr("d", main_area);
 
 			focus.append("g")
 			    .attr("class", "x axis")
@@ -529,7 +550,8 @@ angular.module('myApp.directives', ['d3']).
 		    // Line charts update
 		    for(var i in main_lines) {
 		      xs[i].domain(brush.empty() ? x2.domain() : brush.extent());
-		      d3.select(".focus_"+i).select(".area").attr("d", main_lines[i]);
+		      d3.select(".focus_"+i).select(".area").attr("d", main_areas[i]);
+		      d3.select(".focus_"+i).select(".line").attr("d", main_lines[i]);
 		      d3.select(".focus_"+i).select(".x.axis").call(xAxes[i]);
 		    }
 		}

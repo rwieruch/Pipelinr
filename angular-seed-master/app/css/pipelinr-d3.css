@@ -7,8 +7,12 @@
   shape-rendering: crispEdges;
 }
 
+.y line {
+  stroke: lightgrey;
+  opacity: 0.7;
+}
+
 .line {
-  stroke: steelblue;
   stroke-width: 1;
   fill: none;
   clip-path: url(#clip);
@@ -16,10 +20,11 @@
 
 .area {
   clip-path: url(#clip);
+  stroke-width: 0;
+  opacity: 0.7;
 }
 
 .circle {
-  fill: steelblue;
   stroke: #222;
   stroke-width: 1;
 }
