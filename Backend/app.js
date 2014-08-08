@@ -1,3 +1,10 @@
+var cluster = require('cluster');
+
+if ( cluster.isMaster ) {
+  for ( var i=0; i<4; ++i )
+    cluster.fork();
+} else {
+
 var express = require("express");
 var app = express();
 var cors = require('cors');
@@ -68,3 +75,5 @@ models.valueSchema.post('save', function (value) {
 
   //io.sockets.in('flow').emit('updatedObject', JSON.parse(JSON.stringify({ id: _dataset_id, key: object.key, value: object.value, timestamp: object.timestamp, type: object.type, level: object.level })));
 });
+
+}
