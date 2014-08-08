@@ -115,6 +115,16 @@ angular.module('myApp.controllers', [])
     	var tools = [];
     	var tool;
 
+			var keys = $scope.selection;
+			if(keys.length != 0) {
+				tool = {
+					keys: keys,
+					task: "selectDatasets"
+				}
+				tools.push(tool);
+				console.log(tool);
+			}
+
     	var begin = $scope.dateDropDownInput1;
     	var end = $scope.dateDropDownInput2;
     	if(typeof begin !== "undefined" && typeof end !== "undefined") {
@@ -125,16 +135,6 @@ angular.module('myApp.controllers', [])
 					begin: begin,
 					end: end,
 					task: "trimPipeline"
-				}
-				tools.push(tool);
-				console.log(tool);
-			}
-
-			var keys = $scope.selection;
-			if(keys.length != 0) {
-				tool = {
-					keys: keys,
-					task: "selectDatasets"
 				}
 				tools.push(tool);
 				console.log(tool);
@@ -180,7 +180,7 @@ angular.module('myApp.controllers', [])
 
 			console.log(Session);
 
-		  	$scope.user.email = '';
+		  $scope.user.email = '';
 			$scope.user.password = '';
 
 			$location.path( '/pipeline-list' );

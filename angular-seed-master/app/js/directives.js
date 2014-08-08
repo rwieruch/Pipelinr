@@ -34,7 +34,7 @@ angular.module('myApp.directives', ['d3']).
 	    var xAxis2, yAxis2;
 
         var height = {scatterplot: 50, linechart: 180, context: 25, legend: 250},
-        	width = {graph: 800, legend: 200},
+        	width = {graph: 800, graph_right_padding: 50, legend: 200},
         	margin = {left: 40, top: 30, bottom: 40};
 
 	    // TODO: change this to global settings object
@@ -293,7 +293,7 @@ angular.module('myApp.directives', ['d3']).
 
 			// Draw boundary box for everything
 			svg = d3.select(ele[0]).append("svg")
-            	.attr("width", width.graph)
+            	.attr("width", width.graph + width.graph_right_padding)
             	.attr("height", height.scatterplot + (height.linechart * datasets.length + margin.top * datasets.length) + height.context + margin.top + margin.bottom);
 
 	        // Clip on edges
@@ -405,7 +405,7 @@ angular.module('myApp.directives', ['d3']).
 	        focus.append("text")
 			    .attr("class", "x label")
 			    .attr("text-anchor", "end")
-			    .attr("x", width.graph - margin.left - 6)
+			    .attr("x", width.graph - 10)
 			    .attr("y", height.linechart - 6)
 			    .text(dataset.key);
           }
