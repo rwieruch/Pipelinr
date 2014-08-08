@@ -103,14 +103,15 @@ angular.module('myApp.directives', ['d3']).
 		    for(var i in allData.datasets) {
 		      if(allData.datasets[i].type == "string") {
 		        string_dataset = allData.datasets[i];
-		        delete allData.datasets[i];
-		        allData.datasets.length--;
+		        //delete allData.datasets[i];
+		        //allData.datasets.length--;
+		        allData.datasets.splice(i,1);
 		      }
-		    }
+		  	}
 
-	        // Update scatterplot and context 
-	        x2.domain(d3.extent(string_dataset.values, function(d) { return parseDate(d.timestamp); }));
-	        x_log.domain(brush.empty() ? x2.domain() : brush.extent());
+        // Update scatterplot and context 
+        x2.domain(d3.extent(string_dataset.values, function(d) { return parseDate(d.timestamp); }));
+        x_log.domain(brush.empty() ? x2.domain() : brush.extent());
 
 			updateScatterplotCircles(string_dataset);
             updateContextCircles(string_dataset);
@@ -262,7 +263,6 @@ angular.module('myApp.directives', ['d3']).
 	      if (!data) return;
 
 	      allData = data;
-	      console.log("here");
 	   	  console.log(allData.datasets);
 
 		  // Get log data from datasets
@@ -540,7 +540,7 @@ angular.module('myApp.directives', ['d3']).
 		    for(var i in main_lines) {
 	  		  for(var j in allData.datasets) {
 			   	if(allData.datasets[j].key == i) {
-			   		if(allData.datasets[j].values == null) {
+			   		if(allData.datasets[j].values.length == 0) {
 				      d3.select(".focus_"+i).transition().duration(transitionDuration).style("opacity", 0).transition().duration(transitionDuration);
 			  		}
 			  		else {
@@ -554,8 +554,8 @@ angular.module('myApp.directives', ['d3']).
 		    // Translate context
 		    var translateBack = 0;
 		    for(var j in allData.datasets) {
-	   		  if(allData.datasets[j].values == null) {
-	   			translateBack++;
+	   		  if(allData.datasets[j].values.length == 0) {
+	   				translateBack++;
 	   		  }
 		    }
 		    d3.select(".context").transition().duration(transitionDuration).attr("transform", "translate(" + margin.left + "," + (margin.top + height.scatterplot + (height.linechart * (allData.datasets.length-translateBack) + margin.top * (allData.datasets.length-translateBack))) + ")");

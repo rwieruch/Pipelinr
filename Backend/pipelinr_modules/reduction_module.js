@@ -21,14 +21,12 @@ module.exports = {
 
   selectDatasets: function(pipeline, tool) {
   	console.log("select datasets");
-  	var modifiedPipeline = JSON.parse(JSON.stringify(pipeline));
-  	modifiedPipeline.datasets = [];
-  	for(var i = 0; i < pipeline.datasets.length; i++) {
-  		for(var j = 0; j < tool.keys.length; j++) {
-  			if(pipeline.datasets[i].key == tool.keys[j]) 
-					modifiedPipeline.datasets.push(pipeline.datasets[i]);
-  		}
-  	}
-  	return modifiedPipeline;
+  	//var modifiedPipeline = JSON.parse(JSON.stringify(pipeline));
+  	for(var k = 0; k < pipeline.datasets.length; k++) {
+	  	if(!(tool.keys.indexOf(pipeline.datasets[k].key) > -1))
+	  		pipeline.datasets[k].values = [];
+	  }
+
+  	return pipeline;
   }
 };
