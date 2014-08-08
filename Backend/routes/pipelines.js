@@ -1,5 +1,6 @@
 var pipelinr_util = require("../util/util.js");
 var models = require('../models/models.js'); 
+var reduction_module = require('../pipelinr_modules/reduction_module.js'); 
 
 exports.addPipeline = function(req, res) {
   var object = req.body;
@@ -41,6 +42,26 @@ exports.findOnePipeline = function(req, res) {
     models.Dataset.populate(pipeline.datasets, {path:'values'},
        function(err, data){
           if (err) return res.send(pipelinr_util.handleError(err));
+
+          // Use generic datareduction method
+          var tools = req.query.tool;
+          if(typeof tools !== "undefined") {
+
+            if(typeof tools == "string") { // When it is only one tool
+              objectTool = tools;
+              tools = [];
+              tools.push(objectTool);
+            }
+
+            console.log(tools);
+            console.log(tools[0]);
+            for(var t in tools) {
+              jsonTool = JSON.parse(tools[t]);
+              var task = reduction_module[jsonTool.task];
+              pipeline = task(pipeline, jsonTool);
+            }
+          }
+
           res.send(pipeline);
        }
     );  

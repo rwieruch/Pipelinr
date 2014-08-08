@@ -66,71 +66,88 @@ angular.module('myApp.controllers', [])
 	$http.defaults.headers.common['token'] = Session.token; 
 
 	// Get and resolve pipeline
-	var pipeline = PipelineService.get({id: $routeParams.id});
-	pipeline.$promise.then(function(pipeline) {
-		console.log(pipeline);
+	var pipeline = PipelineService.get({id: $routeParams.id, tool: []});
 
-		// D3 directive
-		$scope.data = pipeline;
+		// Resolve new pipeline
+		pipeline.$promise.then(function(pipeline) {
+			console.log(pipeline);
 
-		// Detail window
-		$scope.pipeline = pipeline;
-		$scope.earliestDate = DataProcessing.earliestDate(pipeline);
-		$scope.latestDate = DataProcessing.latestDate(pipeline);
+			// D3 directive
+			$scope.data = pipeline;
 
-		// Checkboxes
-		$scope.keys = DataProcessing.getDatasetKeys(pipeline);
-		$scope.selection = DataProcessing.getDatasetKeys(pipeline);
-		$scope.toggleSelection = function toggleSelection(key) {
-		  var idx = $scope.selection.indexOf(key);
+			// Detail window
+			$scope.pipeline = pipeline;
+			$scope.earliestDate = DataProcessing.earliestDate(pipeline);
+			$scope.latestDate = DataProcessing.latestDate(pipeline);
 
-		  // Is currently selected
-		  if (idx > -1) {
-		    $scope.selection.splice(idx, 1);
-		  }
+			// Checkboxes
+			$scope.keys = DataProcessing.getDatasetKeys(pipeline);
+			$scope.selection = DataProcessing.getDatasetKeys(pipeline);
+			$scope.toggleSelection = function toggleSelection(key) {
+			  var idx = $scope.selection.indexOf(key);
 
-		  // Is newly selected
-		  else {
-		    $scope.selection.push(key);
-		  }
-		};
+			  // Is currently selected
+			  if (idx > -1) {
+			    $scope.selection.splice(idx, 1);
+			  }
+
+			  // Is newly selected
+			  else {
+			    $scope.selection.push(key);
+			  }
+			};
     });
 
-	// Date updates for pipeline
+		// Date updates for pipeline
     Socket.on('updatedObject', function (date) {
     	console.log("updatedObject by socket");
-		$scope.date = date;
+			$scope.date = date;
     });
 
-	// Destroy on navigate away
+		// Destroy on navigate away
     $scope.$on('$destroy', function (event) {
         Socket.getSocket().removeAllListeners();
     });
 
-    // New pipeline request with beginn and end
+    // Get Pipeline with tools
     $scope.getPipeline = function(){
-		var begin = moment($scope.dateDropDownInput1).format('DD MM YYYY, HH:mm:ss');
-		var end = moment($scope.dateDropDownInput2).format('DD MM YYYY, HH:mm:ss');
-		
-		console.log($scope.selection);
 
-		var keys = $scope.selection;
+    	var tools = [];
+    	var tool;
 
-		//begin = "03 06 2014, 10:00:00";
-		//end = "03 06 2014, 11:00:00";
+    	var begin = $scope.dateDropDownInput1;
+    	var end = $scope.dateDropDownInput2;
+    	if(typeof begin !== "undefined" && typeof end !== "undefined") {
+				begin = moment(begin).format('DD MM YYYY, HH:mm:ss');
+				end = moment(end).format('DD MM YYYY, HH:mm:ss');
 
-		console.log(begin);
-		console.log(end);
+				tool = {
+					begin: begin,
+					end: end,
+					task: "trimPipeline"
+				}
+				tools.push(tool);
+				console.log(tool);
+			}
 
-		// TODO use selection for datasets $scope.selection
+			var keys = $scope.selection;
+			if(keys.length != 0) {
+				tool = {
+					keys: keys,
+					task: "selectDatasets"
+				}
+				tools.push(tool);
+				console.log(tool);
+			}
 
-		var pipeline = PipelineService.get({id: $routeParams.id, begin: begin, end: end, keys: keys});
+			var pipeline = PipelineService.get({id: $routeParams.id, tool: tools});
 
-		pipeline.$promise.then(function(newdata) {
-			console.log(newdata);
-			$scope.newdata = newdata;
-    	});
-    };
+			pipeline.$promise.then(function(newdata) {
+				console.log(newdata);
+				$scope.newdata = newdata;
+	  	});
+		};
+
   }]) 
   .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
     $scope.addUser = function(){
