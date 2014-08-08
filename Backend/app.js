@@ -2,78 +2,79 @@ var cluster = require('cluster'),
   numberOfCores = require('os').cpus().length;
 
 if ( cluster.isMaster ) {
-   cluster.fork();
+  for ( var i=0; i<numberOfCores; ++i )
+    cluster.fork();
 } else {
 
-  var express = require("express");
-  var app = express();
-  var cors = require('cors');
-  var http = require("http").createServer(app);
-  var io = require('socket.io').listen(http);
-  var moment = require('moment');
+var express = require("express");
+var app = express();
+var cors = require('cors');
+var http = require("http").createServer(app);
+var io = require('socket.io').listen(http);
+var moment = require('moment');
 
-  // Enable cors
-  app.use(cors());
+// Enable cors
+app.use(cors());
 
-  // For req.body parser
-  app.use(require('connect').bodyParser());
+// For req.body parser
+app.use(require('connect').bodyParser());
 
-  http.listen(1080);
+http.listen(1080);
 
-  var _ = require("underscore");
+var _ = require("underscore");
 
-  // Rest models
-  var testcase = require('./routes/testcases');
-  var pipeline = require('./routes/pipelines');
-  var dataset = require('./routes/datasets');
-  var value = require('./routes/values');
-  var user = require('./routes/users');
-  var sessions = require('./routes/sessions');
+// Rest models
+var testcase = require('./routes/testcases');
+var pipeline = require('./routes/pipelines');
+var dataset = require('./routes/datasets');
+var value = require('./routes/values');
+var user = require('./routes/users');
+var sessions = require('./routes/sessions');
 
-  // Realtime
-  io.sockets.on('connection', function (socket) {
+// Realtime
+io.sockets.on('connection', function (socket) {
 
-    socket.join('flow');
+  socket.join('flow');
 
-    console.log("ping");
+  console.log("ping");
 
-    setInterval(function(){
-      socket.emit('connectionStatus', 'ping');
-    },10000);
+  setInterval(function(){
+    socket.emit('connectionStatus', 'ping');
+  },10000);
 
-  });
+});
 
-  // REST routes
-  app.post('/users', user.addUser);
-  app.get('/users', user.findAll);
+// REST routes
+app.post('/users', user.addUser);
+app.get('/users', user.findAll);
 
-  app.post('/login', sessions.login);
-  app.post('/logout', sessions.logout);
+app.post('/login', sessions.login);
+app.post('/logout', sessions.logout);
 
-  app.post('/pipelines', pipeline.addPipeline);
-  app.get('/pipelines', pipeline.findAllPipelines);
-  app.get('/pipelines/:id', pipeline.findOnePipeline);
-  app.delete('/pipelines/:id', pipeline.deletePipeline);
+app.post('/pipelines', pipeline.addPipeline);
+app.get('/pipelines', pipeline.findAllPipelines);
+app.get('/pipelines/:id', pipeline.findOnePipeline);
+app.delete('/pipelines/:id', pipeline.deletePipeline);
 
-  app.post('/pipelines/:id/datasets', dataset.addDataset);
-  // TODO: do i really need this?
-  //app.get('/pipelines/:id/datasets', dataset.findAllDatasetsByPipeline);
+app.post('/pipelines/:id/datasets', dataset.addDataset);
+// TODO: do i really need this?
+//app.get('/pipelines/:id/datasets', dataset.findAllDatasetsByPipeline);
 
-  app.post('/pipelines/:pipeline_id/datasets/:dataset_id/values', value.updateValue);
+app.post('/pipelines/:pipeline_id/datasets/:dataset_id/values', value.updateValue);
 
-  app.get('/testcases/:id', testcase.findById(moment));
-  app.get('/testcases', testcase.findAll);
-  app.post('/testcases', testcase.addObject(io));
-  app.put('/testcases/:id', testcase.updateObject(io));
+app.get('/testcases/:id', testcase.findById(moment));
+app.get('/testcases', testcase.findAll);
+app.post('/testcases', testcase.addObject(io));
+app.put('/testcases/:id', testcase.updateObject(io));
 
-  // Websockets
-  var models = require('./models/models.js');
+// Websockets
+var models = require('./models/models.js');
 
-  models.valueSchema.post('save', function (value) {
-    console.log('%s has been saved ............... ', value._id);
-    console.log(value);
+models.valueSchema.post('save', function (value) {
+  console.log('%s has been saved ............... ', value._id);
+  console.log(value);
 
-    //io.sockets.in('flow').emit('updatedObject', JSON.parse(JSON.stringify({ id: _dataset_id, key: object.key, value: object.value, timestamp: object.timestamp, type: object.type, level: object.level })));
-  });
+  //io.sockets.in('flow').emit('updatedObject', JSON.parse(JSON.stringify({ id: _dataset_id, key: object.key, value: object.value, timestamp: object.timestamp, type: object.type, level: object.level })));
+});
 
 }
