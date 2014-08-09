@@ -72,6 +72,10 @@ models.pipelineSchema.post('save', function(pipeline) {
   if (this._wasNew) io.sockets.emit('add_pipeline', { pipeline: pipeline });
 });
 
+models.datasetSchema.post('save', function(dataset) {
+  io.sockets.emit('add_dataset_' + dataset._pipeline, { dataset: dataset });
+});
+
 models.valueSchema.post('save', function (value) {
   console.log('%s has been saved', value._id);
   console.log(value);

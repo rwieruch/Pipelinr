@@ -24,6 +24,7 @@ angular.module('myApp.controllers', [])
 	// Get pipelines
 	var pipelines = PipelineService.query();
 	pipelines.$promise.then(function(pipelines) {
+
 	  $scope.pipelines = pipelines;
 	  console.log(pipelines);
 
@@ -46,33 +47,31 @@ angular.module('myApp.controllers', [])
 	 	});
 
   	angular.forEach($scope.pipelines, function(pipeline, key) {
+  		// Push notification for each dataset on each pipeline
+			Socket.on('add_dataset_' + pipeline._id, function (data) {
+				data.dataset.state = "new";
+				pipeline.datasets.push(data.dataset);
+			});
 			angular.forEach(pipeline.datasets, function(dataset, key) {
+				// Push notification for each value on each dataset
 				Socket.on('add_value_' + dataset._id, function (data) {
-					if(typeof dataset.state == "undefined")
-						dataset.state = 1;
+					if(typeof dataset.count == "undefined")
+						dataset.count = 1;
 					else
-						dataset.state++;
+						dataset.count++;
 			 	});
 			});
 		});
-	});
 
-	Socket.on('newDataset', function (pipeline) {
-		console.log("newDataset by socket");
-		for(var i in pipelines) {
-			if(pipelines[i]._id == pipeline._id) {
-				pipelines[i].datasets = pipeline.datasets;
-			}
-		}
-		$scope.pipelines = pipelines;
- 	});
+	});
 
 	// Destroy on navigate away
   $scope.$on('$destroy', function (event) {
         Socket.getSocket().removeAllListeners();
-    });
-  }])  
- .controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'DataProcessing', 'Session', function($scope, $http, $routeParams, Socket, PipelineService, DataProcessing, Session) {
+  });
+  
+}])  
+.controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'DataProcessing', 'Session', function($scope, $http, $routeParams, Socket, PipelineService, DataProcessing, Session) {
 	// Set for refresh
 	$http.defaults.headers.common['token'] = Session.token; 
 
