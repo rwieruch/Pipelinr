@@ -40,14 +40,14 @@
   position: absolute;  
   text-align: center;
   width:140px;
-  height: 35px;
+  height: 25px;
   color: #FFFFFF;
   background: #000000;
-  line-height: 35px;
+  line-height: 25px;
   border-radius: 0px;
   pointer-events: none;
   margin-left: -70px;
-  margin-top: -80px;
+  margin-top: -70px;
 }
 .tip:after {
   content: '';
@@ -71,4 +71,14 @@
   stroke: #fff;
   fill-opacity: .125;
   shape-rendering: crispEdges;
+}
+
+.filter_button {
+  stroke: #000;
+  stroke-width:1;
+}
+
+.label {
+  font-size: 18px;
+  fill: #333;
 }

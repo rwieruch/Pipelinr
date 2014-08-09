@@ -1,56 +1,95 @@
 <div class="container">
 	<div class="row equal">
 		<div class="col col-md-2">
-			<div class="my-inner-container">
+			<div class="panel panel-default">
+			  <div class="panel-heading">
+			    <h3 class="panel-title">Details</h3>
+			  </div>
+			  <div class="panel-body">
 				<label>Id:</label><p>{{pipeline.origin_id}}</p>
 				<label>Name:</label><p>{{pipeline.name}}</p>
 				<label>Begin:</label><p>{{earliestDate}}</p>
 				<label>End:</label><p>{{latestDate}}</p>
+			  </div>
 			</div>
 		</div>
-		<div class="col col-md-6">
-			<div class="my-inner-container">
-		      	<form name="getPipelineForm" class="form-horizontal" role="form" ng-submit="getPipeline()" novalidate>
-		      		<div class="form-group">
-				        <label class="col-sm-1 control-label" for="beginSearchInput">Begin:</label>
-				        <div class="dropdown col-sm-5">
-						  <a class="dropdown-toggle" id="dropdown1" role="button" data-toggle="dropdown" data-target="#" href="#">
-						    <div class="input-group"><input type="text" class="form-control" data-ng-model="dateDropDownInput1" required><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
-						    </div>
-						  </a>
-						  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-						    <datetimepicker data-ng-model="dateDropDownInput1" data-datetimepicker-config="{ dropdownSelector: '#dropdown1' }"/>
-						  </ul>
+		<div class="col col-md-8">
+			<div class="panel panel-default">
+			  	<div class="panel-heading">
+			    	<h3 class="panel-title">Process Pipeline</h3>
+			  	</div>
+			  	<div class="panel-body">
+			      	<form name="getPipelineForm" class="form-horizontal" role="form" ng-submit="getPipeline()" novalidate>
+
+			      		<div class="form-group">
+				      		<div class="col-sm-offset-1 col-sm-7 ">
+								<div class="btn-group" data-toggle="buttons">
+								  <label class="btn btn-default active">
+								    <input type="radio" name="options" id="option1" checked> Static
+								  </label>
+								  <label class="btn btn-default">
+								    <input type="radio" name="options" id="option2"> Real-time
+								  </label>
+								</div>
+							</div>
 						</div>
-					</div>
-		      		<div class="form-group">
-				        <label class="col-sm-1 control-label" for="endSearchInput">End:</label>
-				        <div class="dropdown col-sm-5">
-						  <a class="dropdown-toggle" id="dropdown2" role="button" data-toggle="dropdown" data-target="#" href="#">
-						    <div class="input-group"><input type="text" class="form-control" data-ng-model="dateDropDownInput2" required><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
-						    </div>
-						  </a>
-						  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-						    <datetimepicker data-ng-model="dateDropDownInput2" data-datetimepicker-config="{ dropdownSelector: '#dropdown2' }"/>
-						  </ul>
+
+			      		<div class="form-group">
+					        <label class="col-sm-1 control-label" for="beginSearchInput">Begin:</label>
+					        <div class="dropdown col-sm-4">
+							  <a class="dropdown-toggle" id="dropdown1" role="button" data-toggle="dropdown" data-target="#" href="#">
+							    <div class="input-group"><input type="text" class="form-control" data-ng-model="dateDropDownInput1" required><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+							    </div>
+							  </a>
+							  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+							    <datetimepicker data-ng-model="dateDropDownInput1" data-datetimepicker-config="{ dropdownSelector: '#dropdown1' }"/>
+							  </ul>
+							</div>
 						</div>
-					</div>
-					<div class="form-group">
-					  <div class="col-sm-offset-1 col-sm-10">
-					    <div class="checkbox" ng-repeat="key in keys">
-							<label>
-							  <input
-							    type="checkbox"
-							    name="selectedKeys[]"
-							    value="{{key}}"
-							    ng-checked="selection.indexOf(key) > -1"
-							    ng-click="toggleSelection(key)"> {{key}}
-							</label>
-					    </div>
-					  </div>
-					</div>
-			        <button type="submit" class="col-sm-offset-1 btn btn-default">Send</button><!--ng-disabled="!getPipelineForm.$valid"-->
-		      	</form>
+
+			      		<div class="form-group">
+					        <label class="col-sm-1 control-label" for="endSearchInput">End:</label>
+					        <div class="dropdown col-sm-4">
+							  <a class="dropdown-toggle" id="dropdown2" role="button" data-toggle="dropdown" data-target="#" href="#">
+							    <div class="input-group"><input type="text" class="form-control" data-ng-model="dateDropDownInput2" required><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+							    </div>
+							  </a>
+							  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+							    <datetimepicker data-ng-model="dateDropDownInput2" data-datetimepicker-config="{ dropdownSelector: '#dropdown2' }"/>
+							  </ul>
+							</div>
+						</div>
+
+						<!--<div class="col-sm-3">
+							<div class="btn-group" data-toggle="buttons">
+							  <label class="btn btn-default active">
+							    <input type="radio" name="options" id="option1" checked> Static
+							  </label>
+							  <label class="btn btn-default">
+							    <input type="radio" name="options" id="option2"> Real-time
+							  </label>
+							</div>
+						</div>-->
+
+						<div class="form-group">
+							<div class="col-sm-offset-1">
+							    <div class="checkbox" ng-repeat="key in keys" style="display: inline-block;">
+								  <div class="col-sm-offset-1 col-sm-1">
+									<label style="line-height: 20px;">
+									  <input
+									    type="checkbox"
+									    name="selectedKeys[]"
+									    value="{{key}}"
+									    ng-checked="selection.indexOf(key) > -1"
+									    ng-click="toggleSelection(key)"> {{key}}
+									</label>
+							    </div>
+							  </div>
+							</div>
+						</div>
+				        <button type="submit" class="col-sm-offset-1 btn btn-default">Send</button><!--ng-disabled="!getPipelineForm.$valid"-->
+			      	</form>
+			    </div>
 			</div>
 		</div>
 	</div>

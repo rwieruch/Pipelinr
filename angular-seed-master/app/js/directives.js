@@ -35,8 +35,8 @@ angular.module('myApp.directives', ['d3']).
 	    var xAxis2, yAxis2;
 
         var height = {scatterplot: 50, linechart: 100, context: 25, legend: 250},
-        	width = {graph: 800, graph_right_padding: 50, legend: 200},
-        	margin = {left: 40, top: 30, bottom: 40};
+        	width = {graph: 800, legend: 200},
+        	margin = {left: 50, top: 30, bottom: 40, right: 50};
 
 	    // TODO: change this to global settings object
 	    var settings = {};
@@ -302,7 +302,8 @@ angular.module('myApp.directives', ['d3']).
 
 			// Draw boundary box for everything
 			svg = d3.select(ele[0]).append("svg")
-            	.attr("width", width.graph + width.graph_right_padding)
+					    .attr("transform", "translate(" + margin.left + "," + 0 + ")")
+            	.attr("width", width.graph + margin.right)
             	.attr("height", height.scatterplot + (height.linechart * datasets.length + margin.top * datasets.length) + height.context + margin.top + margin.bottom);
 
 	        // Clip on edges
@@ -355,6 +356,12 @@ angular.module('myApp.directives', ['d3']).
 			  .on("mouseout", function(d) {       
 			    tip.transition().duration(500).style("opacity", 0);   
 		    });
+
+        scatterplot.append("text")
+			    .attr("class", "label")
+			    .attr("x", 0)
+			    .attr("y", 15)
+			    .text(string_dataset.key);
 		  }
 
           function createLineChart(dataset, i, string_dataset) {
@@ -365,7 +372,6 @@ angular.module('myApp.directives', ['d3']).
 	        var xAxis = d3.svg.axis().scale(x).orient("bottom"),
 	            yAxis = d3.svg.axis().scale(y).orient("left").ticks(5).tickSize(-width.graph, 0, 0).tickPadding(5);
 
-	            console.log("yyy");
 	            console.log(dataset.values);
 
 	        //x.domain(d3.extent(data.datasets[0].values.map(function(d) { return parseDate(d.timestamp); })));
@@ -423,13 +429,14 @@ angular.module('myApp.directives', ['d3']).
 			    .attr("class", "y "+i+ " axis")
 			    .call(yAxis);
 
-	        focus.append("text")
+        focus.append("text")
 			    .attr("class", "x label")
 			    .attr("text-anchor", "end")
-			    .attr("x", width.graph - 10)
-			    .attr("y", height.linechart - 6)
+			    .attr("x", 0)
+			    .attr("y", - 35)
+			    .attr('transform', 'rotate(-90)')
 			    .text(dataset.key);
-          }
+			  }
 
 	      function createContext(datasets, string_dataset) {
 
@@ -493,7 +500,7 @@ angular.module('myApp.directives', ['d3']).
 	            .data(logColor.domain())
 	          .enter().append("g")
 	            .attr("class", "legend")
-	            .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+	            .attr("transform", function(d, i) { return "translate(0," + i * 25 + ")"; });
 
 	        legend.append("rect")
 	            .attr("class", "filter_button")
@@ -508,7 +515,7 @@ angular.module('myApp.directives', ['d3']).
 	            .attr("y", 9)
 	            .attr("dy", ".35em")
 	            //.style("text-anchor", "end")
-	            .text(function(d) { return d;})      
+	            .text(function(d) { return d})      
 
 	        // Filter
 	        d3.selectAll(".filter_button").on("click", function() {
