@@ -25,10 +25,10 @@
 				       <col span="1" style="width: 25%;">
 				       <col span="1" style="width: 25%;">
 				    </colgroup>
-					<tr><th>Pipeline</th><th></th><th>Origin Id</th><th>Datasets</th><th></th><tr>
+					<tr><th>Pipeline</th><th>Origin Id</th><th></th><th>Datasets</th><th></th><tr>
 					<tr ng-repeat="pipeline in pipelines | filter:search">
 						<td>
-							<p>{{pipeline.name}} <span class="label label-info" style="font-size: 12px;">{{pipeline.state}}</span></p>
+							<p><span class="label label-info" style="font-size: 12px;">{{pipeline.state}}</span> {{pipeline.name}}</p>
 						</td>
 						<td>
 							<p>{{pipeline.origin_id}}</p>
@@ -48,7 +48,7 @@
 						<td>      
 							<ul>
 					         <li class="non-styled" ng-repeat="dataset in pipeline.datasets"> 
-					            <p>{{dataset.key}}<span class="label label-info" style="font-size: 12px;">{{dataset.state}}</span><span class="badge">{{dataset.count}}</span></p>
+					            <p><span class="label label-info" style="font-size: 12px;">{{dataset.state}}</span> {{dataset.key}} <span class="badge">{{dataset.count}}</span></p>
 					         </li>
 					       </ul>
 				   	   </td>

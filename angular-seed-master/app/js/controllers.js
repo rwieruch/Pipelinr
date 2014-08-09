@@ -40,21 +40,39 @@ angular.module('myApp.controllers', [])
 	  };
 
     // Push notifications
-		Socket.on('add_pipeline', function (data) {
-			$scope.alerts.push({ type: 'info', msg: 'Pipeline "' + data.pipeline.name + '" added.'});
-			data.pipeline.state = "new";
-			$scope.pipelines.push(data.pipeline);
+		Socket.on('add_pipeline', function (p_data) {
+			$scope.alerts.push({ type: 'info', msg: 'Pipeline "' + p_data.pipeline.name + '" added.'});
+			p_data.pipeline.state = "new";
+			$scope.pipelines.push(p_data.pipeline);	
+			Socket.on('add_dataset_' + p_data.pipeline._id, function (d_data) { // same as (A)
+				$scope.alerts.push({ type: 'info', msg: 'Dataset "' + d_data.dataset.key + '" in Pipeline "' + p_data.pipeline.name + '" added.'});
+				d_data.dataset.state = "new";
+				p_data.pipeline.datasets.push(d_data.dataset);
+				Socket.on('add_value_' + d_data.dataset._id, function (v_data) { // same as (B)
+					if(typeof d_data.dataset.count == "undefined")
+						d_data.dataset.count = 1;
+					else
+						d_data.dataset.count++;
+			 	});
+			});
 	 	});
 
   	angular.forEach($scope.pipelines, function(pipeline, key) {
   		// Push notification for each dataset on each pipeline
-			Socket.on('add_dataset_' + pipeline._id, function (data) {
-				data.dataset.state = "new";
-				pipeline.datasets.push(data.dataset);
+			Socket.on('add_dataset_' + pipeline._id, function (d_data) { // same as (A)
+				$scope.alerts.push({ type: 'info', msg: 'Dataset "' + d_data.dataset.key + '" in Pipeline "' + pipeline.name + '" added.'});
+				d_data.dataset.state = "new";
+				pipeline.datasets.push(d_data.dataset);
+				Socket.on('add_value_' + d_data.dataset._id, function (v_data) { // same as (B)
+					if(typeof d_data.dataset.count == "undefined")
+						d_data.dataset.count = 1;
+					else
+						d_data.dataset.count++;
+			 	});
 			});
 			angular.forEach(pipeline.datasets, function(dataset, key) {
 				// Push notification for each value on each dataset
-				Socket.on('add_value_' + dataset._id, function (data) {
+				Socket.on('add_value_' + dataset._id, function (v_data) { // same as (B)
 					if(typeof dataset.count == "undefined")
 						dataset.count = 1;
 					else
@@ -69,7 +87,7 @@ angular.module('myApp.controllers', [])
   $scope.$on('$destroy', function (event) {
         Socket.getSocket().removeAllListeners();
   });
-  
+
 }])  
 .controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'DataProcessing', 'Session', function($scope, $http, $routeParams, Socket, PipelineService, DataProcessing, Session) {
 	// Set for refresh
