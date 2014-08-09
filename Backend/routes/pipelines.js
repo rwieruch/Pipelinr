@@ -4,7 +4,7 @@ var reduction_module = require('../pipelinr_modules/reduction_module.js');
 
 exports.addPipeline = function(req, res) {
   var object = req.body;
-  console.log('addPipeline: ' + JSON.stringify(object));
+  console.log('Add pipeline: ' + JSON.stringify(object));
 
   var pipeline = new models.Pipeline({
     name: object.name,
@@ -22,7 +22,7 @@ exports.findAllPipelines = function(req, res) {
   console.log('Find all pipelines');
 
   models.Pipeline.find()
-    .populate('datasets', 'key type')
+    .populate('datasets', '_pipeline key type')
     .exec(function(err, pipelines) {
       if (err) return res.send(pipelinr_util.handleError(err));
       res.send(pipelines);
@@ -30,8 +30,8 @@ exports.findAllPipelines = function(req, res) {
 };
 
 exports.findOnePipeline = function(req, res) {
-  console.log('Find one pipeline');
   var _id = req.params.id;
+  console.log('Find one pipeline: ' + _id);
 
   models.Pipeline.findOne({ _id: _id })
   .populate('datasets')
@@ -69,8 +69,7 @@ exports.findOnePipeline = function(req, res) {
 };
 
 exports.deletePipeline = function(req, res) {
-  console.log('Delete pipeline');
-  console.log(req.params.id);
+  console.log('Delete pipeline: ' + req.params.id);
   models.Pipeline.remove({ _id: req.params.id }).exec(function (err) {
     if (err) return res.send(pipelinr_util.handleError(err));
     res.send(200, {});

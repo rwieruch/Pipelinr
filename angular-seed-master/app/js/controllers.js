@@ -4,17 +4,16 @@
 
 angular.module('myApp.controllers', [])
   .controller('PipelinesCtrl', ['$scope', '$http', 'Socket', 'PipelineService', 'Session', function($scope, $http, Socket, PipelineService, Session) {
-    // Set for refresh
+
+  // Set for page refresh
 	$http.defaults.headers.common['token'] = Session.token;
 
 	$scope.alerts = [];
+  $scope.closeAlert = function(index) {
+    $scope.alerts.splice(index, 1);
+  };
 
-	// Set data
-	var pipelines = PipelineService.query();
-  $scope.pipelines = pipelines;
-  console.log(pipelines);
-
-  // Search input
+  // Search
   $scope.search = function(item) {
   	if (item.name.indexOf($scope.query)!=-1 || item.origin_id.indexOf($scope.query)!=-1 || angular.isUndefined($scope.query)) {           
       return true;
@@ -22,29 +21,41 @@ angular.module('myApp.controllers', [])
     return false;
 	};
 
-	$scope.deletePipeline = function (_id) {
-    PipelineService.remove({ id: _id }, function (response) {
-    	$scope.pipelines = PipelineService.query();
-    	$scope.alerts.push({ type: 'success', msg: 'Pipeline deleted successfully.'});
-    }, function (error) {
-      $scope.alerts.push({ type: 'danger', msg: error.status + ": " + error.data});
-    });
-  };
+	// Get pipelines
+	var pipelines = PipelineService.query();
+	pipelines.$promise.then(function(pipelines) {
+	  $scope.pipelines = pipelines;
+	  console.log(pipelines);
 
-  $scope.closeAlert = function(index) {
-    $scope.alerts.splice(index, 1);
-  };
+		$scope.deletePipeline = function (pipeline) {
+	    PipelineService.remove({ id: pipeline._id }, function (response) {
+				var index = $scope.pipelines.indexOf(pipeline);
+		    if (index != -1)
+		        $scope.pipelines.splice(index, 1);
+	    	$scope.alerts.push({ type: 'success', msg: 'Pipeline deleted successfully.'});
+	    }, function (error) {
+	      $scope.alerts.push({ type: 'danger', msg: error.status + ": " + error.data});
+	    });
+	  };
 
     // Push notifications
-	Socket.on('connectionStatus', function (msg) {
-		console.log(msg);
-   	});
+		Socket.on('add_pipeline', function (data) {
+			$scope.alerts.push({ type: 'info', msg: 'Pipeline "' + data.pipeline.name + '" added.'});
+			data.pipeline.state = "new";
+			$scope.pipelines.push(data.pipeline);
+	 	});
 
-    Socket.on('newPipeline', function (pipeline) {
-    	console.log("newPipeline by socket");
-		pipelines.push(pipeline);
-		$scope.pipelines = pipelines;
-    });
+  	angular.forEach($scope.pipelines, function(pipeline, key) {
+			angular.forEach(pipeline.datasets, function(dataset, key) {
+				Socket.on('add_value_' + dataset._id, function (data) {
+					if(typeof dataset.state == "undefined")
+						dataset.state = 1;
+					else
+						dataset.state++;
+			 	});
+			});
+		});
+	});
 
 	Socket.on('newDataset', function (pipeline) {
 		console.log("newDataset by socket");
@@ -54,10 +65,10 @@ angular.module('myApp.controllers', [])
 			}
 		}
 		$scope.pipelines = pipelines;
-   	});
+ 	});
 
 	// Destroy on navigate away
-    $scope.$on('$destroy', function (event) {
+  $scope.$on('$destroy', function (event) {
         Socket.getSocket().removeAllListeners();
     });
   }])  

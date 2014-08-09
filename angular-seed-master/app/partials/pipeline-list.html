@@ -28,7 +28,7 @@
 					<tr><th>Pipeline</th><th></th><th>Origin Id</th><th>Datasets</th><th></th><tr>
 					<tr ng-repeat="pipeline in pipelines | filter:search">
 						<td>
-							<p>{{pipeline.name}}</p>
+							<p>{{pipeline.name}} <span class="label label-info" style="font-size: 12px;">{{pipeline.state}}</span></p>
 						</td>
 						<td>
 							<p>{{pipeline.origin_id}}</p>
@@ -41,14 +41,14 @@
 							<button type="button" class="btn btn-default">
 							  <span class="glyphicon glyphicon-edit"></span> Edit
 							</button>
-							<button type="button" class="btn btn-danger" ng-click="deletePipeline(pipeline._id)">
+							<button type="button" class="btn btn-danger" ng-click="deletePipeline(pipeline)">
 							  <span class="glyphicon glyphicon-trash"></span>
 							</button>
 						</td>
 						<td>      
 							<ul>
 					         <li class="non-styled" ng-repeat="dataset in pipeline.datasets"> 
-					            <p>{{dataset.key}}</p>
+					            <p>{{dataset.key}}<span class="badge">{{dataset.state}}</span></p>
 					         </li>
 					       </ul>
 				   	   </td>

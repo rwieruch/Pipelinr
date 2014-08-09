@@ -1,10 +1,10 @@
-var cluster = require('cluster'),
+/*var cluster = require('cluster'),
   numberOfCores = require('os').cpus().length;
 
 if ( cluster.isMaster ) {
   for ( var i=0; i<numberOfCores; ++i )
     cluster.fork();
-} else {
+} else {*/
 
 var express = require("express");
 var app = express();
@@ -24,12 +24,11 @@ http.listen(1080);
 var _ = require("underscore");
 
 // Rest models
-var testcase = require('./routes/testcases');
 var pipeline = require('./routes/pipelines');
 var dataset = require('./routes/datasets');
 var value = require('./routes/values');
 var user = require('./routes/users');
-var sessions = require('./routes/sessions');
+var session = require('./routes/sessions');
 
 // Realtime
 io.sockets.on('connection', function (socket) {
@@ -48,8 +47,8 @@ io.sockets.on('connection', function (socket) {
 app.post('/users', user.addUser);
 app.get('/users', user.findAll);
 
-app.post('/login', sessions.login);
-app.post('/logout', sessions.logout);
+app.post('/login', session.login);
+app.post('/logout', session.logout);
 
 app.post('/pipelines', pipeline.addPipeline);
 app.get('/pipelines', pipeline.findAllPipelines);
@@ -62,19 +61,23 @@ app.post('/pipelines/:id/datasets', dataset.addDataset);
 
 app.post('/pipelines/:pipeline_id/datasets/:dataset_id/values', value.updateValue);
 
-app.get('/testcases/:id', testcase.findById(moment));
-app.get('/testcases', testcase.findAll);
-app.post('/testcases', testcase.addObject(io));
-app.put('/testcases/:id', testcase.updateObject(io));
-
 // Websockets
 var models = require('./models/models.js');
 
-models.valueSchema.post('save', function (value) {
-  console.log('%s has been saved ............... ', value._id);
-  console.log(value);
+models.pipelineSchema.pre('save', function (next) {
+  this._wasNew = this.isNew;
+  next();
+});
+models.pipelineSchema.post('save', function(pipeline) {
+  if (this._wasNew) io.sockets.emit('add_pipeline', { pipeline: pipeline });
+});
 
+models.valueSchema.post('save', function (value) {
+  console.log('%s has been saved', value._id);
+  console.log(value);
+  console.log(value._dataset);
+  io.sockets.emit('add_value_' + value._dataset, { value: value });
   //io.sockets.in('flow').emit('updatedObject', JSON.parse(JSON.stringify({ id: _dataset_id, key: object.key, value: object.value, timestamp: object.timestamp, type: object.type, level: object.level })));
 });
 
-}
+//}

@@ -89,3 +89,5 @@ exports.Dataset = Dataset;
 exports.Value = Value;
 
 exports.valueSchema = valueSchema;
+exports.datasetSchema = datasetSchema;
+exports.pipelineSchema = pipelineSchema;
