@@ -33,6 +33,15 @@ exports.addDataset = function(req, res) {
   });
 };
 
+exports.deleteDataset = function(req, res) {
+  console.log('Delete dataset: ' + req.params.dataset_id);
+
+  models.Dataset.remove({ _id: req.params.dataset_id }).exec(function (err) {
+    if (err) return res.send(pipelinr_util.handleError(err));
+    res.send(200, {});
+  });
+};
+
 // TODO: do i really need this?
 /*exports.findAllDatasetsByPipeline = function(req, res) {
   console.log('Find all datasets by pipeline');

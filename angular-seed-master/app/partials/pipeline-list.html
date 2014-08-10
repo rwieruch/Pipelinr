@@ -48,7 +48,15 @@
 						<td>      
 							<ul>
 					         <li class="non-styled" ng-repeat="dataset in pipeline.datasets"> 
-					            <p><span class="label label-info" style="font-size: 12px;">{{dataset.state}}</span> {{dataset.key}} <span class="badge">{{dataset.count}}</span></p>
+					            <p>
+    								<button type="button" class="btn btn-xs btn-default">
+									  <span class="glyphicon glyphicon-edit"></span> Edit
+									</button>
+					            	<button type="button" class="btn btn-xs btn-danger" ng-click="deleteDataset(pipeline, dataset)">
+									  <span class="glyphicon glyphicon-trash"></span>
+									</button>
+					            	<span class="label label-info" style="font-size: 12px;">{{dataset.state}}</span> {{dataset.key}} <span class="badge">{{dataset.count}}</span>
+								</p>
 					         </li>
 					       </ul>
 				   	   </td>

@@ -38,12 +38,17 @@ angular.module('myApp.services', ['ngResource'])
   };
 })
 .factory('PipelineService', function($resource) {
-    return $resource(pipelinrURL + '/pipelines/:id', {}, {  
-        query: {method: 'GET', isArray: true},
-        get: {method:'GET', params:{id:'id', tool: ''}},
-        remove: { method: 'DELETE', params: {id:'id'} }
-    });
-  })
+  return $resource(pipelinrURL + '/pipelines/:id', {}, {  
+      query: {method: 'GET', isArray: true},
+      get: {method:'GET', params:{id:'id', tool: ''}},
+      remove: { method: 'DELETE', params: {id:'id'} }
+  });
+})
+.factory('DatasetService', function($resource) {
+  return $resource(pipelinrURL + '/pipelines/:pipeline_id/datasets/:dataset_id', {pipeline_id: '@pipeline_id', dataset_id: '@dataset_id'}, {  
+      remove: { method: 'DELETE' }
+  });
+})
 .factory('UserService', function($resource) {
     return $resource(pipelinrURL + '/users', {}, {	
     	  query: {method: 'GET', isArray: true},

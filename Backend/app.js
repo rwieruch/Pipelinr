@@ -56,6 +56,7 @@ app.get('/pipelines/:id', pipeline.findOnePipeline);
 app.delete('/pipelines/:id', pipeline.deletePipeline);
 
 app.post('/pipelines/:id/datasets', dataset.addDataset);
+app.delete('/pipelines/:pipeline_id/datasets/:dataset_id', dataset.deleteDataset);
 // TODO: do i really need this?
 //app.get('/pipelines/:id/datasets', dataset.findAllDatasetsByPipeline);
 
@@ -77,11 +78,7 @@ models.datasetSchema.post('save', function(dataset) {
 });
 
 models.valueSchema.post('save', function (value) {
-  console.log('%s has been saved', value._id);
-  console.log(value);
-  console.log(value._dataset);
   io.sockets.emit('add_value_' + value._dataset, { value: value });
-  //io.sockets.in('flow').emit('updatedObject', JSON.parse(JSON.stringify({ id: _dataset_id, key: object.key, value: object.value, timestamp: object.timestamp, type: object.type, level: object.level })));
 });
 
 //}

@@ -3,7 +3,7 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-  .controller('PipelinesCtrl', ['$scope', '$http', 'Socket', 'PipelineService', 'Session', function($scope, $http, Socket, PipelineService, Session) {
+  .controller('PipelinesCtrl', ['$scope', '$http', 'Socket', 'PipelineService', 'DatasetService', 'Session', function($scope, $http, Socket, PipelineService, DatasetService, Session) {
 
   // Set for page refresh
 	$http.defaults.headers.common['token'] = Session.token;
@@ -31,9 +31,25 @@ angular.module('myApp.controllers', [])
 		$scope.deletePipeline = function (pipeline) {
 	    PipelineService.remove({ id: pipeline._id }, function (response) {
 				var index = $scope.pipelines.indexOf(pipeline);
-		    if (index != -1)
-		        $scope.pipelines.splice(index, 1);
-	    	$scope.alerts.push({ type: 'success', msg: 'Pipeline deleted successfully.'});
+		    if (index != -1) {
+	        $scope.pipelines.splice(index, 1);
+    			$scope.alerts.push({ type: 'success', msg: 'Pipeline deleted successfully.'});
+    		}
+	    }, function (error) {
+	      $scope.alerts.push({ type: 'danger', msg: error.status + ": " + error.data});
+	    });
+	  };
+
+		$scope.deleteDataset = function (pipeline, dataset) {
+	    DatasetService.remove({ pipeline_id: dataset._pipeline, dataset_id: dataset._id }, function (response) {
+				var pipe_index = $scope.pipelines.indexOf(pipeline);
+		    if (pipe_index != -1) {
+	        var data_index = $scope.pipelines[pipe_index].datasets.indexOf(dataset);
+	        if (data_index != -1) {
+						$scope.pipelines[pipe_index].datasets.splice(data_index, 1);
+			    	$scope.alerts.push({ type: 'success', msg: 'Dataset deleted successfully.'});
+	        }
+	      }
 	    }, function (error) {
 	      $scope.alerts.push({ type: 'danger', msg: error.status + ": " + error.data});
 	    });
@@ -48,12 +64,8 @@ angular.module('myApp.controllers', [])
 				$scope.alerts.push({ type: 'info', msg: 'Dataset "' + d_data.dataset.key + '" in Pipeline "' + p_data.pipeline.name + '" added.'});
 				d_data.dataset.state = "new";
 				p_data.pipeline.datasets.push(d_data.dataset);
-				Socket.on('add_value_' + d_data.dataset._id, function (v_data) { // same as (B)
-					if(typeof d_data.dataset.count == "undefined")
-						d_data.dataset.count = 1;
-					else
-						d_data.dataset.count++;
-			 	});
+
+			 	addValueSocket(d_data.dataset);
 			});
 	 	});
 
@@ -63,23 +75,24 @@ angular.module('myApp.controllers', [])
 				$scope.alerts.push({ type: 'info', msg: 'Dataset "' + d_data.dataset.key + '" in Pipeline "' + pipeline.name + '" added.'});
 				d_data.dataset.state = "new";
 				pipeline.datasets.push(d_data.dataset);
-				Socket.on('add_value_' + d_data.dataset._id, function (v_data) { // same as (B)
-					if(typeof d_data.dataset.count == "undefined")
-						d_data.dataset.count = 1;
-					else
-						d_data.dataset.count++;
-			 	});
+
+				addValueSocket(d_data.dataset);
 			});
 			angular.forEach(pipeline.datasets, function(dataset, key) {
-				// Push notification for each value on each dataset
-				Socket.on('add_value_' + dataset._id, function (v_data) { // same as (B)
-					if(typeof dataset.count == "undefined")
-						dataset.count = 1;
-					else
-						dataset.count++;
-			 	});
+
+				addValueSocket(dataset);
 			});
 		});
+
+		// Push notification for each value on each dataset
+		function addValueSocket(dataset) {
+			Socket.on('add_value_' + dataset._id, function (v_data) { // same as (B)
+				if(typeof dataset.count == "undefined")
+					dataset.count = 1;
+				else
+					dataset.count++;
+		 	});
+		}
 
 	});
 
