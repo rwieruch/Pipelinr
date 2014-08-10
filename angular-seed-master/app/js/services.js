@@ -106,6 +106,18 @@ angular.module('myApp.services', ['ngResource'])
       return latestDate;
     }
 
+    factory.getStringDatasets = function(pipeline) {
+      return pipeline.datasets.filter(function(dataset) {
+        return dataset.type == "string";
+      });
+    }
+
+    factory.getIntDatasets = function(pipeline) {
+      return pipeline.datasets.filter(function(dataset) {
+        return dataset.type == "int";
+      });
+    }
+
     factory.getDatasetKeys = function(pipeline) {
       var keys = new Array();
       for(var i = 0; i < pipeline.datasets.length; i++) {

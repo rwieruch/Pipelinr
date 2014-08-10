@@ -106,35 +106,36 @@ angular.module('myApp.controllers', [])
 	// Get and resolve pipeline
 	var pipeline = PipelineService.get({id: $routeParams.id, tool: []});
 
-		// Resolve new pipeline
-		pipeline.$promise.then(function(pipeline) {
-			console.log(pipeline);
+	// Resolve new pipeline
+	pipeline.$promise.then(function(pipeline) {
+		console.log(pipeline);
 
-			// D3 directive
-			$scope.data = pipeline;
+		// D3 directive
+		$scope.data = pipeline;
 
-			// Detail window
-			$scope.pipeline = pipeline;
-			$scope.earliestDate = DataProcessing.earliestDate(pipeline);
-			$scope.latestDate = DataProcessing.latestDate(pipeline);
+		// Detail window
+		$scope.pipeline = pipeline;
+		$scope.earliestDate = DataProcessing.earliestDate(pipeline);
+		$scope.latestDate = DataProcessing.latestDate(pipeline);
 
-			// Checkboxes
-			$scope.keys = DataProcessing.getDatasetKeys(pipeline);
-			$scope.selection = DataProcessing.getDatasetKeys(pipeline);
-			$scope.toggleSelection = function toggleSelection(key) {
-			  var idx = $scope.selection.indexOf(key);
+		// Checkboxes
+		$scope.allKeys = DataProcessing.getDatasetKeys(pipeline);
+		$scope.selection = DataProcessing.getDatasetKeys(pipeline);
+		$scope.toggleSelection = function toggleSelection(key) {
+		  var idx = $scope.selection.indexOf(key);
+		  // Is currently selected
+		  if (idx > -1) {
+		    $scope.selection.splice(idx, 1);
+		  }
+		  // Is newly selected
+		  else {
+		    $scope.selection.push(key);
+		  }
+		};
 
-			  // Is currently selected
-			  if (idx > -1) {
-			    $scope.selection.splice(idx, 1);
-			  }
-
-			  // Is newly selected
-			  else {
-			    $scope.selection.push(key);
-			  }
-			};
-    });
+		// Fill table with string values
+		$scope.stringDatasets = DataProcessing.getStringDatasets(pipeline)[0]; // TODO: at first only 1 string set
+  });
 
 		// Date updates for pipeline
     Socket.on('updatedObject', function (date) {
@@ -150,22 +151,21 @@ angular.module('myApp.controllers', [])
     // Get Pipeline with tools
     $scope.getPipeline = function(){
 
-    	var tools = [];
-    	var tool;
+	  	var tools = [];
+	  	var tool;
 
-			var keys = $scope.selection;
-			if(keys.length != 0) {
+			if($scope.selection.length != 0) {
 				tool = {
-					keys: keys,
+					keys: $scope.selection,
 					task: "selectDatasets"
 				}
 				tools.push(tool);
 				console.log(tool);
 			}
 
-    	var begin = $scope.dateDropDownInput1;
-    	var end = $scope.dateDropDownInput2;
-    	if(typeof begin !== "undefined" && typeof end !== "undefined") {
+	  	var begin = $scope.dateDropDownInput1;
+	  	var end = $scope.dateDropDownInput2;
+	  	if(typeof begin !== "undefined" && typeof end !== "undefined") {
 				begin = moment(begin).format('DD MM YYYY, HH:mm:ss');
 				end = moment(end).format('DD MM YYYY, HH:mm:ss');
 
