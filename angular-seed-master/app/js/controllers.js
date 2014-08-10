@@ -60,17 +60,18 @@ angular.module('myApp.controllers', [])
 			$scope.alerts.push({ type: 'info', msg: 'Pipeline "' + p_data.pipeline.name + '" added.'});
 			p_data.pipeline.state = "new";
 			$scope.pipelines.push(p_data.pipeline);	
-			Socket.on('add_dataset_' + p_data.pipeline._id, function (d_data) { // same as (A)
-				$scope.alerts.push({ type: 'info', msg: 'Dataset "' + d_data.dataset.key + '" in Pipeline "' + p_data.pipeline.name + '" added.'});
-				d_data.dataset.state = "new";
-				p_data.pipeline.datasets.push(d_data.dataset);
-
-			 	addValueSocket(d_data.dataset);
-			});
+			addDatasetSocket(p_data.pipeline);
 	 	});
 
   	angular.forEach($scope.pipelines, function(pipeline, key) {
-  		// Push notification for each dataset on each pipeline
+  		addDatasetSocket(pipeline);
+			angular.forEach(pipeline.datasets, function(dataset, key) {
+				addValueSocket(dataset);
+			});
+		});
+
+		// Push notification for each dataset on each pipeline
+		function addDatasetSocket(pipeline) {
 			Socket.on('add_dataset_' + pipeline._id, function (d_data) { // same as (A)
 				$scope.alerts.push({ type: 'info', msg: 'Dataset "' + d_data.dataset.key + '" in Pipeline "' + pipeline.name + '" added.'});
 				d_data.dataset.state = "new";
@@ -78,11 +79,7 @@ angular.module('myApp.controllers', [])
 
 				addValueSocket(d_data.dataset);
 			});
-			angular.forEach(pipeline.datasets, function(dataset, key) {
-
-				addValueSocket(dataset);
-			});
-		});
+		}
 
 		// Push notification for each value on each dataset
 		function addValueSocket(dataset) {
