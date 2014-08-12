@@ -12,7 +12,8 @@ angular.module('myApp.directives', ['d3']).
     return {
       restrict: 'EA',
       scope: {
-      	pipeline: '='
+      	pipeline: '=',
+      	date: '='
       },
       templateUrl: 'partials/dashboard.html',
       link: function(scope, ele, attrs) {
@@ -26,33 +27,38 @@ angular.module('myApp.directives', ['d3']).
 			    var color_areas = d3.scale.ordinal()
 					  .range(["#1abc9c", "#2ecc71" , "#3498db", "#9b59b6", "#f1c40f", "#e67e22", "#e74c3c"]);
 
-          var logColor = d3.scale.ordinal()
-		        .domain(["warning","error"])
-		        .range(["#f1c40f", "#e74c3c"]);
-
 		      // Global variables via configuration object
     			var tip = d3.select("body").append("div")
 						.attr("class", "tip")
 						.style("opacity", 0);
+
+          var logColor = d3.scale.ordinal()
+		        .domain(["warning","error"])
+		        .range(["#f1c40f", "#e74c3c"]);
 
 					scope.configuration = {
 						parseDate: d3.time.format('%d %m %Y, %H:%M:%S:%L').parse,
 						height: {scatterplot: 50, linechart: 100, context: 25, legend: 250},
 						width: {graph: 800, legend: 200},
 						margin: {left: 50, top: 30, bottom: 40, right: 50},
-						tip: tip
+						tip: tip,
+						logColor: logColor
 					};
 
+					var rendered = false;
 					scope.$watch('pipeline', function(newVals, oldVals) {
 		        if (scope.pipeline) {
-		        	// Wait until everything is rendered
-  	          $timeout(function() {
-  	          	// Colorize line graphs
-						   	d3.selectAll(".area").attr("fill",function(d,i){return color_areas(i);});
-	    	    		d3.selectAll(".line").attr("stroke",function(d,i){return color_lines(i);});
-	    	    		d3.selectAll(".circle").style("fill", function (d) { return logColor(d.level);});
-              });
-				  		return scope.renderDashboard(newVals);
+		        	if(!rendered) { // Render only one time
+			        	// Wait until everything is rendered
+	  	          $timeout(function() {
+	  	          	// Colorize line graphs
+							   	d3.selectAll(".area").attr("fill",function(d,i){return color_areas(i);});
+		    	    		d3.selectAll(".line").attr("stroke",function(d,i){return color_lines(i);});
+		    	    		d3.selectAll(".circle").style("fill", function (d) { return logColor(d.level);});
+	              });
+	              rendered = true;
+					  		return scope.renderDashboard(newVals);
+					  	}
 		        }
 					}, true);
 
@@ -61,6 +67,22 @@ angular.module('myApp.directives', ['d3']).
 						console.log("renderDashboard");
 						scope.intdatasets = DataProcessing.getIntDatasets(pipeline);
 						scope.stringdatasets = DataProcessing.getStringDatasets(pipeline);
+
+						// Watch for new datum and update scope.intdatasets|stringdatasets
+						scope.$watch('date', function(newVals, oldVals) {
+			        if (scope.date) {
+			        	console.log("Update in dashboard");	
+			        	var general_dataset_to_update = window._.find(pipeline.datasets, function(dataset) { return dataset._id == newVals.value._dataset });
+			        	var dataset_to_update = null;
+			        	if(general_dataset_to_update.type == "int") {
+									dataset_to_update = window._.find(scope.intdatasets, function(dataset) { return dataset._id == newVals.value._dataset });
+			        	} else if(general_dataset_to_update.type == "string") {
+									dataset_to_update = window._.find(scope.stringdatasets, function(dataset) { return dataset._id == newVals.value._dataset });
+			        	}
+			        	dataset_to_update.values.push(newVals.value);
+			        	console.log(dataset_to_update);
+			        }
+		      	}, true);
 					};
         });
       }
@@ -123,6 +145,43 @@ angular.module('myApp.directives', ['d3']).
 				    .attr("y", - 35)
 				    .attr('transform', 'rotate(-90)')
 				    .text(scope.dataset.key);
+
+					// Watch for updated dataset in parent directive
+					var rendered = false;
+					scope.$watch('dataset', function(newVals, oldVals) {
+		        if (scope.dataset) {
+		        	if(rendered) { // Register update after render
+		        		console.log("Update in pipelinrPointGraph");
+
+		            // Append new focus circle
+		            scatterplot.selectAll('circle')
+		              .data(scope.dataset.values)
+		              .enter().append("circle")
+		              .attr("clip-path", "url(#clip)")
+		              .attr('class', 'circle')
+		              .style("fill", function (d) { return scope.configuration.logColor(d.level);})
+		              .attr("cx", function(d) { return x_log(scope.configuration.parseDate(d.timestamp)); })
+		              .attr("cy", function(d) { return scope.configuration.margin.top; })
+		              .attr("r", 5)
+		              .on("mouseover", scope.configuration.tip.show)
+		              .on("mouseout", scope.configuration.tip.hide);
+
+        		    // Move circles
+						    scatterplot.selectAll("circle")
+						      .data(scope.dataset.values)
+						      .attr("cx",function(d){ return x_log(scope.configuration.parseDate(d.timestamp));})
+						      .attr("cy", function(d){ return scope.configuration.margin.top;});
+
+						    // Update axis
+						    x_log.domain(d3.extent(scope.dataset.values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
+						    scatterplot.select(".x.axis").call(xAxis_log);
+
+					  		//return scope.renderDashboard(newVals);
+					  	}
+					  	rendered = true;
+				  	}
+					}, true);
+
         });
       }
     };
@@ -173,7 +232,7 @@ angular.module('myApp.directives', ['d3']).
 					//main_areas[scope.dataset.key] = main_area;
 
 					var focus = d3.select(ele[0]).append("svg")
-					    .attr("class", "focus")
+					    .attr("class", "focus_"+scope.dataset_id)
 					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left)
 					    .attr("height", scope.configuration.height.linechart + scope.configuration.margin.top)
 			    		.append("g")
@@ -205,6 +264,25 @@ angular.module('myApp.directives', ['d3']).
 				    .attr("y", - 35)
 				    .attr('transform', 'rotate(-90)')
 				    .text(scope.dataset.key);
+
+					// Watch for updated dataset in parent directive
+					var rendered = false;
+					scope.$watch('dataset', function(newVals, oldVals) {
+		        if (scope.dataset) {
+		        	if(rendered) { // Register update after render
+		        		console.log("Update in pipelinrLineGraph");
+
+		        		// Update graph
+      		      focus.select(".area").attr("d", main_area);
+		      			focus.select(".line").attr("d", main_line);
+
+		      			// Update axis
+								x.domain(d3.extent(scope.dataset.values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
+								focus.select(".x.axis").call(xAxis);
+					  	}
+					  	rendered = true;
+				  	}
+					}, true);
     		});
     	}
   	};

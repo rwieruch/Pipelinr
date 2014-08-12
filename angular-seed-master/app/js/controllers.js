@@ -95,7 +95,7 @@ angular.module('myApp.controllers', [])
 
 	// Destroy on navigate away
   $scope.$on('$destroy', function (event) {
-        Socket.getSocket().removeAllListeners();
+    Socket.getSocket().removeAllListeners();
   });
 
 }])  
@@ -113,7 +113,7 @@ angular.module('myApp.controllers', [])
 		// D3 directive
 		$scope.data = pipeline;
 
-		// new directive
+		// New dashboard directive
 		$scope.pipeline = pipeline;
 
 		// Detail window
@@ -134,16 +134,23 @@ angular.module('myApp.controllers', [])
 		    $scope.selection.push(key);
 		  }
 		};
+		
+		// Push notification for each value on each dataset
+		angular.forEach($scope.pipeline.datasets, function(dataset, key) {
+			Socket.on('add_value_' + dataset._id, function (v_data) {
+				$scope.date = v_data;
+		 	});
+		});
 
 		// Fill table with string values
 		$scope.stringDatasets = DataProcessing.getStringDatasets(pipeline)[0]; // TODO: at first only 1 string set
   });
 
 		// Date updates for pipeline
-    Socket.on('updatedObject', function (date) {
+    /*Socket.on('updatedObject', function (date) {
     	console.log("updatedObject by socket");
 			$scope.date = date;
-    });
+    });*/
 
 		// Destroy on navigate away
     $scope.$on('$destroy', function (event) {
