@@ -60,17 +60,6 @@
 							</div>
 						</div>
 
-						<!--<div class="col-sm-3">
-							<div class="btn-group" data-toggle="buttons">
-							  <label class="btn btn-default active">
-							    <input type="radio" name="options" id="option1" checked> Static
-							  </label>
-							  <label class="btn btn-default">
-							    <input type="radio" name="options" id="option2"> Real-time
-							  </label>
-							</div>
-						</div>-->
-
 						<div class="form-group">
 							<div class="col-sm-offset-1">
 							    <div class="checkbox" ng-repeat="key in allKeys" style="display: inline-block;">
@@ -93,7 +82,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="row equal">
+	<!--<div class="row equal">
 		<div class="col col-md-9">
 			<div class="my-inner-container">
 				<div d3-timeline id="timeline" data='data' date='date' newdata='newdata'></div>
@@ -104,8 +93,9 @@
 				<div id="setting-container"></div>
 			</div>
 		</div>
-	</div>
-	<div class="row equal">
+	</div>-->
+
+	<!--<div class="row equal">
 		<div class="col col-md-11">
 			<div class="my-table-container scrollable-box">
 				<table class="table table-top" id="tr_list">
@@ -122,5 +112,13 @@
 				</table>
 			</div>
 		</div>
+	</div>-->
+
+ 	<!-- -->
+ 	<div class="row equal">
+		<div class="col col-md-11">
+			<div pipelinr-dashboard id="pipelinr-dashboard" pipeline='pipeline'></div>
+		</div>
 	</div>
+
 </div>

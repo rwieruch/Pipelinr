@@ -8,6 +8,207 @@ angular.module('myApp.directives', ['d3']).
       elm.text(version);
     };
   }])
+  .directive('pipelinrDashboard', ['d3Service', '$window', 'DataProcessing', '$timeout', function(d3Service, $window, DataProcessing, $timeout) { // Use timeout as callback that everything is rendered
+    return {
+      restrict: 'EA',
+      scope: {
+      	pipeline: '='
+      },
+      templateUrl: 'partials/dashboard.html',
+      link: function(scope, ele, attrs) {
+        d3Service.d3().then(function(d3) {
+        	console.log("pipelinrDashboard");
+
+        	// Lokal variables
+  		    var color_lines = d3.scale.ordinal()
+					  .range(["#16a085", "#27ae60" , "#2980b9", "#8e44ad", "#f39c12", "#d35400", "#c0392b"]);
+
+			    var color_areas = d3.scale.ordinal()
+					  .range(["#1abc9c", "#2ecc71" , "#3498db", "#9b59b6", "#f1c40f", "#e67e22", "#e74c3c"]);
+
+          var logColor = d3.scale.ordinal()
+		        .domain(["warning","error"])
+		        .range(["#f1c40f", "#e74c3c"]);
+
+		      // Global variables via configuration object
+    			var tip = d3.select("body").append("div")
+						.attr("class", "tip")
+						.style("opacity", 0);
+
+					scope.configuration = {
+						parseDate: d3.time.format('%d %m %Y, %H:%M:%S:%L').parse,
+						height: {scatterplot: 50, linechart: 100, context: 25, legend: 250},
+						width: {graph: 800, legend: 200},
+						margin: {left: 50, top: 30, bottom: 40, right: 50},
+						tip: tip
+					};
+
+					scope.$watch('pipeline', function(newVals, oldVals) {
+		        if (scope.pipeline) {
+		        	// Wait until everything is rendered
+  	          $timeout(function() {
+  	          	// Colorize line graphs
+						   	d3.selectAll(".area").attr("fill",function(d,i){return color_areas(i);});
+	    	    		d3.selectAll(".line").attr("stroke",function(d,i){return color_lines(i);});
+	    	    		d3.selectAll(".circle").style("fill", function (d) { return logColor(d.level);});
+              });
+				  		return scope.renderDashboard(newVals);
+		        }
+					}, true);
+
+					// Initialize scopes for children
+					scope.renderDashboard = function(pipeline) {
+						console.log("renderDashboard");
+						scope.intdatasets = DataProcessing.getIntDatasets(pipeline);
+						scope.stringdatasets = DataProcessing.getStringDatasets(pipeline);
+					};
+        });
+      }
+    };
+  }])
+  .directive('pipelinrPointGraph', ['d3Service', '$window', function(d3Service, $window) {
+    return {
+      restrict: 'EA',
+      replace: true,
+      link: function(scope, ele, attrs) {
+        d3Service.d3().then(function(d3) {
+        	console.log("pipelinrPointGraph");
+					console.log(scope.dataset);
+
+					var x_log = d3.time.scale().range([0, scope.configuration.width.graph]),
+		    		y_log = d3.scale.linear().range([scope.configuration.height.scatterplot, 0]);
+
+					// Axis
+					var xAxis_log = d3.svg.axis().scale(x_log).orient("bottom"),
+			    	yAxis_log = d3.svg.axis().scale(y_log).orient("left");
+
+					x_log.domain(d3.extent(scope.dataset.values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
+					y_log.domain([0, d3.max(scope.dataset.values, function(d) { return d.value; })]);
+
+					var scatterplot = d3.select(ele[0]).append("svg")
+					    .attr("class", "focus scatter")
+					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left)
+					    .attr("height", scope.configuration.height.scatterplot + scope.configuration.margin.top)
+			    		.append("g")
+							.attr("transform", "translate(" + scope.configuration.margin.left + ",0)");
+
+					scatterplot.append("g")
+					    .attr("class", "x axis")
+					    .attr("transform", "translate(0," + scope.configuration.height.scatterplot + ")")
+					    .call(xAxis_log);
+
+					scatterplot.selectAll('circle')
+					  .data(scope.dataset.values)
+					  .enter().append("circle")
+					  .attr("clip-path", "url(#clip)")
+					  .attr('class', 'circle')
+					  .attr("cx", function (d) { return x_log(scope.configuration.parseDate(d.timestamp)); })
+					  .attr("cy", function (d) { return scope.configuration.margin.top; })
+					  .attr("r", function(d){ return 5;})
+			      .on("mouseover", function(d) {      
+				    	scope.configuration.tip.transition().duration(200).style("opacity", .9);      
+				    	scope.configuration.tip.html(d.value); 
+	    				// Transformation relative to the page body
+		        	var matrix = this.getScreenCTM().translate(+this.getAttribute("cx"),+this.getAttribute("cy"));
+            	scope.configuration.tip.style("left", (window.pageXOffset + matrix.e) + "px").style("top", (window.pageYOffset + matrix.f + 30) + "px");
+			  		})                  
+			  		.on("mouseout", function(d) {       
+			    		scope.configuration.tip.transition().duration(500).style("opacity", 0);   
+		    		});
+
+	        scatterplot.append("text")
+				    .attr("class", "x label")
+				    .attr("text-anchor", "end")
+				    .attr("x", 0)
+				    .attr("y", - 35)
+				    .attr('transform', 'rotate(-90)')
+				    .text(scope.dataset.key);
+        });
+      }
+    };
+  }])
+  .directive('pipelinrLineGraph', ['d3Service', '$window', function(d3Service, $window) {
+    return {
+      restrict: 'EA',
+      replace: true,
+      /*scope: {
+      	dataset: '=',
+      	configuration: '='
+      },*/
+      link: function(scope, ele, attrs) {
+        d3Service.d3().then(function(d3) {
+        	console.log("pipelinrLineGraph");
+					console.log(scope.dataset);
+
+        	// Create axes
+	        var x = d3.time.scale().range([0, scope.configuration.width.graph]),
+            y = d3.scale.linear().range([scope.configuration.height.linechart, 0]);
+
+        	var xAxis = d3.svg.axis().scale(x).orient("bottom"),
+            yAxis = d3.svg.axis().scale(y).orient("left").ticks(5).tickSize(-scope.configuration.width.graph, 0, 0).tickPadding(5);
+
+        	x.domain(d3.extent(scope.dataset.values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
+       	 	y.domain([0, d3.max(scope.dataset.values, function(d) { return parseInt(d.value); })]);
+
+	        // Save domains and axes for later
+	        /*xAxes[scope.dataset.key] = xAxis;
+	        yAxes[scope.dataset.key] = yAxis;
+	        xs[scope.dataset.key] = x;
+	        ys[scope.dataset.key] = y;*/
+
+	        // Create charts
+					var main_line = d3.svg.line()
+						.interpolate("linear")
+						.x(function(d) { return x(scope.configuration.parseDate(d.timestamp)); })
+						.y(function(d) { return y(d.value); });
+
+					//main_lines[scope.dataset.key] = main_line;
+
+					var main_area = d3.svg.area()
+						.interpolate("linear")
+						.x(function(d) { return x(scope.configuration.parseDate(d.timestamp)); })
+						.y0(scope.configuration.height.linechart)
+						.y1(function(d) { return y(d.value); });
+
+					//main_areas[scope.dataset.key] = main_area;
+
+					var focus = d3.select(ele[0]).append("svg")
+					    .attr("class", "focus")
+					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left)
+					    .attr("height", scope.configuration.height.linechart + scope.configuration.margin.top)
+			    		.append("g")
+							.attr("transform", "translate(" + scope.configuration.margin.left + ",0)");
+
+					focus.append("path")
+					    .datum(scope.dataset.values)
+					    .attr("class", "line")
+					    .attr("d", main_line);
+
+	  			focus.append("path")
+				    .datum(scope.dataset.values)
+				    .attr("class", "area")
+				    .attr("d", main_area);
+
+					focus.append("g")
+					    .attr("class", "x axis")
+					    .attr("transform", "translate(0," + scope.configuration.height.linechart + ")")
+					    .call(xAxis);
+
+					focus.append("g")
+					    .attr("class", "y axis")
+					    .call(yAxis);
+
+	        focus.append("text")
+				    .attr("class", "x label")
+				    .attr("text-anchor", "end")
+				    .attr("x", 0)
+				    .attr("y", - 35)
+				    .attr('transform', 'rotate(-90)')
+				    .text(scope.dataset.key);
+    		});
+    	}
+  	};
+  }])
   .directive('d3Timeline', ['d3Service', '$window', function(d3Service, $window) {
     return {
       restrict: 'EA',

@@ -113,8 +113,10 @@ angular.module('myApp.controllers', [])
 		// D3 directive
 		$scope.data = pipeline;
 
-		// Detail window
+		// new directive
 		$scope.pipeline = pipeline;
+
+		// Detail window
 		$scope.earliestDate = DataProcessing.earliestDate(pipeline);
 		$scope.latestDate = DataProcessing.latestDate(pipeline);
 
