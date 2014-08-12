@@ -42,7 +42,15 @@ angular.module('myApp.directives', ['d3']).
 						width: {graph: 800, legend: 200},
 						margin: {left: 50, top: 30, bottom: 40, right: 50},
 						tip: tip,
-						logColor: logColor
+						logColor: logColor,
+						xs: [],
+						xAxes: [],
+						main_lines: [],
+						main_areas: [],
+						x_log: {},
+						xAxis_log: {},
+						brush: {},
+						x2: {}
 					};
 
 					var rendered = false;
@@ -65,26 +73,106 @@ angular.module('myApp.directives', ['d3']).
 					// Initialize scopes for children
 					scope.renderDashboard = function(pipeline) {
 						console.log("renderDashboard");
+
+						// Init different dataset types followed by initialization of child directives
 						scope.intdatasets = DataProcessing.getIntDatasets(pipeline);
 						scope.stringdatasets = DataProcessing.getStringDatasets(pipeline);
 
+						// Context as overview for brushing + zooming + panning
+						scope.renderContext();
+
 						// Watch for new datum and update scope.intdatasets|stringdatasets
 						scope.$watch('date', function(newVals, oldVals) {
-			        if (scope.date) {
+			        if(scope.date) {
 			        	console.log("Update in dashboard");	
-			        	var general_dataset_to_update = window._.find(pipeline.datasets, function(dataset) { return dataset._id == newVals.value._dataset });
-			        	var dataset_to_update = null;
+			        	var dataset_to_update = window._.find(scope.pipeline.datasets, function(dataset) { return dataset._id == newVals.value._dataset });
+			        	/*var dataset_to_update = null;
 			        	if(general_dataset_to_update.type == "int") {
 									dataset_to_update = window._.find(scope.intdatasets, function(dataset) { return dataset._id == newVals.value._dataset });
 			        	} else if(general_dataset_to_update.type == "string") {
 									dataset_to_update = window._.find(scope.stringdatasets, function(dataset) { return dataset._id == newVals.value._dataset });
-			        	}
+			        	}*/
 			        	dataset_to_update.values.push(newVals.value);
-			        	console.log(dataset_to_update);
+			        	console.log(scope.pipeline);
+
+			        	//scope.renderDatumUpdate();
 			        }
 		      	}, true);
 					};
-        });
+
+					//scope.renderDatumUpdate = function()
+
+					scope.renderContext = function(stringdataset) {
+		        var x2 = d3.time.scale().range([0, scope.configuration.width.graph]),
+		            y2 = d3.scale.linear().range([scope.configuration.height.context, 0]);
+
+		        var xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
+		            yAxis2 = d3.svg.axis().scale(y2).orient("left");
+
+		        x2.domain(d3.extent(scope.stringdatasets[0].values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
+		        y2.domain(scope.stringdatasets[0].values);
+
+            scope.configuration.x2 = x2;
+
+		        scope.configuration.brush = d3.svg.brush()
+		            .x(x2)
+		            .on("brush", brushed);
+
+		       	//var context = d3.select(ele[0]).append("svg")
+		       	var context = d3.select("#context-container").append("svg")
+		            .attr("class", "context")
+  					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left)
+					    	.attr("height", scope.configuration.height.context + scope.configuration.margin.top)
+			    			.append("g")
+								.attr("transform", "translate(" + scope.configuration.margin.left + ",0)");
+
+		        context.selectAll('circle')
+		          .data(scope.stringdatasets[0].values)
+		          .enter().append("circle")
+		          .attr("clip-path", "url(#clip)")
+		          .attr('class', 'circle')
+		          .style("fill", function (d) { return scope.configuration.logColor(d.level);})
+		          .attr("cx", function (d) { return x2(scope.configuration.parseDate(d.timestamp)); })
+		          .attr("cy", function (d) { return scope.configuration.height.context/2; })
+		          .attr("r", function(d){ return 3;});
+
+		        context.append("g")
+		            .attr("class", "x axis2")
+		            .attr("transform", "translate(0," + scope.configuration.height.context + ")")
+		            .call(xAxis2);
+
+		        context.append("g")
+		            .attr("class", "x brush")
+		            .call(scope.configuration.brush)
+		          .selectAll("rect")
+		            .attr("y", -6)
+		            .attr("height", scope.configuration.height.context + 7);
+          }
+
+      		function brushed() {
+				    // Scatterplot update
+				    scope.configuration.x_log.domain(scope.configuration.brush.empty() ? scope.configuration.x2.domain() : scope.configuration.brush.extent());
+
+				    // Move circles
+				    d3.select(".focus.scatter").selectAll("circle")
+				      .data(scope.stringdatasets[0].values)
+				      .attr("cx",function(d){ return scope.configuration.x_log(scope.configuration.parseDate(d.timestamp));})
+				      .attr("cy", function(d){ return scope.configuration.margin.top;});
+
+				    // Move axis
+				    d3.select(".focus.scatter").select(".x.axis").call(scope.configuration.xAxis_log);
+
+				    // Line charts update
+				    for(var i in scope.configuration.main_lines) { // i = dataset._id
+				      scope.configuration.xs[i].domain(scope.configuration.brush.empty() ? scope.configuration.x2.domain() : scope.configuration.brush.extent());
+				      d3.select(".focus_"+i).select(".area").attr("d", scope.configuration.main_areas[i]);
+				      d3.select(".focus_"+i).select(".line").attr("d", scope.configuration.main_lines[i]);
+				      d3.select(".focus_"+i).select(".x.axis").call(scope.configuration.xAxes[i]);
+				    }
+          }
+
+      	});
+
       }
     };
   }])
@@ -100,9 +188,13 @@ angular.module('myApp.directives', ['d3']).
 					var x_log = d3.time.scale().range([0, scope.configuration.width.graph]),
 		    		y_log = d3.scale.linear().range([scope.configuration.height.scatterplot, 0]);
 
+	    		scope.configuration.x_log = x_log;
+
 					// Axis
 					var xAxis_log = d3.svg.axis().scale(x_log).orient("bottom"),
 			    	yAxis_log = d3.svg.axis().scale(y_log).orient("left");
+
+		    	scope.configuration.xAxis_log = xAxis_log;
 
 					x_log.domain(d3.extent(scope.dataset.values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
 					y_log.domain([0, d3.max(scope.dataset.values, function(d) { return d.value; })]);
@@ -147,17 +239,17 @@ angular.module('myApp.directives', ['d3']).
 				    .text(scope.dataset.key);
 
 					// Watch for updated dataset in parent directive
-					var rendered = false;
+					/*var rendered = false;
 					scope.$watch('dataset', function(newVals, oldVals) {
 		        if (scope.dataset) {
 		        	if(rendered) { // Register update after render
 		        		console.log("Update in pipelinrPointGraph");
 
 		            // Append new focus circle
-		            scatterplot.selectAll('circle')
+		            d3.select(".focus.scatter").selectAll('circle')
 		              .data(scope.dataset.values)
 		              .enter().append("circle")
-		              .attr("clip-path", "url(#clip)")
+		              //.attr("clip-path", "url(#clip)")
 		              .attr('class', 'circle')
 		              .style("fill", function (d) { return scope.configuration.logColor(d.level);})
 		              .attr("cx", function(d) { return x_log(scope.configuration.parseDate(d.timestamp)); })
@@ -167,20 +259,20 @@ angular.module('myApp.directives', ['d3']).
 		              .on("mouseout", scope.configuration.tip.hide);
 
         		    // Move circles
-						    scatterplot.selectAll("circle")
+						    d3.select(".focus.scatter").selectAll("circle")
 						      .data(scope.dataset.values)
 						      .attr("cx",function(d){ return x_log(scope.configuration.parseDate(d.timestamp));})
 						      .attr("cy", function(d){ return scope.configuration.margin.top;});
 
 						    // Update axis
 						    x_log.domain(d3.extent(scope.dataset.values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
-						    scatterplot.select(".x.axis").call(xAxis_log);
+						    d3.select(".focus.scatter").select(".x.axis").call(xAxis_log);
 
 					  		//return scope.renderDashboard(newVals);
 					  	}
 					  	rendered = true;
 				  	}
-					}, true);
+					}, true);*/
 
         });
       }
@@ -210,10 +302,8 @@ angular.module('myApp.directives', ['d3']).
        	 	y.domain([0, d3.max(scope.dataset.values, function(d) { return parseInt(d.value); })]);
 
 	        // Save domains and axes for later
-	        /*xAxes[scope.dataset.key] = xAxis;
-	        yAxes[scope.dataset.key] = yAxis;
-	        xs[scope.dataset.key] = x;
-	        ys[scope.dataset.key] = y;*/
+	        scope.configuration.xAxes[scope.dataset._id] = xAxis;
+	        scope.configuration.xs[scope.dataset._id] = x;
 
 	        // Create charts
 					var main_line = d3.svg.line()
@@ -221,7 +311,7 @@ angular.module('myApp.directives', ['d3']).
 						.x(function(d) { return x(scope.configuration.parseDate(d.timestamp)); })
 						.y(function(d) { return y(d.value); });
 
-					//main_lines[scope.dataset.key] = main_line;
+					scope.configuration.main_lines[scope.dataset._id] = main_line;
 
 					var main_area = d3.svg.area()
 						.interpolate("linear")
@@ -229,14 +319,20 @@ angular.module('myApp.directives', ['d3']).
 						.y0(scope.configuration.height.linechart)
 						.y1(function(d) { return y(d.value); });
 
-					//main_areas[scope.dataset.key] = main_area;
+					scope.configuration.main_areas[scope.dataset._id] = main_area;
 
 					var focus = d3.select(ele[0]).append("svg")
-					    .attr("class", "focus_"+scope.dataset_id)
+					    .attr("class", "focus_"+scope.dataset._id)
 					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left)
-					    .attr("height", scope.configuration.height.linechart + scope.configuration.margin.top)
+					    .attr("height", scope.configuration.height.linechart + scope.configuration.margin.bottom)
 			    		.append("g")
-							.attr("transform", "translate(" + scope.configuration.margin.left + ",0)");
+							.attr("transform", "translate(" + scope.configuration.margin.left + "," + scope.configuration.margin.top/2 + ")");
+
+					focus.append("defs").append("clipPath")
+				    .attr("id", "clip")
+				  .append("rect")
+				    .attr("width", scope.configuration.width.graph)
+				    .attr("height", scope.configuration.height.linechart);
 
 					focus.append("path")
 					    .datum(scope.dataset.values)
@@ -266,23 +362,24 @@ angular.module('myApp.directives', ['d3']).
 				    .text(scope.dataset.key);
 
 					// Watch for updated dataset in parent directive
-					var rendered = false;
+					/*var rendered = false;
 					scope.$watch('dataset', function(newVals, oldVals) {
 		        if (scope.dataset) {
 		        	if(rendered) { // Register update after render
 		        		console.log("Update in pipelinrLineGraph");
 
 		        		// Update graph
-      		      focus.select(".area").attr("d", main_area);
-		      			focus.select(".line").attr("d", main_line);
+      		      d3.select(".focus_"+scope.dataset._id).select(".area").attr("d", main_area);
+		      			d3.select(".focus_"+scope.dataset._id).select(".line").attr("d", main_line);
 
 		      			// Update axis
 								x.domain(d3.extent(scope.dataset.values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
-								focus.select(".x.axis").call(xAxis);
+								d3.select(".focus_"+scope.dataset._id).select(".x.axis").call(xAxis);
 					  	}
 					  	rendered = true;
 				  	}
-					}, true);
+					}, true);*/
+
     		});
     	}
   	};
