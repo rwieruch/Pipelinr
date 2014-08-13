@@ -15,7 +15,7 @@ angular.module('myApp.directives', ['d3']).
       	pipeline: '=',
       	date: '='
       },
-      templateUrl: 'partials/dashboard.html?2',
+      templateUrl: 'partials/dashboard.html?7',
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
         	console.log("pipelinrDashboard");
@@ -61,6 +61,18 @@ angular.module('myApp.directives', ['d3']).
 							   	d3.selectAll(".area").attr("fill",function(d,i){return color_areas(i);});
 		    	    		d3.selectAll(".line").attr("stroke",function(d,i){return color_lines(i);});
 		    	    		d3.selectAll(".circle").style("fill", function (d) { return logColor(d.level);});
+
+    	    		    scope.hoverValue = function(value) {
+										d3.select("#Id_"+value._id).transition().duration(1000).attr("r", "20");
+							    }
+
+    	    		    scope.hoverOutValue = function(value) {
+										d3.select("#Id_"+value._id).transition().duration(1000).attr("r", "5");
+							    }
+
+							    scope.clickValue = function(value) {
+
+							    }
 	              });
 					  		return scope.renderDashboard(newVals);
 		        }
@@ -321,6 +333,7 @@ angular.module('myApp.directives', ['d3']).
 					  .enter().append("circle")
 					  .attr("clip-path", "url(#clip)")
 					  .attr('class', 'circle')
+					  .attr("id", function (d){ return "Id_"+d._id; })
 					  .attr("cx", function (d) { return x_log(scope.configuration.parseDate(d.timestamp)); })
 					  .attr("cy", function (d) { return scope.configuration.margin.top; })
 					  .attr("r", function(d){ return 5;})
