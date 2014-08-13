@@ -1,8 +1,16 @@
-<div ng-repeat="dataset in stringdatasets" class="my-inner-container">
-	<div pipelinr-point-graph></div>
+<div ng-repeat="dataset in stringdatasets">
+	<div ng-show="dataset.values.length > 2">
+		<div class="my-inner-container">
+			<div pipelinr-point-graph></div>
+		</div>
+	</div>
 </div>
-<div ng-repeat="dataset in intdatasets" class="my-inner-container">
-	<div pipelinr-line-graph></div>
+<div ng-repeat="dataset in intdatasets">
+	<div ng-show="dataset.values.length > 2">
+		<div class="my-inner-container">
+			<div pipelinr-line-graph></div>
+		</div>
+	</div>
 </div>
 <div class="my-inner-container">
 	<div id="context-container"/>

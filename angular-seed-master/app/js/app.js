@@ -23,7 +23,7 @@ config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvide
   delete $httpProvider.defaults.headers.common['X-Requested-With'];
 }])  
 // Redirection for no session.
-.run( function($rootScope, $location, Session, Socket) {
+.run( function($rootScope, $location, $templateCache, Session, Socket) {
   // register listener to watch route changes
   $rootScope.$on( "$routeChangeStart", function(event, next, current) {
     if (!Session.isLogged) {

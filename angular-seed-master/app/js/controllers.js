@@ -191,7 +191,8 @@ angular.module('myApp.controllers', [])
 
 			pipeline.$promise.then(function(newdata) {
 				console.log(newdata);
-				$scope.newdata = newdata;
+				//$scope.newdata = newdata;
+				$scope.pipeline = newdata;
 	  	});
 		};
 

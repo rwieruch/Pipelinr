@@ -15,7 +15,7 @@ angular.module('myApp.directives', ['d3']).
       	pipeline: '=',
       	date: '='
       },
-      templateUrl: 'partials/dashboard.html',
+      templateUrl: 'partials/dashboard.html?2',
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
         	console.log("pipelinrDashboard");
@@ -47,18 +47,14 @@ angular.module('myApp.directives', ['d3']).
 						xAxes: [],
 						main_lines: [],
 						main_areas: [],
-						x_log: {},
-						xAxis_log: {},
 						brush: {},
-						x2: {},
-						xAxis2: {},
+						x_context: {},
+						xAxis_context: {},
 						logFilter: [{ key: "warning", value: true }, { key: "error", value: true }]
 					};
 
-					var rendered = false;
 					scope.$watch('pipeline', function(newVals, oldVals) {
 		        if (scope.pipeline) {
-		        	if(!rendered) { // Render only one time
 			        	// Wait until everything is rendered
 	  	          $timeout(function() {
 	  	          	// Colorize line graphs
@@ -66,9 +62,7 @@ angular.module('myApp.directives', ['d3']).
 		    	    		d3.selectAll(".line").attr("stroke",function(d,i){return color_lines(i);});
 		    	    		d3.selectAll(".circle").style("fill", function (d) { return logColor(d.level);});
 	              });
-	              rendered = true;
 					  		return scope.renderDashboard(newVals);
-					  	}
 		        }
 					}, true);
 
@@ -105,7 +99,7 @@ angular.module('myApp.directives', ['d3']).
 	              .attr("clip-path", "url(#clip)")
 	              .attr('class', 'circle')
 	              .style("fill", function (d) { return scope.configuration.logColor(d.level);})
-	              .attr("cx", function(d) { return scope.configuration.x_log(scope.configuration.parseDate(d.timestamp)); })
+	              .attr("cx", function(d) { return scope.configuration.xs[dataset_to_update._id](scope.configuration.parseDate(d.timestamp)); })
 	              .attr("cy", function(d) { return scope.configuration.margin.top; })
 	              .attr("r", 5)
     			      .on("mouseover", function(d) {      
@@ -138,43 +132,44 @@ angular.module('myApp.directives', ['d3']).
 	        	}
 
         		// Update context
-        		scope.configuration.x2.domain(d3.extent(dataset_to_update.values, function(d) { return scope.configuration.parseDate(d.timestamp); }));
+        		scope.configuration.x_context.domain(d3.extent(dataset_to_update.values, function(d) { return scope.configuration.parseDate(d.timestamp); }));
 
 		        // Move context circles
 		        d3.select(".context").selectAll("circle")
 		          .data(scope.stringdatasets[0].values)
 		          .attr("cx", function(d) {
-		               return scope.configuration.x2(scope.configuration.parseDate(d.timestamp));
+		               return scope.configuration.x_context(scope.configuration.parseDate(d.timestamp));
 		          })
 		          .attr("cy", function(d) {
 		               return scope.configuration.height.context/2; 
 		          });
 
         		// Update context axis
-        		d3.select(".context").select(".x.axis2").call(scope.configuration.xAxis2);
+        		d3.select(".context").select(".x.axis2").call(scope.configuration.xAxis_context);
 
         		// Keep brushed, update everything
         		brushed();
 					}
 
 					scope.renderContext = function() {
-		        var x2 = d3.time.scale().range([0, scope.configuration.width.graph]),
+		        var x_context = d3.time.scale().range([0, scope.configuration.width.graph]),
 		            y2 = d3.scale.linear().range([scope.configuration.height.context, 0]);
 
-		        var xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
+		        var xAxis_context = d3.svg.axis().scale(x_context).orient("bottom"),
 		            yAxis2 = d3.svg.axis().scale(y2).orient("left");
 
-            scope.configuration.xAxis2 = xAxis2;
+            scope.configuration.xAxis_context = xAxis_context;
 
-		        x2.domain(d3.extent(scope.stringdatasets[0].values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
+		        x_context.domain(d3.extent(scope.stringdatasets[0].values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
 		        y2.domain(scope.stringdatasets[0].values);
 
-            scope.configuration.x2 = x2;
+            scope.configuration.x_context = x_context;
 
 		        scope.configuration.brush = d3.svg.brush()
-		            .x(x2)
+		            .x(x_context)
 		            .on("brush", brushed);
 
+		        d3.select("#context-container").selectAll("*").remove(); // Clear old elemnts. (for update, otherwise there would be multiple elements)
 		       	var context = d3.select("#context-container").append("svg")
 		            .attr("class", "context")
   					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left)
@@ -188,14 +183,14 @@ angular.module('myApp.directives', ['d3']).
 		          .attr("clip-path", "url(#clip)")
 		          .attr('class', 'circle')
 		          .style("fill", function (d) { return scope.configuration.logColor(d.level);})
-		          .attr("cx", function (d) { return x2(scope.configuration.parseDate(d.timestamp)); })
+		          .attr("cx", function (d) { return x_context(scope.configuration.parseDate(d.timestamp)); })
 		          .attr("cy", function (d) { return scope.configuration.height.context/2; })
 		          .attr("r", function(d){ return 3;});
 
 		        context.append("g")
 		            .attr("class", "x axis2")
 		            .attr("transform", "translate(0," + scope.configuration.height.context + ")")
-		            .call(xAxis2);
+		            .call(xAxis_context);
 
 		        context.append("g")
 		            .attr("class", "x brush")
@@ -206,6 +201,8 @@ angular.module('myApp.directives', ['d3']).
           }
 
 					scope.renderLegend = function() {
+
+		        d3.select("#legend-container").selectAll("*").remove(); // Clear old elemnts. (for update, otherwise there would be multiple elements)
 		       	var legendContainer = d3.select("#legend-container").append("svg")
 		            .attr("class", "legend")
   					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left)
@@ -258,20 +255,20 @@ angular.module('myApp.directives', ['d3']).
 
       		function brushed() {
 				    // Scatterplot update
-				    scope.configuration.x_log.domain(scope.configuration.brush.empty() ? scope.configuration.x2.domain() : scope.configuration.brush.extent());
+				    scope.configuration.xs[scope.stringdatasets[0]._id].domain(scope.configuration.brush.empty() ? scope.configuration.x_context.domain() : scope.configuration.brush.extent());
 
 				    // Move circles
 				    d3.select(".focus.scatter").selectAll("g").selectAll("circle")
 				      .data(scope.stringdatasets[0].values)
-				      .attr("cx",function(d){ return scope.configuration.x_log(scope.configuration.parseDate(d.timestamp));})
+				      .attr("cx",function(d){ return scope.configuration.xs[scope.stringdatasets[0]._id](scope.configuration.parseDate(d.timestamp));})
 				      .attr("cy", function(d){ return scope.configuration.margin.top;});
 
 				    // Move axis
-				    d3.select(".focus.scatter").select(".x.axis").call(scope.configuration.xAxis_log);
+				    d3.select(".focus.scatter").select(".x.axis").call(scope.configuration.xAxes[scope.stringdatasets[0]._id]);
 
 				    // Line charts update
 				    for(var i in scope.configuration.main_lines) { // i = dataset._id
-				      scope.configuration.xs[i].domain(scope.configuration.brush.empty() ? scope.configuration.x2.domain() : scope.configuration.brush.extent());
+				      scope.configuration.xs[i].domain(scope.configuration.brush.empty() ? scope.configuration.x_context.domain() : scope.configuration.brush.extent());
 				      d3.select(".focus_"+i).select(".area").attr("d", scope.configuration.main_areas[i]);
 				      d3.select(".focus_"+i).select(".line").attr("d", scope.configuration.main_lines[i]);
 				      d3.select(".focus_"+i).select(".x.axis").call(scope.configuration.xAxes[i]);
@@ -292,19 +289,20 @@ angular.module('myApp.directives', ['d3']).
         	console.log("pipelinrPointGraph");
 					console.log(scope.dataset);
 
+					if(scope.dataset.values.length < 2) return; // Do not draw for no values
+
 					var x_log = d3.time.scale().range([0, scope.configuration.width.graph]),
 		    		y_log = d3.scale.linear().range([scope.configuration.height.scatterplot, 0]);
-
-	    		scope.configuration.x_log = x_log;
 
 					// Axis
 					var xAxis_log = d3.svg.axis().scale(x_log).orient("bottom"),
 			    	yAxis_log = d3.svg.axis().scale(y_log).orient("left");
 
-		    	scope.configuration.xAxis_log = xAxis_log;
-
 					x_log.domain(d3.extent(scope.dataset.values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
 					y_log.domain([0, d3.max(scope.dataset.values, function(d) { return d.value; })]);
+
+        	scope.configuration.xAxes[scope.dataset._id] = xAxis_log;
+	        scope.configuration.xs[scope.dataset._id] = x_log;
 
 					var scatterplot = d3.select(ele[0]).append("svg")
 					    .attr("class", "focus scatter")
@@ -344,43 +342,6 @@ angular.module('myApp.directives', ['d3']).
 				    .attr("y", - 35)
 				    .attr('transform', 'rotate(-90)')
 				    .text(scope.dataset.key);
-
-					// Watch for updated dataset in parent directive
-					/*var rendered = false;
-					scope.$watch('dataset', function(newVals, oldVals) {
-		        if (scope.dataset) {
-		        	if(rendered) { // Register update after render
-		        		console.log("Update in pipelinrPointGraph");
-
-		            // Append new focus circle
-		            d3.select(".focus.scatter").selectAll('circle')
-		              .data(scope.dataset.values)
-		              .enter().append("circle")
-		              //.attr("clip-path", "url(#clip)")
-		              .attr('class', 'circle')
-		              .style("fill", function (d) { return scope.configuration.logColor(d.level);})
-		              .attr("cx", function(d) { return x_log(scope.configuration.parseDate(d.timestamp)); })
-		              .attr("cy", function(d) { return scope.configuration.margin.top; })
-		              .attr("r", 5)
-		              .on("mouseover", scope.configuration.tip.show)
-		              .on("mouseout", scope.configuration.tip.hide);
-
-        		    // Move circles
-						    d3.select(".focus.scatter").selectAll("circle")
-						      .data(scope.dataset.values)
-						      .attr("cx",function(d){ return x_log(scope.configuration.parseDate(d.timestamp));})
-						      .attr("cy", function(d){ return scope.configuration.margin.top;});
-
-						    // Update axis
-						    x_log.domain(d3.extent(scope.dataset.values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
-						    d3.select(".focus.scatter").select(".x.axis").call(xAxis_log);
-
-					  		//return scope.renderDashboard(newVals);
-					  	}
-					  	rendered = true;
-				  	}
-					}, true);*/
-
         });
       }
     };
@@ -388,15 +349,12 @@ angular.module('myApp.directives', ['d3']).
   .directive('pipelinrLineGraph', ['d3Service', '$window', function(d3Service, $window) {
     return {
       restrict: 'EA',
-      replace: true,
-      /*scope: {
-      	dataset: '=',
-      	configuration: '='
-      },*/
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
         	console.log("pipelinrLineGraph");
 					console.log(scope.dataset);
+
+					if(scope.dataset.values.length < 2) return; // Do not draw for no values
 
         	// Create axes
 	        var x = d3.time.scale().range([0, scope.configuration.width.graph]),
@@ -467,26 +425,6 @@ angular.module('myApp.directives', ['d3']).
 				    .attr("y", - 35)
 				    .attr('transform', 'rotate(-90)')
 				    .text(scope.dataset.key);
-
-					// Watch for updated dataset in parent directive
-					/*var rendered = false;
-					scope.$watch('dataset', function(newVals, oldVals) {
-		        if (scope.dataset) {
-		        	if(rendered) { // Register update after render
-		        		console.log("Update in pipelinrLineGraph");
-
-		        		// Update graph
-      		      d3.select(".focus_"+scope.dataset._id).select(".area").attr("d", main_area);
-		      			d3.select(".focus_"+scope.dataset._id).select(".line").attr("d", main_line);
-
-		      			// Update axis
-								x.domain(d3.extent(scope.dataset.values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
-								d3.select(".focus_"+scope.dataset._id).select(".x.axis").call(xAxis);
-					  	}
-					  	rendered = true;
-				  	}
-					}, true);*/
-
     		});
     	}
   	};
