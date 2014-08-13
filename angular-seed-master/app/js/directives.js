@@ -15,7 +15,7 @@ angular.module('myApp.directives', ['d3']).
       	pipeline: '=',
       	date: '='
       },
-      templateUrl: 'partials/dashboard.html?7',
+      templateUrl: 'partials/dashboard.html?13',
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
         	console.log("pipelinrDashboard");
@@ -63,11 +63,11 @@ angular.module('myApp.directives', ['d3']).
 		    	    		d3.selectAll(".circle").style("fill", function (d) { return logColor(d.level);});
 
     	    		    scope.hoverValue = function(value) {
-										d3.select("#Id_"+value._id).transition().duration(1000).attr("r", "20");
+										d3.select("#Id_"+value._id).transition().duration(200).attr("r", "12");
 							    }
 
     	    		    scope.hoverOutValue = function(value) {
-										d3.select("#Id_"+value._id).transition().duration(1000).attr("r", "5");
+										d3.select("#Id_"+value._id).transition().duration(200).attr("r", "5");
 							    }
 
 							    scope.clickValue = function(value) {
@@ -179,7 +179,9 @@ angular.module('myApp.directives', ['d3']).
 
 		        scope.configuration.brush = d3.svg.brush()
 		            .x(x_context)
-		            .on("brush", brushed);
+		            .on("brush", brushed)
+                .on("brushstart", brushstart)
+						    .on("brushend", brushend);
 
 		        d3.select("#context-container").selectAll("*").remove(); // Clear old elemnts. (for update, otherwise there would be multiple elements)
 		       	var context = d3.select("#context-container").append("svg")
@@ -265,18 +267,37 @@ angular.module('myApp.directives', ['d3']).
 		        });
 					}
 
+					function brushstart() {
+				    d3.select(".context").classed("selecting", true);
+					}
+
+					function brushend() {
+					  d3.select(".context").classed("selecting", !d3.event.target.empty());
+					}
+
       		function brushed() {
+
+      			// Table update
+			    	var extent = scope.configuration.brush.extent();
+						d3.select(".context").selectAll('circle').classed("selected", function(d) { return extent[0] <= scope.configuration.parseDate(d.timestamp) && scope.configuration.parseDate(d.timestamp) <= extent[1]; });
+
+						d3.select(".d3selector").selectAll("tr").each( function(d, i){
+							var timestamp = d3.select(this).select('.table-timestamp').html();
+							if(extent[0] <= scope.configuration.parseDate(timestamp) && scope.configuration.parseDate(timestamp) <= extent[1])
+								d3.select(this).style("display", "table-row");
+							else
+								d3.select(this).style("display", "none");
+						});
+
 				    // Scatterplot update
 				    scope.configuration.xs[scope.stringdatasets[0]._id].domain(scope.configuration.brush.empty() ? scope.configuration.x_context.domain() : scope.configuration.brush.extent());
 
-				    // Move circles
-				    d3.select(".focus.scatter").selectAll("g").selectAll("circle")
+				    d3.select(".focus.scatter").selectAll("g").selectAll("circle") // Move circles
 				      .data(scope.stringdatasets[0].values)
 				      .attr("cx",function(d){ return scope.configuration.xs[scope.stringdatasets[0]._id](scope.configuration.parseDate(d.timestamp));})
 				      .attr("cy", function(d){ return scope.configuration.margin.top;});
 
-				    // Move axis
-				    d3.select(".focus.scatter").select(".x.axis").call(scope.configuration.xAxes[scope.stringdatasets[0]._id]);
+				    d3.select(".focus.scatter").select(".x.axis").call(scope.configuration.xAxes[scope.stringdatasets[0]._id]); // Move axis
 
 				    // Line charts update
 				    for(var i in scope.configuration.main_lines) { // i = dataset._id

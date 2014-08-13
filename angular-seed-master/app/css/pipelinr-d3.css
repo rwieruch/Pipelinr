@@ -82,3 +82,16 @@
   font-size: 18px;
   fill: #333;
 }
+
+circle {
+  -webkit-transition: fill-opacity 250ms linear;
+}
+
+.selecting circle {
+  fill-opacity: .2;
+}
+
+.selecting circle.selected {
+  stroke: #f00;
+  fill-opacity: 1;
+}
