@@ -38,8 +38,8 @@ angular.module('myApp.directives', ['d3']).
 
 					scope.configuration = {
 						parseDate: d3.time.format('%d %m %Y, %H:%M:%S:%L').parse,
-						height: {scatterplot: 50, linechart: 100, context: 25, legend: 250},
-						width: {graph: 800, legend: 200},
+						height: {scatterplot: 50, linechart: 100, context: 25, legend: 25},
+						width: {graph: 800},
 						margin: {left: 50, top: 30, bottom: 40, right: 50},
 						tip: tip,
 						logColor: logColor,
@@ -51,7 +51,8 @@ angular.module('myApp.directives', ['d3']).
 						xAxis_log: {},
 						brush: {},
 						x2: {},
-						xAxis2: {}
+						xAxis2: {},
+						logFilter: [{ key: "warning", value: true }, { key: "error", value: true }]
 					};
 
 					var rendered = false;
@@ -81,6 +82,7 @@ angular.module('myApp.directives', ['d3']).
 
 						// Render context as overview for brushing + linking + zooming + panning
 						scope.renderContext();
+						scope.renderLegend();
 
 						// Watch for new datum and update scope.intdatasets|stringdatasets
 						scope.$watch('date', function(newVals, oldVals) {
@@ -127,12 +129,12 @@ angular.module('myApp.directives', ['d3']).
 	             .attr("cy", function (d) { return scope.configuration.height.context/2; });
 
 	            // Keep filter
-	            /*for(var i in settings.logFilter) {
-	              if(!settings.logFilter[i].value)
-	                svg.selectAll("circle")
-	                  .filter(function(d) { return d.level === settings.logFilter[i].key; })
+	            for(var i in scope.configuration.logFilter) {
+	              if(!scope.configuration.logFilter[i].value)
+	                d3.selectAll("g").selectAll("circle")
+	                  .filter(function(d) { return d.level === scope.configuration.logFilter[i].key; })
 	                  .attr("display", "none");
-	            }*/
+	            }
 	        	}
 
         		// Update context
@@ -173,7 +175,6 @@ angular.module('myApp.directives', ['d3']).
 		            .x(x2)
 		            .on("brush", brushed);
 
-		       	//var context = d3.select(ele[0]).append("svg")
 		       	var context = d3.select("#context-container").append("svg")
 		            .attr("class", "context")
   					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left)
@@ -203,6 +204,57 @@ angular.module('myApp.directives', ['d3']).
 		            .attr("y", -6)
 		            .attr("height", scope.configuration.height.context + 7);
           }
+
+					scope.renderLegend = function() {
+		       	var legendContainer = d3.select("#legend-container").append("svg")
+		            .attr("class", "legend")
+  					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left)
+					    	.attr("height", scope.configuration.height.legend)
+			    			.append("g")
+								.attr("transform", "translate(" + scope.configuration.margin.left + ",0)");
+
+		        var legend = legendContainer.selectAll(".legend")
+		            .data(scope.configuration.logColor.domain())
+		          .enter().append("g")
+		            .attr("class", "legend")
+		            .attr("transform", function(d, i) { return "translate(" + i * 100 + ",0)"; });
+
+		        legend.append("rect")
+		            .attr("class", "filter_button")
+		            .attr("value", function(d) { return d })
+		        	.attr("x", 0)
+		            .attr("width", 18)
+		            .attr("height", 18)
+		            .style("fill", scope.configuration.logColor);
+
+		        legend.append("text")
+		            .attr("x", 24)
+		            .attr("y", 9)
+		            .attr("dy", ".35em")
+		            .text(function(d) { return d});    
+
+		        // Filter
+		        d3.selectAll(".filter_button").on("click", function() {
+
+		          // Retrieve filter key
+		          var level = d3.select(this).attr("value");
+		          for(var i in scope.configuration.logFilter) {
+		            if(scope.configuration.logFilter[i].key == level) {
+		              scope.configuration.logFilter[i].value ? scope.configuration.logFilter[i].value = false: scope.configuration.logFilter[i].value = true; 
+		              var display = scope.configuration.logFilter[i].value ? "inline" : "none";
+		              var fill = scope.configuration.logFilter[i].value ? logColor(level) : "#FFF";
+		            }
+		          }
+
+		          // Set rect fill
+		          d3.select("[value='" + level + "']").style("fill", fill);
+
+		          // Filter circles
+		          d3.selectAll("g").selectAll("circle")
+		            .filter(function(d) { return d.level === level; })
+		            .attr("display", display);
+		        });
+					}
 
       		function brushed() {
 				    // Scatterplot update
