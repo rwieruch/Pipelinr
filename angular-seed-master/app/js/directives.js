@@ -15,7 +15,7 @@ angular.module('myApp.directives', ['d3']).
       	pipeline: '=',
       	date: '='
       },
-      templateUrl: 'partials/dashboard.html?13',
+      templateUrl: 'partials/dashboard.html?15',
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
         	console.log("pipelinrDashboard");
@@ -32,7 +32,7 @@ angular.module('myApp.directives', ['d3']).
 						.attr("class", "tip")
 						.style("opacity", 0);
 
-          var logColor = d3.scale.ordinal()
+          var string_color = d3.scale.ordinal()
 		        .domain(["warning","error"])
 		        .range(["#f1c40f", "#e74c3c"]);
 
@@ -42,7 +42,7 @@ angular.module('myApp.directives', ['d3']).
 						width: {graph: 800},
 						margin: {left: 50, top: 30, bottom: 40, right: 50},
 						tip: tip,
-						logColor: logColor,
+						string_color: string_color,
 						xs: [],
 						xAxes: [],
 						main_lines: [],
@@ -60,7 +60,7 @@ angular.module('myApp.directives', ['d3']).
 	  	          	// Colorize line graphs
 							   	d3.selectAll(".area").attr("fill",function(d,i){return color_areas(i);});
 		    	    		d3.selectAll(".line").attr("stroke",function(d,i){return color_lines(i);});
-		    	    		d3.selectAll(".circle").style("fill", function (d) { return logColor(d.level);});
+		    	    		d3.selectAll(".circle").style("fill", function (d) { return string_color(d.level);});
 
     	    		    scope.hoverValue = function(value) {
 										d3.select("#Id_"+value._id).transition().duration(200).attr("r", "12");
@@ -110,7 +110,7 @@ angular.module('myApp.directives', ['d3']).
 	              .enter().append("circle")
 	              .attr("clip-path", "url(#clip)")
 	              .attr('class', 'circle')
-	              .style("fill", function (d) { return scope.configuration.logColor(d.level);})
+	              .style("fill", function (d) { return scope.configuration.string_color(d.level);})
 	              .attr("cx", function(d) { return scope.configuration.xs[dataset_to_update._id](scope.configuration.parseDate(d.timestamp)); })
 	              .attr("cy", function(d) { return scope.configuration.margin.top; })
 	              .attr("r", 5)
@@ -130,7 +130,7 @@ angular.module('myApp.directives', ['d3']).
 	             .data(dataset_to_update.values).enter()
 	             .append("circle")
 	             .attr('class', 'circle')
-	             .style("fill", function (d) { return scope.configuration.logColor(d.level);})
+	             .style("fill", function (d) { return scope.configuration.string_color(d.level);})
 	             .attr("r", 3)
 	             .attr("cy", function (d) { return scope.configuration.height.context/2; });
 
@@ -196,7 +196,7 @@ angular.module('myApp.directives', ['d3']).
 		          .enter().append("circle")
 		          .attr("clip-path", "url(#clip)")
 		          .attr('class', 'circle')
-		          .style("fill", function (d) { return scope.configuration.logColor(d.level);})
+		          .style("fill", function (d) { return scope.configuration.string_color(d.level);})
 		          .attr("cx", function (d) { return x_context(scope.configuration.parseDate(d.timestamp)); })
 		          .attr("cy", function (d) { return scope.configuration.height.context/2; })
 		          .attr("r", function(d){ return 3;});
@@ -225,7 +225,7 @@ angular.module('myApp.directives', ['d3']).
 								.attr("transform", "translate(" + scope.configuration.margin.left + ",0)");
 
 		        var legend = legendContainer.selectAll(".legend")
-		            .data(scope.configuration.logColor.domain())
+		            .data(scope.configuration.string_color.domain())
 		          .enter().append("g")
 		            .attr("class", "legend")
 		            .attr("transform", function(d, i) { return "translate(" + i * 100 + ",0)"; });
@@ -236,7 +236,7 @@ angular.module('myApp.directives', ['d3']).
 		        	.attr("x", 0)
 		            .attr("width", 18)
 		            .attr("height", 18)
-		            .style("fill", scope.configuration.logColor);
+		            .style("fill", scope.configuration.string_color);
 
 		        legend.append("text")
 		            .attr("x", 24)
@@ -253,7 +253,24 @@ angular.module('myApp.directives', ['d3']).
 		            if(scope.configuration.logFilter[i].key == level) {
 		              scope.configuration.logFilter[i].value ? scope.configuration.logFilter[i].value = false: scope.configuration.logFilter[i].value = true; 
 		              var display = scope.configuration.logFilter[i].value ? "inline" : "none";
-		              var fill = scope.configuration.logFilter[i].value ? logColor(level) : "#FFF";
+		              var fill = scope.configuration.logFilter[i].value ? string_color(level) : "#FFF";
+
+		              console.log(level);
+		              console.log(display);
+		              console.log(scope.configuration.logFilter[i].value);
+
+				          // Filter table
+
+									d3.select(".dashboard-table").selectAll(".selected").each( function(){
+										var tableLevel = d3.select(this).select('.table-level').html();
+										var timestamp = d3.select(this).select('.table-timestamp').html();
+										if(tableLevel === level) {
+											if(scope.configuration.logFilter[i].value)
+												d3.select(this).style("display", "table-row");
+											else
+												d3.select(this).style("display", "none");
+										}
+									});
 		            }
 		          }
 
@@ -264,6 +281,7 @@ angular.module('myApp.directives', ['d3']).
 		          d3.selectAll("g").selectAll("circle")
 		            .filter(function(d) { return d.level === level; })
 		            .attr("display", display);
+
 		        });
 					}
 
@@ -276,17 +294,17 @@ angular.module('myApp.directives', ['d3']).
 					}
 
       		function brushed() {
-
-      			// Table update
 			    	var extent = scope.configuration.brush.extent();
 						d3.select(".context").selectAll('circle').classed("selected", function(d) { return extent[0] <= scope.configuration.parseDate(d.timestamp) && scope.configuration.parseDate(d.timestamp) <= extent[1]; });
 
-						d3.select(".d3selector").selectAll("tr").each( function(d, i){
+						// Table update
+						d3.select(".dashboard-table").selectAll("tr").each( function(d, i){
 							var timestamp = d3.select(this).select('.table-timestamp').html();
-							if(extent[0] <= scope.configuration.parseDate(timestamp) && scope.configuration.parseDate(timestamp) <= extent[1])
-								d3.select(this).style("display", "table-row");
-							else
-								d3.select(this).style("display", "none");
+							if(extent[0] <= scope.configuration.parseDate(timestamp) && scope.configuration.parseDate(timestamp) <= extent[1]) {
+								d3.select(this).classed("selected", true).style("display", "table-row");
+							} else {
+								d3.select(this).classed("selected", false).style("display", "none");
+							}
 						});
 
 				    // Scatterplot update
@@ -474,7 +492,7 @@ angular.module('myApp.directives', ['d3']).
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
 
-        var logColor = d3.scale.ordinal()
+        var string_color = d3.scale.ordinal()
 	        .domain(["warning","error"])
 	        .range(["#f1c40f", "#e74c3c"]);
 
@@ -622,7 +640,7 @@ angular.module('myApp.directives', ['d3']).
 	        circle.transition().duration(transitionDuration)
 		      .attr("cx",function(d){ return x_log(parseDate(d.timestamp));})
 		      .attr("cy", function(d){ return margin.top;})
-              .style("fill", function (d) { return logColor(d.level);});
+              .style("fill", function (d) { return string_color(d.level);});
 		}
 
 		function updateContextCircles(string_dataset) {
@@ -646,7 +664,7 @@ angular.module('myApp.directives', ['d3']).
 	          .attr("cy", function(d) {
 	               return height.context/2; 
 	          })
-              .style("fill", function (d) { return logColor(d.level);});
+              .style("fill", function (d) { return string_color(d.level);});
 		}
 
 		// Update for single date object
@@ -665,7 +683,7 @@ angular.module('myApp.directives', ['d3']).
 	              .enter().append("circle")
 	              .attr("clip-path", "url(#clip)")
 	              .attr('class', 'circle')
-	              .style("fill", function (d) { return logColor(d.level);})
+	              .style("fill", function (d) { return string_color(d.level);})
 	              .attr("cx", function(d) { return x_log(parseDate(d.timestamp)); })
 	              .attr("cy", function(d) { return margin.top; })
 	              .attr("r", 5)
@@ -677,7 +695,7 @@ angular.module('myApp.directives', ['d3']).
 	             .data(current_dataset.values).enter()
 	             .append("circle")
 	             .attr('class', 'circle')
-	             .style("fill", function (d) { return logColor(d.level);})
+	             .style("fill", function (d) { return string_color(d.level);})
 	             .attr("r", 3)
 	             .attr("cy", function (d) { return height.context/2; });
 
@@ -796,7 +814,7 @@ angular.module('myApp.directives', ['d3']).
 			  .enter().append("circle")
 			  .attr("clip-path", "url(#clip)")
 			  .attr('class', 'circle')
-			  .style("fill", function (d) { return logColor(d.level);})
+			  .style("fill", function (d) { return string_color(d.level);})
 			  .attr("cx", function (d) { return x_log(parseDate(d.timestamp)); })
 			  .attr("cy", function (d) { return margin.top; })
 			  .attr("r", function(d){ return 5;})
@@ -923,7 +941,7 @@ angular.module('myApp.directives', ['d3']).
 	          .enter().append("circle")
 	          .attr("clip-path", "url(#clip)")
 	          .attr('class', 'circle')
-	          .style("fill", function (d) { return logColor(d.level);})
+	          .style("fill", function (d) { return string_color(d.level);})
 	          .attr("cx", function (d) { return x2(parseDate(d.timestamp)); })
 	          .attr("cy", function (d) { return height.context/2; })
 	          .attr("r", function(d){ return 3;});
@@ -952,7 +970,7 @@ angular.module('myApp.directives', ['d3']).
 	       	var legendContainer = settingSvg.append("g").attr("class", "legend_container");
 
 	        var legend = legendContainer.selectAll(".legend")
-	            .data(logColor.domain())
+	            .data(string_color.domain())
 	          .enter().append("g")
 	            .attr("class", "legend")
 	            .attr("transform", function(d, i) { return "translate(0," + i * 25 + ")"; });
@@ -963,7 +981,7 @@ angular.module('myApp.directives', ['d3']).
 	        	.attr("x", 0)
 	            .attr("width", 18)
 	            .attr("height", 18)
-	            .style("fill", logColor);
+	            .style("fill", string_color);
 
 	        legend.append("text")
 	            .attr("x", 24)
@@ -981,7 +999,7 @@ angular.module('myApp.directives', ['d3']).
 	            if(settings.logFilter[i].key == level) {
 	              settings.logFilter[i].value ? settings.logFilter[i].value = false: settings.logFilter[i].value = true; 
 	              var display = settings.logFilter[i].value ? "inline" : "none";
-	              var fill = settings.logFilter[i].value ? logColor(level) : "#FFF";
+	              var fill = settings.logFilter[i].value ? string_color(level) : "#FFF";
 	            }
 	          }
 
