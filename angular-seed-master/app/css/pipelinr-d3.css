@@ -73,7 +73,7 @@
   shape-rendering: crispEdges;
 }
 
-.filter_button {
+.rect-border {
   stroke: #000;
   stroke-width:1;
 }
@@ -83,15 +83,16 @@
   fill: #333;
 }
 
-circle {
-  -webkit-transition: fill-opacity 250ms linear;
-}
-
 .selecting circle {
-  fill-opacity: .2;
+  fill-opacity: .7;
 }
 
 .selecting circle.selected {
   stroke: #f00;
   fill-opacity: 1;
+  radius: 7;
+}
+
+.arc path {
+  stroke: #fff;
 }
