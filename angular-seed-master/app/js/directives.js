@@ -245,7 +245,7 @@ angular.module('myApp.directives', ['d3']).
 		            .text(function(d) { return d});    
 
 		        // Filter
-		        d3.selectAll(".filter_button").on("click", function() {
+		        d3.selectAll(".rect-border").on("click", function() {
 
 		          // Retrieve filter key
 		          var level = d3.select(this).attr("value");
@@ -525,12 +525,6 @@ angular.module('myApp.directives', ['d3']).
 					if(scope.dataset.values.length < 2) return; // Do not draw for no values
 
 					var data = computeDonutData(scope.dataset.values);
-
-				  /*g.append("text")
-				      .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
-				      .attr("dy", ".35em")
-				      .style("text-anchor", "middle")
-				      .text(function(d) { return d.data.age; });*/
 
 					var width = 200,
 					    height = 120,
