@@ -15,7 +15,7 @@ angular.module('myApp.directives', ['d3']).
       	pipeline: '=',
       	date: '='
       },
-      templateUrl: 'partials/dashboard.html?29',
+      templateUrl: 'partials/dashboard.html?31',
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
         	console.log("pipelinrDashboard");
@@ -167,7 +167,7 @@ angular.module('myApp.directives', ['d3']).
 		        var x_context = d3.time.scale().range([0, scope.configuration.width.graph]),
 		            y2 = d3.scale.linear().range([scope.configuration.height.context, 0]);
 
-		        var xAxis_context = d3.svg.axis().scale(x_context).orient("bottom"),
+		        var xAxis_context = d3.svg.axis().scale(x_context).orient("bottom").tickSize(-5, 0, 0),
 		            yAxis2 = d3.svg.axis().scale(y2).orient("left");
 
             scope.configuration.xAxis_context = xAxis_context;
@@ -378,7 +378,7 @@ angular.module('myApp.directives', ['d3']).
 		    		y_log = d3.scale.linear().range([scope.configuration.height.scatterplot, 0]);
 
 					// Axis
-					var xAxis_log = d3.svg.axis().scale(x_log).orient("bottom"),
+					var xAxis_log = d3.svg.axis().scale(x_log).orient("bottom").tickSize(-5, 0, 0),
 			    	yAxis_log = d3.svg.axis().scale(y_log).orient("left");
 
 					x_log.domain(d3.extent(scope.dataset.values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
@@ -445,7 +445,7 @@ angular.module('myApp.directives', ['d3']).
 	        var x = d3.time.scale().range([0, scope.configuration.width.graph]),
             y = d3.scale.linear().range([scope.configuration.height.linechart, 0]);
 
-        	var xAxis = d3.svg.axis().scale(x).orient("bottom"),
+        	var xAxis = d3.svg.axis().scale(x).orient("bottom").tickSize(-5, 0, 0),
             yAxis = d3.svg.axis().scale(y).orient("left").ticks(5).tickSize(-scope.configuration.width.graph, 0, 0).tickPadding(5);
 
         	x.domain(d3.extent(scope.dataset.values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
