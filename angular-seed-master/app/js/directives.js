@@ -33,6 +33,38 @@ angular.module('myApp.directives', ['d3']).
 		        .domain(["warning","error"])
 		        .range(["#f1c40f", "#e74c3c"]);
 
+		      // Utility for trend line
+					var leastSquares = function(xSeries, ySeries) {
+						var reduceSumFunc = function(prev, cur) { return prev + cur; };
+						
+						var xBar = xSeries.reduce(reduceSumFunc) * 1.0 / xSeries.length;
+						var yBar = ySeries.reduce(reduceSumFunc) * 1.0 / ySeries.length;
+
+						var ssXX = xSeries.map(function(d) { return Math.pow(d - xBar, 2); })
+							.reduce(reduceSumFunc);
+						
+						var ssYY = ySeries.map(function(d) { return Math.pow(d - yBar, 2); })
+							.reduce(reduceSumFunc);
+							
+						var ssXY = xSeries.map(function(d, i) { return (d - xBar) * (ySeries[i] - yBar); })
+							.reduce(reduceSumFunc);
+							
+						var slope = ssXY / ssXX;
+						var intercept = yBar - (xBar * slope);
+						var rSquare = Math.pow(ssXY, 2) / (ssXX * ssYY);
+						
+						return [slope, intercept, rSquare];
+					}
+
+					var trendCoordinates = function(xSeries, leastSquaresCoeff, values) {
+						var x1 = values[0].timestamp;
+						var y1 = leastSquaresCoeff[0] + leastSquaresCoeff[1];
+						var x2 = values[values.length - 1].timestamp;
+						var y2 = leastSquaresCoeff[0] * xSeries.length + leastSquaresCoeff[1];
+						//return [[x1,y1,x2,y2]];
+						return [{ timestamp: x1, value: y1 }, { timestamp: x2, value: y2 }];
+					}
+
 					scope.configuration = {
 						parseDate: d3.time.format('%d %m %Y, %H:%M:%S:%L').parse,
 						height: {scatterplot: 50, linechart: 100, context: 25, legend: 25},
@@ -44,13 +76,15 @@ angular.module('myApp.directives', ['d3']).
 						xAxes: [],
 						main_lines: [],
 						main_areas: [],
+						trend_lines: [],
 						brush: {},
 						x_context: {},
 						xAxis_context: {},
 						logFilter: [{ key: "warning", value: true }, { key: "error", value: true }],
 						path: {},
 						pie: {},
-						arc: {}
+						arc: {},
+						util: { leastSquares: leastSquares, trendCoordinates: trendCoordinates }
 					};
 
 					scope.$watch('pipeline', function(newVals, oldVals) {
@@ -319,10 +353,26 @@ angular.module('myApp.directives', ['d3']).
 					  d3.select(".context").classed("selecting", !d3.event.target.empty());
 
 						var extent = scope.configuration.brush.extent();
-      			var data = computeDonutData(scope.intdatasets[0].values.filter(function(d) { return extent[0] <= scope.configuration.parseDate(d.timestamp) && scope.configuration.parseDate(d.timestamp) <= extent[1] }) );
 
-      			var path = scope.configuration.path.data(scope.configuration.pie(data));
-      			path.transition().duration(750).attrTween("d", arcTween); // redraw the arcs
+						// Redraw donut chart
+      			var donut_data = computeDonutData(scope.intdatasets[0].values.filter(function(d) { return extent[0] <= scope.configuration.parseDate(d.timestamp) && scope.configuration.parseDate(d.timestamp) <= extent[1] }) );
+      			var path = scope.configuration.path.data(scope.configuration.pie(donut_data));
+      			path.transition().duration(750).attrTween("d", arcTween); // Redraw the arcs
+
+				    // Trendlines update
+				    for(var i = 0; i < scope.intdatasets.length; i++) {
+							var extent_data = scope.intdatasets[i].values.filter(function(d) { return extent[0] <= scope.configuration.parseDate(d.timestamp) && scope.configuration.parseDate(d.timestamp) <= extent[1] });
+							
+							// Get the x and y values for least squares
+							var xSeries = d3.range(1, extent_data.length + 1);
+							var ySeries = extent_data.map(function(d) { return parseInt(d.value);; });			
+							var leastSquaresCoeff = scope.configuration.util.leastSquares(xSeries, ySeries);
+							
+							// Calculate trend line coordinates
+							var trendData = scope.configuration.util.trendCoordinates(xSeries, leastSquaresCoeff, extent_data);
+
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".trendline").data([trendData]).attr("d", scope.configuration.trend_lines[scope.intdatasets[i]._id]);
+				    }
 					}
 
       		function brushed() {
@@ -510,6 +560,26 @@ angular.module('myApp.directives', ['d3']).
 				    .attr("y", - 35)
 				    .attr('transform', 'rotate(-90)')
 				    .text(scope.dataset.key);
+
+				  // Draw trendline
+					// Get the x and y values for least squares
+					var xSeries = d3.range(1, scope.dataset.values.length + 1);
+					var ySeries = scope.dataset.values.map(function(d) { return parseInt(d.value);; });			
+					var leastSquaresCoeff = scope.configuration.util.leastSquares(xSeries, ySeries);
+					
+					// Calculate trend line coordinates
+					var trendData = scope.configuration.util.trendCoordinates(xSeries, leastSquaresCoeff, scope.dataset.values);
+					console.log(trendData);
+				  var trendline = d3.svg.line()						
+					 	.x(function(d) { return x(scope.configuration.parseDate(d.timestamp)); })
+						.y(function(d) { return y(d.value); });
+
+					scope.configuration.trend_lines[scope.dataset._id] = trendline;
+
+					focus.append('path')
+				    .datum(trendData)
+				    .attr("class", "trendline")
+						.attr("d", trendline );
     		});
     	}
   	};

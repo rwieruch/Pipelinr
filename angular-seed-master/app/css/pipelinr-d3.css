@@ -96,3 +96,9 @@
 .arc path {
   stroke: #fff;
 }
+
+.trendline {
+  stroke: #000;
+  fill: none;
+  stroke-width: 1;
+}
