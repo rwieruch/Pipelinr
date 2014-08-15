@@ -110,10 +110,7 @@ angular.module('myApp.controllers', [])
 	pipeline.$promise.then(function(pipeline) {
 		console.log(pipeline);
 
-		// D3 directive
-		$scope.data = pipeline;
-
-		// New dashboard directive
+		// Dashboard directive
 		$scope.pipeline = pipeline;
 
 		// Detail window
@@ -146,69 +143,61 @@ angular.module('myApp.controllers', [])
 		$scope.stringDatasets = DataProcessing.getStringDatasets(pipeline)[0]; // TODO: at first only 1 string set
   });
 
-		// Date updates for pipeline
-    /*Socket.on('updatedObject', function (date) {
-    	console.log("updatedObject by socket");
-			$scope.date = date;
-    });*/
+	// Destroy on navigate away
+  $scope.$on('$destroy', function (event) {
+      Socket.getSocket().removeAllListeners();
+  });
 
-		// Destroy on navigate away
-    $scope.$on('$destroy', function (event) {
-        Socket.getSocket().removeAllListeners();
-    });
+  // Get Pipeline with tools
+  $scope.getPipeline = function(){
 
-    // Get Pipeline with tools
-    $scope.getPipeline = function(){
+  	var tools = [];
+  	var tool;
 
-	  	var tools = [];
-	  	var tool;
-
-			if($scope.selection.length != 0) {
-				tool = {
-					keys: $scope.selection,
-					task: "selectDatasets"
-				}
-				tools.push(tool);
-				console.log(tool);
+		if($scope.selection.length != 0) {
+			tool = {
+				keys: $scope.selection,
+				task: "selectDatasets"
 			}
+			tools.push(tool);
+			console.log(tool);
+		}
 
-	  	var begin = $scope.dateDropDownInput1;
-	  	var end = $scope.dateDropDownInput2;
-	  	if(typeof begin !== "undefined" && typeof end !== "undefined") {
-				begin = moment(begin).format('DD MM YYYY, HH:mm:ss');
-				end = moment(end).format('DD MM YYYY, HH:mm:ss');
+  	var begin = $scope.dateDropDownInput1;
+  	var end = $scope.dateDropDownInput2;
+  	if(typeof begin !== "undefined" && typeof end !== "undefined") {
+			begin = moment(begin).format('DD MM YYYY, HH:mm:ss');
+			end = moment(end).format('DD MM YYYY, HH:mm:ss');
 
-				tool = {
-					begin: begin,
-					end: end,
-					task: "trimPipeline"
-				}
-				tools.push(tool);
-				console.log(tool);
+			tool = {
+				begin: begin,
+				end: end,
+				task: "trimPipeline"
 			}
+			tools.push(tool);
+			console.log(tool);
+		}
 
-			var pipeline = PipelineService.get({id: $routeParams.id, tool: tools});
+		var pipeline = PipelineService.get({id: $routeParams.id, tool: tools});
 
-			pipeline.$promise.then(function(newdata) {
-				console.log(newdata);
-				//$scope.newdata = newdata;
-				$scope.pipeline = newdata;
-	  	});
-		};
-
-  }]) 
-  .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
-    $scope.addUser = function(){
-    	var user = {name:$scope.newUser.username, email:$scope.newUser.email, password:$scope.newUser.password1};
-	    UserService.create(user);
-
-	    $scope.newUser.username = '';
-	    $scope.newUser.email = '';
-	    $scope.newUser.password1 = '';
-	    $scope.newUser.password2 = '';
+		pipeline.$promise.then(function(newdata) {
+			$scope.pipeline = newdata;
+  	});
 	};
-  }])
-  .controller('SessionCtrl', ['$scope', '$http', '$location', '$cookieStore', 'SessionInService', 'SessionOutService', 'Session', function($scope, $http, $location, $cookieStore, SessionInService, SessionOutService, Session) {
+
+}]) 
+.controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
+  $scope.addUser = function(){
+  	var user = {name:$scope.newUser.username, email:$scope.newUser.email, password:$scope.newUser.password1};
+    UserService.create(user);
+
+    $scope.newUser.username = '';
+    $scope.newUser.email = '';
+    $scope.newUser.password1 = '';
+    $scope.newUser.password2 = '';
+	};
+}])
+.controller('SessionCtrl', ['$scope', '$http', '$location', '$cookieStore', 'SessionInService', 'SessionOutService', 'Session', function($scope, $http, $location, $cookieStore, SessionInService, SessionOutService, Session) {
 	$scope.Session = Session;
 
 	$scope.loginUser = function(){
