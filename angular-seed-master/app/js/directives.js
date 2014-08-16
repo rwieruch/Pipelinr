@@ -56,6 +56,14 @@ angular.module('myApp.directives', ['d3']).
 						return [slope, intercept, rSquare];
 					}
 
+					var calculateSeries = function(values) {
+							var series = {
+								xSeries: d3.range(1, values.length + 1),
+								ySeries: values.map(function(d) { return +d.value; })
+							}
+							return series;
+					}
+
 					var trendCoordinates = function(xSeries, leastSquaresCoeff, values) {
 						var x1 = values[0].timestamp;
 						var y1 = leastSquaresCoeff[0] + leastSquaresCoeff[1];
@@ -76,7 +84,7 @@ angular.module('myApp.directives', ['d3']).
 						xAxes: [],
 						main_lines: [],
 						main_areas: [],
-						trend_lines: [],
+						lines: [],
 						brush: {},
 						x_context: {},
 						xAxis_context: {},
@@ -84,7 +92,7 @@ angular.module('myApp.directives', ['d3']).
 						path: {},
 						pie: {},
 						arc: {},
-						util: { leastSquares: leastSquares, trendCoordinates: trendCoordinates }
+						util: { leastSquares: leastSquares, trendCoordinates: trendCoordinates, calculateSeries: calculateSeries }
 					};
 
 					scope.$watch('pipeline', function(newVals, oldVals) {
@@ -314,12 +322,6 @@ angular.module('myApp.directives', ['d3']).
 		        });
 					}
 
-	        function change() {
-	        	data = [{count: 1}, {count: 5}, {count: 1}];
-				    path = path.data(pie(data)); // compute the new angles
-				    path.transition().duration(750).attrTween("d", arcTween); // redraw the arcs
-				  }
-
 				  function computeDonutData(data) {
 						var computed_data = [{count: 0}, {count: 0}, {count: 0}];
 						for (var i = data.length; --i >= 0;) {
@@ -359,19 +361,28 @@ angular.module('myApp.directives', ['d3']).
       			var path = scope.configuration.path.data(scope.configuration.pie(donut_data));
       			path.transition().duration(750).attrTween("d", arcTween); // Redraw the arcs
 
-				    // Trendlines update
 				    for(var i = 0; i < scope.intdatasets.length; i++) {
 							var extent_data = scope.intdatasets[i].values.filter(function(d) { return extent[0] <= scope.configuration.parseDate(d.timestamp) && scope.configuration.parseDate(d.timestamp) <= extent[1] });
 							
-							// Get the x and y values for least squares
-							var xSeries = d3.range(1, extent_data.length + 1);
-							var ySeries = extent_data.map(function(d) { return parseInt(d.value);; });			
-							var leastSquaresCoeff = scope.configuration.util.leastSquares(xSeries, ySeries);
+							// Trendlines update
+							var series = scope.configuration.util.calculateSeries(extent_data);			
+							var leastSquaresCoeff = scope.configuration.util.leastSquares(series.xSeries, series.ySeries);
 							
-							// Calculate trend line coordinates
-							var trendData = scope.configuration.util.trendCoordinates(xSeries, leastSquaresCoeff, extent_data);
+							var trendData = scope.configuration.util.trendCoordinates(series.xSeries, leastSquaresCoeff, extent_data);
 
-				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".trendline").data([trendData]).attr("d", scope.configuration.trend_lines[scope.intdatasets[i]._id]);
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".trendline").data([trendData]).attr("d", scope.configuration.lines[scope.intdatasets[i]._id]);
+
+				      // Maxlines update
+							var max = d3.max(extent_data, function(d) { return +d.value;} );
+							var maxData = [{timestamp: extent_data[0].timestamp, value: max}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: max}];
+
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline").data([maxData]).attr("d", scope.configuration.lines[scope.intdatasets[i]._id]);
+
+				      // Minlines update
+							var min = d3.min(extent_data, function(d) { return +d.value;} );
+							var minData = [{timestamp: extent_data[0].timestamp, value: min}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: min}];
+
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline").data([minData]).attr("d", scope.configuration.lines[scope.intdatasets[i]._id]);
 				    }
 					}
 
@@ -561,25 +572,40 @@ angular.module('myApp.directives', ['d3']).
 				    .attr('transform', 'rotate(-90)')
 				    .text(scope.dataset.key);
 
-				  // Draw trendline
-					// Get the x and y values for least squares
-					var xSeries = d3.range(1, scope.dataset.values.length + 1);
-					var ySeries = scope.dataset.values.map(function(d) { return parseInt(d.value);; });			
-					var leastSquaresCoeff = scope.configuration.util.leastSquares(xSeries, ySeries);
-					
-					// Calculate trend line coordinates
-					var trendData = scope.configuration.util.trendCoordinates(xSeries, leastSquaresCoeff, scope.dataset.values);
-					console.log(trendData);
-				  var trendline = d3.svg.line()						
+				  // Draw lines
+				  var line = d3.svg.line()						
 					 	.x(function(d) { return x(scope.configuration.parseDate(d.timestamp)); })
 						.y(function(d) { return y(d.value); });
 
-					scope.configuration.trend_lines[scope.dataset._id] = trendline;
+					scope.configuration.lines[scope.dataset._id] = line;
+
+				  // Trendline
+					var series = scope.configuration.util.calculateSeries(scope.dataset.values);	
+					var leastSquaresCoeff = scope.configuration.util.leastSquares(series.xSeries, series.ySeries);
+					var trendData = scope.configuration.util.trendCoordinates(series.xSeries, leastSquaresCoeff, scope.dataset.values);
 
 					focus.append('path')
 				    .datum(trendData)
 				    .attr("class", "trendline")
-						.attr("d", trendline );
+						.attr("d", line );
+
+					// Draw max line
+					var max = d3.max(scope.dataset.values, function(d) { return +d.value;} );
+					var maxData = [{timestamp: scope.dataset.values[0].timestamp, value: max}, {timestamp: scope.dataset.values[scope.dataset.values.length - 1].timestamp, value: max}];
+
+					focus.append('path')
+				    .datum(maxData)
+				    .attr("class", "maxline")
+						.attr("d", line );
+
+					// Draw min line
+					var min = d3.min(scope.dataset.values, function(d) { return +d.value;} );
+					var minData = [{timestamp: scope.dataset.values[0].timestamp, value: min}, {timestamp: scope.dataset.values[scope.dataset.values.length - 1].timestamp, value: min}];
+
+					focus.append('path')
+				    .datum(minData)
+				    .attr("class", "minline")
+						.attr("d", line );
     		});
     	}
   	};

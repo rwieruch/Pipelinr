@@ -101,4 +101,17 @@
   stroke: #000;
   fill: none;
   stroke-width: 1;
+  stroke-dasharray: 10,10;
+}
+
+.maxline {
+  stroke: red;
+  fill: none;
+  stroke-width: 1;
+}
+
+.minline {
+  stroke: green;
+  fill: none;
+  stroke-width: 1;
 }
