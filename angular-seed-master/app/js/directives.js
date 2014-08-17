@@ -22,7 +22,7 @@ angular.module('myApp.directives', ['d3']).
 
         	// Lokal variables
   		    var color_lines = d3.scale.ordinal()
-					  .range(["#16a085", "#2980b9", "#27ae60", "#8e44ad", "#f39c12", "#d35400", "#c0392b"]);
+					  .range(["#16a085", "#27ae60", "#2980b9", "#8e44ad", "#f39c12", "#d35400", "#c0392b"]);
 
 		      // Global variables via configuration object
     			var tip = d3.select("body").append("div")
@@ -33,7 +33,11 @@ angular.module('myApp.directives', ['d3']).
 		        .domain(["warning","error"])
 		        .range(["#f1c40f", "#e74c3c"]);
 
-		      // Utility for trend line
+ 					/*
+					// Functions for statistic lines in line charts
+					*/
+
+		      // Trendline
 					var leastSquares = function(xSeries, ySeries) {
 						var reduceSumFunc = function(prev, cur) { return prev + cur; };
 						
@@ -72,11 +76,43 @@ angular.module('myApp.directives', ['d3']).
 						return [{ timestamp: x1, value: y1 }, { timestamp: x2, value: y2 }];
 					}
 
+					// Mean, standard deviation, variance
 					var calcMeanSdVar = function(values) {
 					  var r = {mean: 0, variance: 0, deviation: 0}, t = values.length;
 					  for(var m, s = 0, l = t; l--; s += parseInt(values[l].value));
 					  for(m = r.mean = s / t, l = t, s = 0; l--; s += Math.pow(parseInt(values[l].value) - m, 2));
 					  return r.deviation = Math.sqrt(r.variance = s / t), r;
+					}
+
+					/*
+					// Functions for donut graph
+					*/
+
+				  var computeDonutData = function(data, max) {
+						var high = (max-(max/100)*25); // Upper 25% quantile
+						var low = (max-(max/100)*75); // lower 25% quantile
+
+						var computed_data = [{count: 0}, {count: 0}, {count: 0}];
+						for (var i = data.length; --i >= 0;) {
+							if(data[i].value >= high)
+								computed_data[0].count++;
+						  else if(data[i].value <= low)
+						  	computed_data[2].count++;
+						  else
+						  	computed_data[1].count++;
+						}
+				  	return computed_data;
+				  }
+
+				  // Store the displayed angles in _current.
+					// Then, interpolate from _current to the new angles.
+					// During the transition, _current is updated in-place by d3.interpolate.
+					var arcTween = function(a) {
+					  var i = d3.interpolate(this._current, a);
+					  this._current = i(0);
+					  return function(t) {
+					    return scope.configuration.arc(i(t));
+					  };
 					}
 
 					scope.configuration = {
@@ -95,10 +131,10 @@ angular.module('myApp.directives', ['d3']).
 						x_context: {},
 						xAxis_context: {},
 						logFilter: [{ key: "warning", value: true }, { key: "error", value: true }],
-						path: {},
 						pie: {},
 						arc: {},
-						util: { leastSquares: leastSquares, trendCoordinates: trendCoordinates, calculateSeries: calculateSeries, calcMeanSdVar: calcMeanSdVar }
+						util: { leastSquares: leastSquares, trendCoordinates: trendCoordinates, calculateSeries: calculateSeries, calcMeanSdVar: calcMeanSdVar },
+						donutGraph: { donutPaths: [], computeDonutData: computeDonutData, arcTween: arcTween }
 					};
 
 					scope.$watch('pipeline', function(newVals, oldVals) {
@@ -106,7 +142,7 @@ angular.module('myApp.directives', ['d3']).
 			        	// Wait until everything is rendered
 	  	          $timeout(function() {
 	  	          	// Colorize line graphs
-							   	d3.selectAll(".area").attr("fill",function(d,i){return d3.rgb(color_lines(i)).brighter(3);});
+							   	d3.selectAll(".area").attr("fill",function(d,i){return d3.rgb(color_lines(i)).brighter(2);});
 		    	    		d3.selectAll(".line").attr("stroke",function(d,i){return color_lines(i);});
 		    	    		d3.selectAll(".circle").style("fill", function (d) { return string_color(d.level);});
 
@@ -328,27 +364,6 @@ angular.module('myApp.directives', ['d3']).
 		        });
 					}
 
-				  function computeDonutData(data) {
-						var computed_data = [{count: 0}, {count: 0}, {count: 0}];
-						for (var i = data.length; --i >= 0;) {
-							if(data[i].value >= 65)
-								computed_data[0].count++;
-						  if(data[i].value < 65 && data[i].value > 35)
-						  	computed_data[1].count++;
-						  if(data[i].value <= 35)
-						  	computed_data[2].count++;
-						}
-				  	return computed_data;
-				  }	
-
-					function arcTween(a) {
-					  var i = d3.interpolate(this._current, a);
-					  this._current = i(0);
-					  return function(t) {
-					    return scope.configuration.arc(i(t));
-					  };
-					}
-
 					function brushstart() {
 				    d3.select(".context").classed("selecting", true);
 					}
@@ -362,14 +377,15 @@ angular.module('myApp.directives', ['d3']).
 
 						var extent = scope.configuration.brush.extent();
 
-						// Redraw donut chart
-      			var donut_data = computeDonutData(scope.intdatasets[0].values.filter(function(d) { return extent[0] <= scope.configuration.parseDate(d.timestamp) && scope.configuration.parseDate(d.timestamp) <= extent[1] }) );
-      			var path = scope.configuration.path.data(scope.configuration.pie(donut_data));
-      			path.transition().duration(750).attrTween("d", arcTween); // Redraw the arcs
-
 				    for(var i = 0; i < scope.intdatasets.length; i++) {
 							var extent_data = scope.intdatasets[i].values.filter(function(d) { return extent[0] <= scope.configuration.parseDate(d.timestamp) && scope.configuration.parseDate(d.timestamp) <= extent[1] });
 							
+							// Redraw donut graph
+							var globalMax = d3.max(scope.intdatasets[i].values, function(d) { return +d.value; } );
+      				var donut_data = scope.configuration.donutGraph.computeDonutData(extent_data, globalMax);
+      				var path = scope.configuration.donutGraph.donutPaths[scope.intdatasets[i]._id].data(scope.configuration.pie(donut_data));
+      				path.transition().duration(750).attrTween("d", scope.configuration.donutGraph.arcTween); // Redraw the arcs
+
 							// Trendlines update
 							var series = scope.configuration.util.calculateSeries(extent_data);			
 							var leastSquaresCoeff = scope.configuration.util.leastSquares(series.xSeries, series.ySeries);
@@ -709,10 +725,12 @@ angular.module('myApp.directives', ['d3']).
 
 					if(scope.dataset.values.length < 2) return; // Do not draw for no values
 
-					var data = computeDonutData(scope.dataset.values);
+					var globalMax = d3.max(scope.dataset.values, function(d) { return +d.value; } );
+					var data = scope.configuration.donutGraph.computeDonutData(scope.dataset.values, globalMax);
 
 					var width = 200,
 					    height = 120,
+					    margin = 30,
 					    radius = Math.min(width, height) / 2;
 
 					var donut_color = d3.scale.ordinal()
@@ -729,7 +747,7 @@ angular.module('myApp.directives', ['d3']).
 
 					var svg = d3.select(ele[0]).append("svg")
 					    .attr("width", width)
-					    .attr("height", height)
+					    .attr("height", height + margin)
 					  .append("g")
 					    .attr("transform", "translate(" + height / 2 + "," + height / 2 + ")");
 
@@ -737,11 +755,11 @@ angular.module('myApp.directives', ['d3']).
 				      .attr("class", "legend")
 				      .attr("width", 50)
 				      .attr("height", 100)
-				      .attr("transform", "translate(" + ((height / 2)+20) + "," + -height / 2 + ")")
+				      .attr("transform", "translate(" + -height / 2 + "," + (height / 2 + 11) + ")")
 				    .selectAll("g")
 				      .data(donut_color.domain())
 				    .enter().append("g")
-				      .attr("transform", function(d, i) { return "translate(0," + i * 30 + ")"; });
+				      .attr("transform", function(d, i) { return "translate(" + i * 55 + ",0)"; });
 
 	        legend.append("rect")
 	            .attr("class", "rect-border")
@@ -755,36 +773,14 @@ angular.module('myApp.directives', ['d3']).
 	            .attr("dy", ".35em")
 	            .text(function(d) { return d}); 
 
-			    scope.configuration.path = svg.datum(data).selectAll("path")
+			    var path = svg.datum(data).selectAll("path")
 			      .data(scope.configuration.pie)
 			    .enter().append("path")
 			      .attr("fill", function(d, i) { return donut_color(i); })
 			      .attr("d", scope.configuration.arc)
 			      .each(function(d) { this._current = d; }); // store the initial angles
- 
-				  function computeDonutData(data) {
-						var computed_data = [{count: 0}, {count: 0}, {count: 0}];
-						for (var i = data.length; --i >= 0;) {
-							if(data[i].value >= 80)
-								computed_data[0].count++;
-						  else if(data[i].value < 80 && data[i].value > 20)
-						  	data[1].count++;
-						  else if(data[i].value <= 20)
-						  	computed_data[2].count++;
-						}
-				  	return computed_data;
-				  }
 
-				  // Store the displayed angles in _current.
-					// Then, interpolate from _current to the new angles.
-					// During the transition, _current is updated in-place by d3.interpolate.
-					function arcTween(a) {
-					  var i = d3.interpolate(this._current, a);
-					  this._current = i(0);
-					  return function(t) {
-					    return arc(i(t));
-					  };
-					}
+		      scope.configuration.donutGraph.donutPaths[scope.dataset._id] = path;
     	});
   	}
   }
