@@ -69,22 +69,28 @@ angular.module('myApp.directives', ['d3']).
 						var y1 = leastSquaresCoeff[0] + leastSquaresCoeff[1];
 						var x2 = values[values.length - 1].timestamp;
 						var y2 = leastSquaresCoeff[0] * xSeries.length + leastSquaresCoeff[1];
-						//return [[x1,y1,x2,y2]];
 						return [{ timestamp: x1, value: y1 }, { timestamp: x2, value: y2 }];
+					}
+
+					var calcMeanSdVar = function(values) {
+					  var r = {mean: 0, variance: 0, deviation: 0}, t = values.length;
+					  for(var m, s = 0, l = t; l--; s += parseInt(values[l].value));
+					  for(m = r.mean = s / t, l = t, s = 0; l--; s += Math.pow(parseInt(values[l].value) - m, 2));
+					  return r.deviation = Math.sqrt(r.variance = s / t), r;
 					}
 
 					scope.configuration = {
 						parseDate: d3.time.format('%d %m %Y, %H:%M:%S:%L').parse,
 						height: {scatterplot: 50, linechart: 100, context: 25, legend: 25},
 						width: {graph: 760},
-						margin: {left: 50, top: 30, bottom: 40, right: 50},
+						margin: {left: 50, top: 30, bottom: 50, right: 50},
 						tip: tip,
 						string_color: string_color,
 						xs: [],
 						xAxes: [],
 						main_lines: [],
 						main_areas: [],
-						lines: [],
+						line: {},
 						brush: {},
 						x_context: {},
 						xAxis_context: {},
@@ -92,7 +98,7 @@ angular.module('myApp.directives', ['d3']).
 						path: {},
 						pie: {},
 						arc: {},
-						util: { leastSquares: leastSquares, trendCoordinates: trendCoordinates, calculateSeries: calculateSeries }
+						util: { leastSquares: leastSquares, trendCoordinates: trendCoordinates, calculateSeries: calculateSeries, calcMeanSdVar: calcMeanSdVar }
 					};
 
 					scope.$watch('pipeline', function(newVals, oldVals) {
@@ -370,19 +376,37 @@ angular.module('myApp.directives', ['d3']).
 							
 							var trendData = scope.configuration.util.trendCoordinates(series.xSeries, leastSquaresCoeff, extent_data);
 
-				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".trendline").data([trendData]).attr("d", scope.configuration.lines[scope.intdatasets[i]._id]);
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".trendline").data([trendData]).attr("d", scope.configuration.line);
 
 				      // Maxlines update
 							var max = d3.max(extent_data, function(d) { return +d.value;} );
 							var maxData = [{timestamp: extent_data[0].timestamp, value: max}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: max}];
 
-				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline").data([maxData]).attr("d", scope.configuration.lines[scope.intdatasets[i]._id]);
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline").data([maxData]).attr("d", scope.configuration.line);
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline-label").text("Maximum: " + max);
 
 				      // Minlines update
 							var min = d3.min(extent_data, function(d) { return +d.value;} );
 							var minData = [{timestamp: extent_data[0].timestamp, value: min}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: min}];
 
-				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline").data([minData]).attr("d", scope.configuration.lines[scope.intdatasets[i]._id]);
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline").data([minData]).attr("d", scope.configuration.line);
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline-label").text("Minimum: " + min);
+
+      				var statistic = scope.configuration.util.calcMeanSdVar(extent_data);
+				      // Meanlines update
+							var meanData = [{timestamp: extent_data[0].timestamp, value: statistic.mean}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: statistic.mean}];  
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".meanline").data([meanData]).attr("d", scope.configuration.line);
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".meanline-label").text("Mean: " + statistic.mean.toFixed(2) );
+
+				      // Standard deviation lines and variance update
+							var sdMinData = [{timestamp: extent_data[0].timestamp, value: statistic.mean - statistic.deviation}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: statistic.mean - statistic.deviation}];
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdminline").data([sdMinData]).attr("d", scope.configuration.line);
+
+							var sdMaxData = [{timestamp: extent_data[0].timestamp, value: statistic.mean + statistic.deviation}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: statistic.mean + statistic.deviation}];    
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdmaxline").data([sdMaxData]).attr("d", scope.configuration.line);
+
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdline-label").text("Standard Deviation: " + statistic.deviation.toFixed(2) );
+				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".variance-label").text("Variance: " + statistic.variance.toFixed(2) );
 				    }
 					}
 
@@ -572,12 +596,12 @@ angular.module('myApp.directives', ['d3']).
 				    .attr('transform', 'rotate(-90)')
 				    .text(scope.dataset.key);
 
-				  // Draw lines
+				  // Draw statistic lines
 				  var line = d3.svg.line()						
 					 	.x(function(d) { return x(scope.configuration.parseDate(d.timestamp)); })
 						.y(function(d) { return y(d.value); });
 
-					scope.configuration.lines[scope.dataset._id] = line;
+					scope.configuration.line = line;
 
 				  // Trendline
 					var series = scope.configuration.util.calculateSeries(scope.dataset.values);	
@@ -598,6 +622,13 @@ angular.module('myApp.directives', ['d3']).
 				    .attr("class", "maxline")
 						.attr("d", line );
 
+	        focus.append("text")
+            .attr("x", 0)
+            .attr("y", scope.configuration.height.linechart + scope.configuration.margin.bottom/2 + 5)
+            .attr("dy", ".35em")
+            .attr("class", "maxline-label")
+            .text("Maximum: " + max);
+
 					// Draw min line
 					var min = d3.min(scope.dataset.values, function(d) { return +d.value;} );
 					var minData = [{timestamp: scope.dataset.values[0].timestamp, value: min}, {timestamp: scope.dataset.values[scope.dataset.values.length - 1].timestamp, value: min}];
@@ -606,6 +637,64 @@ angular.module('myApp.directives', ['d3']).
 				    .datum(minData)
 				    .attr("class", "minline")
 						.attr("d", line );
+
+	        focus.append("text")
+            .attr("x", 100)
+            .attr("y", scope.configuration.height.linechart + scope.configuration.margin.bottom/2 + 5)
+            .attr("dy", ".35em")
+            .attr("class", "minline-label")
+            .text("Minimum: " + min);
+
+					var statistic = scope.configuration.util.calcMeanSdVar(scope.dataset.values);
+					// Draw mean and standard deviation line and variance
+					var meanData = [{timestamp: scope.dataset.values[0].timestamp, value: statistic.mean}, {timestamp: scope.dataset.values[scope.dataset.values.length - 1].timestamp, value: statistic.mean}];
+
+					focus.append('path')
+				    .datum(meanData)
+				    .attr("class", "meanline")
+						.attr("d", line );
+
+	        focus.append("text")
+            .attr("x", 200)
+            .attr("y", scope.configuration.height.linechart + scope.configuration.margin.bottom/2 + 5)
+            .attr("dy", ".35em")
+            .attr("class", "meanline-label")
+            .text("Mean: " + statistic.mean.toFixed(2) );
+
+          var sdMinData = [{timestamp: scope.dataset.values[0].timestamp, value: statistic.mean - statistic.deviation}, {timestamp: scope.dataset.values[scope.dataset.values.length - 1].timestamp, value: statistic.mean - statistic.deviation}];
+
+					focus.append('path')
+				    .datum(sdMinData)
+				    .attr("class", "sdminline")
+						.attr("d", line );
+
+          var sdMaxData = [{timestamp: scope.dataset.values[0].timestamp, value: statistic.mean + statistic.deviation}, {timestamp: scope.dataset.values[scope.dataset.values.length - 1].timestamp, value: statistic.mean + statistic.deviation}];
+
+					focus.append('path')
+				    .datum(sdMaxData)
+				    .attr("class", "sdmaxline")
+						.attr("d", line );
+
+	        focus.append("text")
+            .attr("x", 300)
+            .attr("y", scope.configuration.height.linechart + scope.configuration.margin.bottom/2 + 5)
+            .attr("dy", ".35em")
+            .attr("class", "sdline-label")
+            .text("Standard Deviation: " + statistic.deviation.toFixed(2) );
+
+	        focus.append("text")
+            .attr("x", 500)
+            .attr("y", scope.configuration.height.linechart + scope.configuration.margin.bottom/2 + 5)
+            .attr("dy", ".35em")
+            .attr("class", "variance-label")
+            .text("Variance: " + statistic.variance.toFixed(2) );
+
+	        focus.append("text")
+            .attr("x", 650)
+            .attr("y", scope.configuration.height.linechart + scope.configuration.margin.bottom/2 + 5)
+            .attr("dy", ".35em")
+            .attr("class", "trend-label")
+            .text("Trend line: - - -");
     		});
     	}
   	};

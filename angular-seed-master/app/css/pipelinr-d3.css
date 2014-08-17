@@ -110,8 +110,58 @@
   stroke-width: 1;
 }
 
+.maxline-label {
+  fill: red;
+  stroke-width: 1;
+  font-size: 14px;
+}
+
 .minline {
   stroke: green;
   fill: none;
   stroke-width: 1;
+}
+
+.minline-label {
+  fill: green;
+  stroke-width: 1;
+  font-size: 14px;
+}
+
+.meanline {
+  stroke: orange;
+  fill: none;
+  stroke-width: 2;
+}
+
+.meanline-label {
+  fill: orange;
+  stroke-width: 1;
+  font-size: 14px;
+}
+
+.sdminline {
+  stroke: blue;
+  fill: none;
+  stroke-width: 2;
+  stroke-dasharray: 10,10;
+}
+
+.sdmaxline {
+  stroke: blue;
+  fill: none;
+  stroke-width: 2;
+  stroke-dasharray: 10,10;
+}
+
+.sdline-label {
+  fill: blue;
+  stroke-width: 1;
+  font-size: 14px;
+}
+
+.variance-label {
+  fill: black;
+  stroke-width: 1;
+  font-size: 14px;
 }
