@@ -323,13 +323,15 @@ angular.module('myApp.directives', ['d3']).
 		            .attr("class", "legend")
 		            .attr("transform", function(d, i) { return "translate(" + i * 100 + ",0)"; });
 
-		        legend.append("rect")
-		            .attr("class", "rect-border")
-		            .attr("value", function(d) { return d })
-		        	.attr("x", 0)
-		            .attr("width", 18)
-		            .attr("height", 18)
-		            .style("fill", scope.configuration.string_color);
+  	        legend.append("circle")
+  	        	.attr("class", "filter")
+	            .attr("value", function(d) { return d })
+							.attr("cx", 9)
+							.attr("cy", 9)
+							.attr("r", 7)
+							.attr("stroke", scope.configuration.string_color)
+							.attr("stroke-width", 3)
+							.style("fill", scope.configuration.string_color);
 
 		        legend.append("text")
 		            .attr("x", 24)
@@ -338,7 +340,7 @@ angular.module('myApp.directives', ['d3']).
 		            .text(function(d) { return d});    
 
 		        // Filter
-		        d3.selectAll(".rect-border").on("click", function() {
+		        d3.selectAll(".filter").on("click", function() {
 
 		          // Retrieve filter key
 		          var level = d3.select(this).attr("value");
@@ -756,6 +758,10 @@ angular.module('myApp.directives', ['d3']).
 					    .outerRadius(radius - 0)
 					    .innerRadius(radius - 30);
 
+	    		var arcOver = d3.svg.arc()
+					    .outerRadius(radius - 0)
+					    .innerRadius(radius - 20);
+
 			    scope.configuration.donutGraph.arc = arc;
 
 					var svg = d3.select(ele[0]).append("svg")
@@ -792,6 +798,16 @@ angular.module('myApp.directives', ['d3']).
 			    	.attr("class", "donut")
 			      .attr("fill", function(d, i) { return donut_color(i); })
 			      .attr("d", arc)
+    				.on("mouseover", function(d) {
+            	d3.select(this).transition()
+	               .duration(500)
+	               .attr("d", arcOver);
+             })
+						.on("mouseout", function(d) {
+            	d3.select(this).transition()
+	               .duration(500)
+	               .attr("d", arc);
+             })
 			      .each(function(d) { this._current = d; }); // store the initial angles
 
 		      scope.configuration.donutGraph.donutPaths[scope.dataset._id] = path;
