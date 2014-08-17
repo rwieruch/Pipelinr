@@ -153,7 +153,7 @@ angular.module('myApp.directives', ['d3']).
 	  	          	// Colorize line graphs
 							   	d3.selectAll(".area").attr("fill",function(d,i){return d3.rgb(color_lines(i)).brighter(2);});
 		    	    		d3.selectAll(".line").attr("stroke",function(d,i){return color_lines(i);});
-		    	    		d3.selectAll(".circle").style("fill", function (d) { return string_color(d.level);});
+		    	    		d3.selectAll(".circle").style("fill", function(d) { return string_color(d.level);});
 
     	    		    scope.hoverValue = function(value) {
 										d3.select("#Id_"+value._id).transition().duration(200).attr("r", "12");
@@ -774,11 +774,11 @@ angular.module('myApp.directives', ['d3']).
 				    .enter().append("g")
 				      .attr("transform", function(d, i) { return "translate(" + i * 55 + ",0)"; });
 
-	        legend.append("rect")
-	            .attr("class", "rect-border")
-	            .attr("width", 18)
-	            .attr("height", 18)
-	            .style("fill", donut_color);
+	        legend.append("circle")
+							.attr("cx", 9)
+							.attr("cy", 9)
+							.attr("r", 9)
+							.style("fill", donut_color);
 
 	        legend.append("text")
 	            .attr("x", 24)
@@ -789,6 +789,7 @@ angular.module('myApp.directives', ['d3']).
 			    var path = svg.datum(data).selectAll("path")
 			      .data(pie)
 			    .enter().append("path")
+			    	.attr("class", "donut")
 			      .attr("fill", function(d, i) { return donut_color(i); })
 			      .attr("d", arc)
 			      .each(function(d) { this._current = d; }); // store the initial angles
