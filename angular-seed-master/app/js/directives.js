@@ -792,10 +792,9 @@ angular.module('myApp.directives', ['d3']).
 	            .attr("dy", ".35em")
 	            .text(function(d) { return d}); 
 
-			    var path = svg.datum(data).selectAll("path")
-			      .data(pie)
-			    .enter().append("path")
-			    	.attr("class", "donut")
+			    var path = svg.selectAll("path")
+			      .data(pie(data))
+			    	.enter().append("path")
 			      .attr("fill", function(d, i) { return donut_color(i); })
 			      .attr("d", arc)
     				.on("mouseover", function(d) {
