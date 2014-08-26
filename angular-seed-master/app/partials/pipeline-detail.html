@@ -3,20 +3,26 @@
 		<div class="col col-md-2">
 			<div class="panel panel-default">
 			  <div class="panel-heading">
-			    <h3 class="panel-title">Details</h3>
+			    <h3 class="panel-title">
+			    	<i class="glyphicon glyphicon-info-sign"></i>
+			    	Information
+			    </h3>
 			  </div>
 			  <div class="panel-body">
-				<label>Id:</label><p>{{pipeline.origin_id}}</p>
-				<label>Name:</label><p>{{pipeline.name}}</p>
-				<label>Begin:</label><p>{{earliestDate}}</p>
-				<label>End:</label><p>{{latestDate}}</p>
+				<div><label>Id:</label>{{pipeline.origin_id}}</div>
+				<div><label>Name:</label>{{pipeline.name}}</div>
+				<div><label>Begin:</label>{{earliestDate}}</div>
+				<div><label>End:</label>{{latestDate}}</div>
 			  </div>
 			</div>
 		</div>
 		<div class="col col-md-8">
 			<div class="panel panel-default">
 			  	<div class="panel-heading">
-			    	<h3 class="panel-title">Process Pipeline</h3>
+			    	<h3 class="panel-title">
+			    		<i class="glyphicon glyphicon-search"></i>
+			    		Process Pipeline
+			    	</h3>
 			  	</div>
 			  	<div class="panel-body">
 			      	<form name="getPipelineForm" class="form-horizontal" role="form" ng-submit="getPipeline()" novalidate>

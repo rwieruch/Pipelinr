@@ -15,7 +15,7 @@ angular.module('myApp.directives', ['d3']).
       	pipeline: '=',
       	date: '='
       },
-      templateUrl: 'partials/dashboard.html?31',
+      templateUrl: 'partials/dashboard.html?53',
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
         	console.log("pipelinrDashboard");
@@ -279,10 +279,10 @@ angular.module('myApp.directives', ['d3']).
 		        d3.select("#context-container").selectAll("*").remove(); // Clear old elemnts. (for update, otherwise there would be multiple elements)
 		       	var context = d3.select("#context-container").append("svg")
 		            .attr("class", "context")
-  					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left)
+  					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left + scope.configuration.margin.right)
 					    	.attr("height", scope.configuration.height.context + scope.configuration.margin.top)
 			    			.append("g")
-								.attr("transform", "translate(" + scope.configuration.margin.left + ",0)");
+								.attr("transform", "translate(" + scope.configuration.margin.left/2 + ",0)");
 
 		        context.selectAll('circle')
 		          .data(scope.stringdatasets[0].values)
@@ -312,10 +312,10 @@ angular.module('myApp.directives', ['d3']).
 		        d3.select("#legend-container").selectAll("*").remove(); // Clear old elemnts. (for update, otherwise there would be multiple elements)
 		       	var legendContainer = d3.select("#legend-container").append("svg")
 		            .attr("class", "legend")
-  					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left)
+  					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left + scope.configuration.margin.right)
 					    	.attr("height", scope.configuration.height.legend)
 			    			.append("g")
-								.attr("transform", "translate(" + scope.configuration.margin.left + ",0)");
+								.attr("transform", "translate(" + scope.configuration.margin.left/2 + ",0)");
 
 		        var legend = legendContainer.selectAll(".legend")
 		            .data(scope.configuration.string_color.domain())
@@ -501,10 +501,10 @@ angular.module('myApp.directives', ['d3']).
 
 					var scatterplot = d3.select(ele[0]).append("svg")
 					    .attr("class", "focus scatter")
-					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left)
+					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left + scope.configuration.margin.right)
 					    .attr("height", scope.configuration.height.scatterplot + scope.configuration.margin.top)
 			    		.append("g")
-							.attr("transform", "translate(" + scope.configuration.margin.left + ",0)");
+							.attr("transform", "translate(" + scope.configuration.margin.left/2 + ",0)");
 
 					scatterplot.append("g")
 					    .attr("class", "x axis")
@@ -530,14 +530,6 @@ angular.module('myApp.directives', ['d3']).
 			  		.on("mouseout", function(d) {       
 			    		scope.configuration.tip.transition().duration(500).style("opacity", 0);   
 		    		});
-
-	        scatterplot.append("text")
-				    .attr("class", "x label")
-				    .attr("text-anchor", "end")
-				    .attr("x", 0)
-				    .attr("y", - 35)
-				    .attr('transform', 'rotate(-90)')
-				    .text(scope.dataset.key);
         });
       }
     };
@@ -585,10 +577,10 @@ angular.module('myApp.directives', ['d3']).
 
 					var focus = d3.select(ele[0]).append("svg")
 					    .attr("class", "focus_"+scope.dataset._id)
-					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left)
+					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left + scope.configuration.margin.right)
 					    .attr("height", scope.configuration.height.linechart + scope.configuration.margin.bottom)
 			    		.append("g")
-							.attr("transform", "translate(" + scope.configuration.margin.left + "," + scope.configuration.margin.top/2 + ")");
+							.attr("transform", "translate(" + scope.configuration.margin.left/2 + "," + scope.configuration.margin.top/2 + ")");
 
 					focus.append("defs").append("clipPath")
 				    .attr("id", "clip")
@@ -614,14 +606,6 @@ angular.module('myApp.directives', ['d3']).
 					focus.append("g")
 					    .attr("class", "y axis")
 					    .call(yAxis);
-
-	        focus.append("text")
-				    .attr("class", "x label")
-				    .attr("text-anchor", "end")
-				    .attr("x", 0)
-				    .attr("y", - 35)
-				    .attr('transform', 'rotate(-90)')
-				    .text(scope.dataset.key);
 
 				  // Draw statistic lines
 				  var line = d3.svg.line()						
