@@ -117,7 +117,7 @@ angular.module('myApp.directives', ['d3']).
 
 					scope.configuration = {
 						parseDate: d3.time.format('%d %m %Y, %H:%M:%S:%L').parse,
-						height: {scatterplot: 50, linechart: 100, context: 25, legend: 25},
+						height: {scatterplot: 45, linechart: 100, context: 25, legend: 25},
 						width: {graph: 760},
 						margin: {left: 50, top: 30, bottom: 50, right: 50},
 						tip: tip,
@@ -502,7 +502,7 @@ angular.module('myApp.directives', ['d3']).
 					var scatterplot = d3.select(ele[0]).append("svg")
 					    .attr("class", "focus scatter")
 					    .attr("width", scope.configuration.width.graph + scope.configuration.margin.left + scope.configuration.margin.right)
-					    .attr("height", scope.configuration.height.scatterplot + scope.configuration.margin.top)
+					    .attr("height", scope.configuration.height.scatterplot + scope.configuration.margin.top/2)
 			    		.append("g")
 							.attr("transform", "translate(" + scope.configuration.margin.left/2 + ",0)");
 
