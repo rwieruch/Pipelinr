@@ -13,9 +13,10 @@ angular.module('myApp.directives', ['d3']).
       restrict: 'EA',
       scope: {
       	pipeline: '=',
-      	date: '='
+      	date: '=',
+      	rendered: '='
       },
-      templateUrl: 'partials/dashboard.html?53',
+      templateUrl: 'partials/dashboard.html?62',
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
         	console.log("pipelinrDashboard");
@@ -150,6 +151,7 @@ angular.module('myApp.directives', ['d3']).
 		        if (scope.pipeline) {
 			        	// Wait until everything is rendered
 	  	          $timeout(function() {
+
 	  	          	// Colorize line graphs
 							   	d3.selectAll(".area").attr("fill",function(d,i){return d3.rgb(color_lines(i)).brighter(2);});
 		    	    		d3.selectAll(".line").attr("stroke",function(d,i){return color_lines(i);});
@@ -166,6 +168,9 @@ angular.module('myApp.directives', ['d3']).
 							    scope.clickValue = function(value) {
 
 							    }
+
+					        scope.rendered = true;
+
 	              });
 					  		return scope.renderDashboard(newVals);
 		        }
@@ -797,4 +802,19 @@ angular.module('myApp.directives', ['d3']).
     	});
   	}
   }
-}]);
+}])
+.directive('loading', function () {
+    return {
+      restrict: 'E',
+      replace:true,
+      template: '<div><div class="pipelinr-overlay"></div><div class="pipelinr-invis-modal"><div class="loading"><div id="floatingCirclesG"><div class="f_circleG" id="frotateG_01"></div><div class="f_circleG" id="frotateG_02"></div><div class="f_circleG" id="frotateG_03"></div><div class="f_circleG" id="frotateG_04"></div><div class="f_circleG" id="frotateG_05"></div><div class="f_circleG" id="frotateG_06"></div><div class="f_circleG" id="frotateG_07"></div><div class="f_circleG" id="frotateG_08"></div></div></div></div></div>',
+      link: function (scope, element, attr) {
+        scope.$watch('loading', function (val) {
+            if (val)
+                $(element).show();
+            else
+                $(element).hide();
+        });
+      }
+    }
+});

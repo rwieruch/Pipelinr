@@ -1,3 +1,5 @@
+<loading/>
+
 <div class="container">
 	<div class="row equal">
 		<div class="col col-md-2">
@@ -65,7 +67,7 @@
 							  </ul>
 							</div>
 						</div>
-
+						
 						<div class="form-group">
 							<div class="col-sm-offset-1">
 							    <div class="checkbox" ng-repeat="key in allKeys" style="display: inline-block;">
@@ -76,7 +78,8 @@
 									    name="selectedKeys[]"
 									    value="{{key}}"
 									    ng-checked="selection.indexOf(key) > -1"
-									    ng-click="toggleSelection(key)"> {{key}}
+									    ng-click="toggleSelection(key)">
+									    {{key}}
 									</label>
 							    </div>
 							  </div>
@@ -89,6 +92,12 @@
 		</div>
 	</div>
 
-	<div pipelinr-dashboard id="pipelinr-dashboard" pipeline='pipeline' date='date'></div>
+	<div class="row equal">
+		<div class="col col-md-8">
+
+		</div>
+	</div>
+
+	<div pipelinr-dashboard id="pipelinr-dashboard" pipeline='pipeline' date='date' rendered='rendered'></div>
 
 </div>

@@ -104,8 +104,8 @@ angular.module('myApp.controllers', [])
 	$http.defaults.headers.common['token'] = Session.token; 
 
 	// Get and resolve pipeline
+	$scope.loading = true;
 	var pipeline = PipelineService.get({id: $routeParams.id, tool: []});
-
 	// Resolve new pipeline
 	pipeline.$promise.then(function(pipeline) {
 		console.log(pipeline);
@@ -141,6 +141,11 @@ angular.module('myApp.controllers', [])
 
 		// Fill table with string values
 		$scope.stringDatasets = DataProcessing.getStringDatasets(pipeline)[0]; // TODO: at first only 1 string set
+
+		// Watch when dashboard is rendered
+		$scope.$watch('rendered', function(newVals, oldVals) {
+			if(newVals) { $scope.loading = false; }
+		});
   });
 
 	// Destroy on navigate away
