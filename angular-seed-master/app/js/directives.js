@@ -118,7 +118,7 @@ angular.module('myApp.directives', ['d3']).
 
 					scope.configuration = {
 						parseDate: d3.time.format('%d %m %Y, %H:%M:%S:%L').parse,
-						height: {scatterplot: 45, linechart: 100, context: 25, legend: 25},
+						height: {scatterplot: 45, linechart: 100, context: 25, legend: 18},
 						width: {graph: 760},
 						margin: {left: 50, top: 30, bottom: 50, right: 50},
 						tip: tip,
