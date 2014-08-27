@@ -59,10 +59,6 @@ img.no-resize {
   width:143px;
 }
 
-.loading {
-  display: inline-block;
-}
-
 .pipelinr-overlay {
     position: absolute;
     top: 0;
