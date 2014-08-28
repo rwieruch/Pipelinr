@@ -16,7 +16,7 @@ angular.module('myApp.directives', ['d3']).
       	date: '=',
       	rendered: '='
       },
-      templateUrl: 'partials/dashboard.html?101',
+      templateUrl: 'partials/dashboard.html?104',
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
         	console.log("pipelinrDashboard");
@@ -208,11 +208,7 @@ angular.module('myApp.directives', ['d3']).
 	        	var dataset_to_update = window._.find(scope.pipeline.datasets, function(dataset) { return dataset._id == data.value._dataset });
 	        	dataset_to_update.values.push(data.value);
 
-	        	console.log(scope.stringdatasets);
-
 		        if(dataset_to_update.type == "string") {
-
-		        	//scope.stringdatasets = scope.stringdatasets[0];
 
 	            // Append new focus circle
 	            d3.select(".focus.scatter").select('g').selectAll('circle')
@@ -397,10 +393,6 @@ angular.module('myApp.directives', ['d3']).
 				    d3.select(".context").classed("selecting", true);
 					}
 
-					function brushed() {
-
-					}
-
 					function brushend() {
 					  //d3.select(".context").classed("selecting", !d3.event.target.empty());
 
@@ -463,14 +455,16 @@ angular.module('myApp.directives', ['d3']).
 						d3.select(".context").selectAll('circle').classed("selected", function(d) { return extent[0] <= scope.configuration.parseDate(d.timestamp) && scope.configuration.parseDate(d.timestamp) <= extent[1]; });
 
 						// Table update
-						d3.select(".dashboard-table").selectAll("tr").each( function(d, i){
-							var timestamp = d3.select(this).select('.table-timestamp').html();
-							if(extent[0] <= scope.configuration.parseDate(timestamp) && scope.configuration.parseDate(timestamp) <= extent[1]) {
-								d3.select(this).classed("selected", true).style("display", "table-row");
-							} else {
-								d3.select(this).classed("selected", false).style("display", "none");
-							}
-						});
+						if(!scope.configuration.brush.empty()) {
+							d3.select(".dashboard-table").selectAll("tr").each( function(d, i){
+								var timestamp = d3.select(this).select('.table-timestamp').html();
+								if(extent[0] <= scope.configuration.parseDate(timestamp) && scope.configuration.parseDate(timestamp) <= extent[1]) {
+									d3.select(this).classed("selected", true).style("display", "table-row");
+								} else {
+									d3.select(this).classed("selected", false).style("display", "none");
+								}
+							});
+						}
 
 				    // Scatterplot update
 				    scope.configuration.xs[scope.stringdatasets[0]._id].domain(scope.configuration.brush.empty() ? scope.configuration.x_context.domain() : scope.configuration.brush.extent());
