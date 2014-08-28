@@ -16,7 +16,7 @@ angular.module('myApp.directives', ['d3']).
       	date: '=',
       	rendered: '='
       },
-      templateUrl: 'partials/dashboard.html?66',
+      templateUrl: 'partials/dashboard.html?69',
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
         	console.log("pipelinrDashboard");
@@ -149,6 +149,7 @@ angular.module('myApp.directives', ['d3']).
 
 					scope.$watch('pipeline', function(newVals, oldVals) {
 		        if (scope.pipeline) {
+		        	if(!scope.rendered) {
 			        	// Wait until everything is rendered
 	  	          $timeout(function() {
 
@@ -173,6 +174,7 @@ angular.module('myApp.directives', ['d3']).
 
 	              });
 					  		return scope.renderDashboard(newVals);
+					  	}
 		        }
 					}, true);
 
@@ -188,11 +190,14 @@ angular.module('myApp.directives', ['d3']).
 						scope.renderContext();
 						scope.renderLegend();
 
+						// Fill table with string values
+						//scope.stringDatasets = scope.stringdatasets[0]; // TODO: at first only 1 string set
+
 						// Watch for new datum and update scope.intdatasets|stringdatasets
 						scope.$watch('date', function(newVals, oldVals) {
 			        if(scope.date) {
 			        	console.log("Update in dashboard");	
-			        	scope.renderDatumUpdate(newVals);
+			        	if(scope.rendered) { scope.renderDatumUpdate(newVals); }
 			        }
 		      	}, true);
 					};
@@ -200,7 +205,12 @@ angular.module('myApp.directives', ['d3']).
 					scope.renderDatumUpdate = function(data) {
 	        	var dataset_to_update = window._.find(scope.pipeline.datasets, function(dataset) { return dataset._id == data.value._dataset });
 	        	dataset_to_update.values.push(data.value);
+
+	        	console.log(scope.stringdatasets);
+
 		        if(dataset_to_update.type == "string") {
+
+		        	//scope.stringdatasets = scope.stringdatasets[0];
 
 	            // Append new focus circle
 	            d3.select(".focus.scatter").select('g').selectAll('circle')
@@ -259,6 +269,7 @@ angular.module('myApp.directives', ['d3']).
 
         		// Keep brushed, update everything
         		brushed();
+        		brushend();
 					}
 
 					scope.renderContext = function() {
@@ -389,13 +400,17 @@ angular.module('myApp.directives', ['d3']).
 					}
 
 					function brushend() {
-					  d3.select(".context").classed("selecting", !d3.event.target.empty());
+					  //d3.select(".context").classed("selecting", !d3.event.target.empty());
 
 						var extent = scope.configuration.brush.extent();
 
 				    for(var i = 0; i < scope.intdatasets.length; i++) {
-							var extent_data = scope.intdatasets[i].values.filter(function(d) { return extent[0] <= scope.configuration.parseDate(d.timestamp) && scope.configuration.parseDate(d.timestamp) <= extent[1] });
-							
+
+							if(scope.configuration.brush.empty())
+								var extent_data = scope.intdatasets[i].values;
+							else
+								var extent_data = scope.intdatasets[i].values.filter(function(d) { return extent[0] <= scope.configuration.parseDate(d.timestamp) && scope.configuration.parseDate(d.timestamp) <= extent[1] });
+
 							// Redraw donut graph
 							var globalMax = d3.max(scope.intdatasets[i].values, function(d) { return +d.value; } );
       				var donut_data = scope.configuration.donutGraph.computeDonutData(extent_data, globalMax);
@@ -404,8 +419,7 @@ angular.module('myApp.directives', ['d3']).
 
 							// Trendlines update
 							var series = scope.configuration.util.calculateSeries(extent_data);			
-							var leastSquaresCoeff = scope.configuration.util.leastSquares(series.xSeries, series.ySeries);
-							
+							var leastSquaresCoeff = scope.configuration.util.leastSquares(series.xSeries, series.ySeries);						
 							var trendData = scope.configuration.util.trendCoordinates(series.xSeries, leastSquaresCoeff, extent_data);
 
 				      d3.select(".focus_"+scope.intdatasets[i]._id).select(".trendline").data([trendData]).attr("d", scope.configuration.line);
@@ -809,8 +823,8 @@ angular.module('myApp.directives', ['d3']).
       replace:true,
       template: '<div><div class="pipelinr-overlay"></div><div class="pipelinr-invis-modal"><div class="loading"><div id="floatingCirclesG"><div class="f_circleG" id="frotateG_01"></div><div class="f_circleG" id="frotateG_02"></div><div class="f_circleG" id="frotateG_03"></div><div class="f_circleG" id="frotateG_04"></div><div class="f_circleG" id="frotateG_05"></div><div class="f_circleG" id="frotateG_06"></div><div class="f_circleG" id="frotateG_07"></div><div class="f_circleG" id="frotateG_08"></div></div></div></div></div>',
       link: function (scope, element, attr) {
-        scope.$watch('loading', function (val) {
-            if (val)
+        scope.$watch('rendered', function (val) {
+            if (!val)
                 $(element).show();
             else
                 $(element).hide();

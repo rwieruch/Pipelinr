@@ -104,7 +104,7 @@ angular.module('myApp.controllers', [])
 	$http.defaults.headers.common['token'] = Session.token; 
 
 	// Get and resolve pipeline
-	$scope.loading = true;
+	$scope.rendered = false;
 	var pipeline = PipelineService.get({id: $routeParams.id, tool: []});
 	// Resolve new pipeline
 	pipeline.$promise.then(function(pipeline) {
@@ -138,14 +138,6 @@ angular.module('myApp.controllers', [])
 				$scope.date = v_data;
 		 	});
 		});
-
-		// Fill table with string values
-		$scope.stringDatasets = DataProcessing.getStringDatasets(pipeline)[0]; // TODO: at first only 1 string set
-
-		// Watch when dashboard is rendered
-		$scope.$watch('rendered', function(newVals, oldVals) {
-			if(newVals) { $scope.loading = false; }
-		});
   });
 
 	// Destroy on navigate away
@@ -155,6 +147,8 @@ angular.module('myApp.controllers', [])
 
   // Get Pipeline with tools
   $scope.getPipeline = function(){
+
+		$scope.rendered = false; // Enable rendering in directive and waiting animation
 
   	var tools = [];
   	var tool;
@@ -182,6 +176,8 @@ angular.module('myApp.controllers', [])
 			tools.push(tool);
 			console.log(tool);
 		}
+
+		//console.log(Socket.getSocket().listeners());
 
 		var pipeline = PipelineService.get({id: $routeParams.id, tool: tools});
 
