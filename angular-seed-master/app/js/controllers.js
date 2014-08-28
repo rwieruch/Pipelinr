@@ -151,6 +151,16 @@ angular.module('myApp.controllers', [])
 
 		$scope.rendered = false; // Enable rendering in directive and waiting animation
 
+		// Remove old listeners and init new listeners for selected datasets
+		Socket.getSocket().removeAllListeners();
+		angular.forEach($scope.pipeline.datasets, function(dataset, key) {
+			if($scope.selection.indexOf(dataset.key) > -1) {
+				Socket.on('add_value_' + dataset._id, function (v_data) {
+					$scope.date = v_data;
+			 	});
+			}
+		});
+
   	var tools = [];
   	var tool;
 
@@ -178,10 +188,7 @@ angular.module('myApp.controllers', [])
 			console.log(tool);
 		}
 
-		//console.log(Socket.getSocket().listeners());
-
 		var pipeline = PipelineService.get({id: $routeParams.id, tool: tools});
-
 		pipeline.$promise.then(function(newdata) {
 			$scope.pipeline = newdata;
   	});
