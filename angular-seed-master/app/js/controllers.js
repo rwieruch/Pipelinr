@@ -100,6 +100,7 @@ angular.module('myApp.controllers', [])
 
 }])  
 .controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'DataProcessing', 'Session', function($scope, $http, $routeParams, Socket, PipelineService, DataProcessing, Session) {
+
 	// Set for refresh
 	$http.defaults.headers.common['token'] = Session.token; 
 

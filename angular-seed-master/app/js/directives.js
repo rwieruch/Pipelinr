@@ -16,7 +16,7 @@ angular.module('myApp.directives', ['d3']).
       	date: '=',
       	rendered: '='
       },
-      templateUrl: 'partials/dashboard.html?69',
+      templateUrl: 'partials/dashboard.html?101',
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
         	console.log("pipelinrDashboard");
@@ -170,8 +170,10 @@ angular.module('myApp.directives', ['d3']).
 
 							    }
 
+							    // Open all panels
+									scope.accopen = true;
+					        
 					        scope.rendered = true;
-
 	              });
 					  		return scope.renderDashboard(newVals);
 					  	}
