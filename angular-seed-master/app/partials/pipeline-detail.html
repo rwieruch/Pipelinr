@@ -3,30 +3,28 @@
 <div class="container">
 	<div class="row equal">
 		<div class="col col-md-2">
-			<div class="panel panel-default">
-			  <div class="panel-heading">
-			    <h3 class="panel-title">
+			<accordion>
+			    <accordion-group is-open="rendered" style="width: 230px;">
+			        <accordion-heading>
 			    	<i class="glyphicon glyphicon-info-sign"></i>
 			    	Information
-			    </h3>
-			  </div>
-			  <div class="panel-body">
-				<div><label>Id:</label>{{pipeline.origin_id}}</div>
-				<div><label>Name:</label>{{pipeline.name}}</div>
-				<div><label>Begin:</label>{{earliestDate}}</div>
-				<div><label>End:</label>{{latestDate}}</div>
-			  </div>
-			</div>
+					<i class="pull-right glyphicon pointer" ng-class="{'glyphicon-chevron-down': rendered, 'glyphicon-chevron-right': !rendered}"></i>
+				  	</accordion-heading>
+					<div><label>Id:</label>{{pipeline.origin_id}}</div>
+					<div><label>Name:</label>{{pipeline.name}}</div>
+					<div><label>Begin:</label>{{earliestDate}}</div>
+					<div><label>End:</label>{{latestDate}}</div>
+			   </accordion-group>
+			</accordion>
 		</div>
 		<div class="col col-md-8">
-			<div class="panel panel-default">
-			  	<div class="panel-heading">
-			    	<h3 class="panel-title">
+			<accordion>
+			    <accordion-group is-open="rendered" style="width: 845px;">
+			        <accordion-heading>
 			    		<i class="glyphicon glyphicon-search"></i>
 			    		Process Pipeline
-			    	</h3>
-			  	</div>
-			  	<div class="panel-body">
+						<i class="pull-right glyphicon pointer" ng-class="{'glyphicon-chevron-down': rendered, 'glyphicon-chevron-right': !rendered}"></i>
+					</accordion-heading>
 			      	<form name="getPipelineForm" class="form-horizontal" role="form" ng-submit="getPipeline()" novalidate>
 
 			      		<div class="form-group">
@@ -81,8 +79,8 @@
 						</div>
 				        <button type="submit" class="col-sm-offset-1 btn btn-default">Send</button>
 			      	</form>
-			    </div>
-			</div>
+			    </accordion-group>
+			</accordion>	
 		</div>
 	</div>
 
