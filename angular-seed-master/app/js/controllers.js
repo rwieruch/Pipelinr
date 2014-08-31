@@ -102,7 +102,15 @@ angular.module('myApp.controllers', [])
 .controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'DataProcessing', 'Session', function($scope, $http, $routeParams, Socket, PipelineService, DataProcessing, Session) {
 
 	// Set for refresh
-	$http.defaults.headers.common['token'] = Session.token; 
+	$http.defaults.headers.common['token'] = Session.token;
+
+	// Slider for sampling rate
+  $scope.sliderConfig = {
+      min: 0,
+      max: 99,
+      step: 1
+  }  
+  $scope.rate = 0;
 
 	// Get and resolve pipeline
 	$scope.rendered = false;
@@ -147,7 +155,7 @@ angular.module('myApp.controllers', [])
   });
 
   // Get Pipeline with tools
-  $scope.getPipeline = function(){
+  $scope.getPipeline = function(rate){
 
 		$scope.rendered = false; // Enable rendering in directive and waiting animation
 
@@ -161,6 +169,7 @@ angular.module('myApp.controllers', [])
 			}
 		});
 
+		// Toolchain
   	var tools = [];
   	var tool;
 
@@ -188,6 +197,13 @@ angular.module('myApp.controllers', [])
 			console.log(tool);
 		}
 
+		tool = {
+			task: "samplePipeline",
+			rate: rate
+		}
+		tools.push(tool);
+
+		// Request
 		var pipeline = PipelineService.get({id: $routeParams.id, tool: tools});
 		pipeline.$promise.then(function(newdata) {
 			$scope.pipeline = newdata;
