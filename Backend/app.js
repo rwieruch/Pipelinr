@@ -1,11 +1,3 @@
-/*var cluster = require('cluster'),
-  numberOfCores = require('os').cpus().length;
-
-if ( cluster.isMaster ) {
-  for ( var i=0; i<numberOfCores; ++i )
-    cluster.fork();
-} else {*/
-
 var express = require("express");
 var app = express();
 var cors = require('cors');
@@ -34,19 +26,6 @@ var session = require('./routes/sessions');
 var jobSchedule = require('./job-schedule.js');
 jobSchedule.setupJobs();
 
-// Realtime
-io.sockets.on('connection', function (socket) {
-
-  socket.join('flow');
-
-  console.log("ping");
-
-  setInterval(function(){
-    socket.emit('connectionStatus', 'ping');
-  },10000);
-
-});
-
 // REST routes
 app.post('/users', user.addUser);
 app.get('/users', user.findAll);
@@ -61,8 +40,6 @@ app.delete('/pipelines/:id', pipeline.deletePipeline);
 
 app.post('/pipelines/:id/datasets', dataset.addDataset);
 app.delete('/pipelines/:pipeline_id/datasets/:dataset_id', dataset.deleteDataset);
-// TODO: do i really need this?
-//app.get('/pipelines/:id/datasets', dataset.findAllDatasetsByPipeline);
 
 app.post('/pipelines/:pipeline_id/datasets/:dataset_id/values', value.updateValue);
 
@@ -85,4 +62,17 @@ models.valueSchema.post('save', function (value) {
   io.sockets.emit('add_value_' + value._dataset, { value: value });
 });
 
-//}
+// Clean up sub documents
+models.pipelineSchema.pre('remove', function (next) {
+  console.log("Removes sub documents of pipeline");
+  models.Dataset.find({_pipeline: this._id}, function(err, datasets) {
+    for(var i = 0; i < datasets.length; i++) { datasets[i].remove(); }
+    next();
+  });
+});
+
+models.datasetSchema.pre('remove', function (next) {
+  console.log("Removes sub documents of dataset");
+  models.Value.remove({_dataset: this._id}).exec();
+  next();
+});

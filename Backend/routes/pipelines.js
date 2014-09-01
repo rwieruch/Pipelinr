@@ -70,8 +70,9 @@ exports.findOnePipeline = function(req, res) {
 
 exports.deletePipeline = function(req, res) {
   console.log('Delete pipeline: ' + req.params.id);
-  models.Pipeline.remove({ _id: req.params.id }).exec(function (err) {
+  models.Pipeline.findOne({ _id: req.params.id }, function(err, pipeline) {
     if (err) return res.send(pipelinr_util.handleError(err));
+    pipeline.remove();
     res.send(200, {});
   });
 };

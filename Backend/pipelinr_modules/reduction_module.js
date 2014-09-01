@@ -18,11 +18,6 @@ module.exports = {
     console.log(tool.rate);
   	if(tool.rate !== 0) {
       for(var i = 0; i < pipeline.datasets.length; i++) {
-        /*for(var j = pipeline.datasets[i].values.length-1; j >= 0; j--){
-          var rnd = Math.floor((Math.random() * 100) + 1);
-          if(rnd < tool.rate)
-            pipeline.datasets[i].values.splice(j,1);
-        }*/
         if(pipeline.datasets[i].type === 'int') {
           var n = Math.floor((tool.rate/100) * (pipeline.datasets[i].values.length - 1));
           for(var j = 0; j < n; j++) {
@@ -41,5 +36,9 @@ module.exports = {
 	  		pipeline.datasets[k].values = [];
 	  }
   	return pipeline;
+  },
+
+  samplingDatasets: function(dataset) {
+    console.log("dataset gets sampled");
   }
 };
