@@ -30,6 +30,10 @@ var value = require('./routes/values');
 var user = require('./routes/users');
 var session = require('./routes/sessions');
 
+// Jobs
+var jobSchedule = require('./job-schedule.js');
+jobSchedule.setupJobs();
+
 // Realtime
 io.sockets.on('connection', function (socket) {
 
