@@ -30,7 +30,7 @@ var value = require('./routes/values');
 var user = require('./routes/users');
 var session = require('./routes/sessions');
 
-// Jobs
+// Setup agenda and scheduled jobs
 var jobSchedule = require('./job-schedule.js');
 jobSchedule.setupJobs();
 

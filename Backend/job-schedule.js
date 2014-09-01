@@ -1,12 +1,12 @@
 exports.setupJobs = function() {
-	var sampleJob = require('./jobs/sample-job.js');
+	var samplingDatasetsJob = require('./jobs/sampling-datasets-job.js');
 
 	// Setup agenda
 	var Agenda = require("Agenda");
 	var agenda = new Agenda({db: { address: 'localhost:27017/pipelinr'}});
 
-	agenda.define('show message', sampleJob.showMessage(agenda));
-	agenda.every('5 seconds', 'show message');
+	agenda.define('sampling datasets', samplingDatasetsJob.samplingDatasets(agenda));
+	agenda.every('5 seconds', 'sampling datasets');
 
 	agenda.start();
 }
