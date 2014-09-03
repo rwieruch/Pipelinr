@@ -15,7 +15,7 @@ angular.module('myApp.controllers', [])
 
   // Search
   $scope.search = function(item) {
-  	if (item.name.indexOf($scope.query)!=-1 || item.origin_id.indexOf($scope.query)!=-1 || angular.isUndefined($scope.query)) {           
+  	if (item.name.indexOf($scope.query)!=-1 || angular.isUndefined($scope.query)) {           
       return true;
     }
     return false;

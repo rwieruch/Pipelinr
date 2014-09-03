@@ -7,8 +7,7 @@ exports.addPipeline = function(req, res) {
   console.log('Add pipeline: ' + JSON.stringify(object));
 
   var pipeline = new models.Pipeline({
-    name: object.name,
-    origin_id: object.origin_id
+    name: object.name
   });
 
   pipeline.save(function(err, pipeline) {
