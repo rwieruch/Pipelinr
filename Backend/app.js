@@ -76,3 +76,14 @@ models.datasetSchema.pre('remove', function (next) {
   models.Value.remove({_dataset: this._id}).exec();
   next();
 });
+
+models.valueSchema.pre('remove', function (next) {
+  console.log("Removes top referenced documents of value");
+  
+  models.Dataset.update({_id: this._dataset}, {$pull : {'values' : this._id}}, function(err, value){
+      if(err) return console.log(err);
+        return console.log('success remove', value);
+  });
+
+  next();
+});

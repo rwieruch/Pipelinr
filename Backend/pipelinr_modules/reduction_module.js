@@ -1,6 +1,8 @@
+var models = require('../models/models.js');
+
 module.exports = {
   trimPipeline: function(pipeline, tool) {
-    console.log("trim pipeline");
+    console.log("Reduction module: trim pipeline");
     if(tool.begin != "" && tool.end != "") {
 	    for(var i = 0; i < pipeline.datasets.length; i++) {
 	      for(var j = pipeline.datasets[i].values.length-1; j >= 0; j--){
@@ -14,7 +16,7 @@ module.exports = {
   },
 
   samplePipeline: function(pipeline, tool) {
-  	console.log("sample pipeline");
+  	console.log("Reduction module: sample pipeline");
     console.log(tool.rate);
   	if(tool.rate !== 0) {
       for(var i = 0; i < pipeline.datasets.length; i++) {
@@ -30,7 +32,7 @@ module.exports = {
   },
 
   selectDatasets: function(pipeline, tool) {
-  	console.log("select datasets");
+  	console.log("Reduction module: select datasets");
   	for(var k = 0; k < pipeline.datasets.length; k++) {
 	  	if(!(tool.keys.indexOf(pipeline.datasets[k].key) > -1))
 	  		pipeline.datasets[k].values = [];
@@ -39,6 +41,25 @@ module.exports = {
   },
 
   samplingDatasets: function(dataset) {
-    console.log("dataset gets sampled");
+    console.log("Reduction module: sampling dataset");
+
+    models.Dataset
+      .find({}, function (err, datasets) {
+        if (err) return res.send(pipelinr_util.handleError(err));
+        for(var i = 0; i < datasets.length; i++) {
+          if(datasets[i].values.length > 1000 && datasets[i].type === 'int') {
+            
+            var n = datasets[i].values.length - 1000; // Remove only over 1000 elements
+            for(var j = 0; j < n; j++) {
+              var valueId = datasets[i].values[Math.floor(Math.random() * datasets[i].values.length)];
+              
+              models.Value.findOne({_id: valueId}, function(err, value) {
+                if(value !== null) value.remove();
+              });
+            }
+
+          }
+        }
+    });
   }
 };

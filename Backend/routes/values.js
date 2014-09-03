@@ -29,20 +29,4 @@ exports.updateValue = function(req, res) {
           }
 	    }
 	);
-
-	/*
-	models.Dataset
-		.findOne({ _id: _dataset_id })
-		.exec(function (err, dataset) {
-
-	  	if (err) return res.send(pipelinr_util.handleError(err));
-	  	dataset.values.push(value);
-	    dataset.save(function(err, dataset) {
-          if (err) return res.send(pipelinr_util.handleError(err));
-          // TODO: io
-          res.send(200, {value: value});
-        });
-	});
-   	res.send(200, {value: value});
-   	*/
 };

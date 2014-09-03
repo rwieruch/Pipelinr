@@ -16,7 +16,7 @@
       Connecting to server...<br/>
     </div>
 
-    <h2>Nesse Core: Client Stub</h2>
+    <h2>NESSEE Core: Client Stub</h2>
 
     <div style="margin:20px;">
       <label for="nameInput">New Pipeline:</label>
@@ -97,7 +97,7 @@
 
         for(var i in testcases) {
 
-            $("#trlist").append('<table id="testcase_table_'+testcases[i]._id+'" style="margin:20px;"><tr><th align="left" style="width:200px">'+testcases[i]._id+'</th><th align="left" style="width:200px">'+testcases[i].name+'</th><th style="width:200px;" align="left">Datasets: '+ testcases[i].datasets.length +'</th><th align="left">Enable Upgrades</th><th align="left">Max Value</th></tr></table><div style="margin:20px;"><label>New dataset:</label><input type="text" id="new_dataset_input_'+testcases[i]._id+'" value="" placeholder="dataset_name"/><input type="text" id="new_dataset_input_type_'+testcases[i]._id+'" value="" placeholder="dataset_type:int, string"/><button type="button" class="new_dataset_button" id="new_dataset_send?id='+testcases[i]._id+'">Add</button></div><hr>');
+            $("#trlist").append('<table id="testcase_table_'+testcases[i]._id+'" style="margin:20px;"><tr><th align="left" style="width:200px">'+testcases[i]._id+'</th><th align="left" style="width:200px">'+testcases[i].name+'</th><th style="width:200px;" align="left">Datasets: '+ testcases[i].datasets.length +'</th><th align="left">Enable updates</th><th align="left">Max Value</th></tr></table><div style="margin:20px;"><label>New dataset:</label><input type="text" id="new_dataset_input_'+testcases[i]._id+'" value="" placeholder="dataset_name"/><input type="text" id="new_dataset_input_type_'+testcases[i]._id+'" value="" placeholder="dataset_type:int, string"/><button type="button" class="new_dataset_button" id="new_dataset_send?id='+testcases[i]._id+'">Add</button></div><hr>');
 
             for(var j = 0; j < testcases[i].datasets.length; j++) {
               $("#testcase_table_" + testcases[i]._id).append('<tr><td style="width:200px"></td><td style="width:200px"></td><td>'+ testcases[i].datasets[j].key +'</td><td><input id="dataset_checkbox_'+testcases[i]._id+'_'+testcases[i].datasets[j].key+'" type="checkbox" name="enable" value="enable"><input type="text" id="dataset_input_'+testcases[i]._id+'_'+testcases[i].datasets[j].key+'" value="10000" /></td><td><input type="text" id="dataset_input_max_'+testcases[i]._id+'_'+testcases[i].datasets[j].key+'" value="100" /></td></tr>');

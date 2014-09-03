@@ -3,10 +3,10 @@ exports.setupJobs = function() {
 
 	// Setup agenda
 	var Agenda = require("Agenda");
-	var agenda = new Agenda({db: { address: 'localhost:27017/pipelinr3'}});
+	var agenda = new Agenda({db: { address: 'localhost:27017/pipelinr6'}});
 
 	agenda.define('sampling datasets', samplingDatasetsJob.samplingDatasets(agenda));
-	agenda.every('5 seconds', 'sampling datasets');
+	agenda.every('60 seconds', 'sampling datasets');
 
 	agenda.start();
 }
