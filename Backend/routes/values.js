@@ -15,15 +15,18 @@ exports.updateValue = function(req, res) {
     level: object.level
   });
 
-  // Save new value
-  value.save(function(err, value) {
-    if (err) return res.send(pipelinr_util.handleError(err));
-
-    // Save ref in dataset
-	models.Dataset.findOneAndUpdate({_id: _dataset_id}, {$push: {"values": value._id}}, {safe: true, upsert: true})
+  // Save ref in dataset
+	models.Dataset.findOneAndUpdate({_id: _dataset_id}, {$push: {"values": value._id}}, {safe: true, upsert: false})
 	.exec(function (err, dataset) {
 	        if (err) return res.send(pipelinr_util.handleError(err));
-          	res.send(200);
+          if(dataset !== null) {
+            value.save(function(err, value) {
+              if (err) return res.send(pipelinr_util.handleError(err));
+              res.send(200);
+            });
+          } else {
+            res.send(404);
+          }
 	    }
 	);
 
@@ -42,6 +45,4 @@ exports.updateValue = function(req, res) {
 	});
    	res.send(200, {value: value});
    	*/
-
-  });
 };

@@ -8,12 +8,20 @@ exports.samplingDatasets = function(agenda) {
 		  models.Dataset
 		    .find({}, function (err, datasets) {
 		      if (err) return res.send(pipelinr_util.handleError(err));
+		      console.log("Datasets");
+	      	console.log(datasets.length);
 		      for(var i = 0; i < datasets.length; i++) {
-		      	console.log(datasets[i].values.length);
-		      	if(datasets[i].values.length > 1000) {
-		      		reduction_module.samplingDatasets(datasets[i]);
-		      	}
+		      	//console.log(datasets[i].values.length);
+		      	//if(datasets[i].values.length > 1000) {
+		      	//	reduction_module.samplingDatasets(datasets[i]);
+		      	//}
 		      }
+		  });
+		  models.Value
+		    .find({}, function (err, values) {
+		      if (err) return res.send(pipelinr_util.handleError(err));
+		      console.log("Values");
+	      	console.log(values.length);
 		  });
 	    done();
 		});
