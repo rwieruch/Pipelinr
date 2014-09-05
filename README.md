@@ -29,3 +29,7 @@ Project Structure
   * utils (utility functions)
   * app.js (main file which sets up http server, jobs, websockets, database events)
   * job-schedule.js (sets up jobs defined in jobs directory)
+
+* Benchmark (files for backend benchmarking accomplished by bench-rest library)
+
+* SampleRESTClient (uses the backend REST inerface to create pipelines and datasets and insert values)
