@@ -21,3 +21,11 @@ Project Structure
   * test
 
 * Backend
+  * jobs (provides jobs for periodic execution)
+  * models (schemes and models for persistence)
+  * node_modules (third party libraries)
+  * pipelinr_modules (own modules for data reduction, data analysis)
+  * routes (REST interface of backend)
+  * utils (utility functions)
+  * app.js (main file which sets up http server, jobs, websockets, database events)
+  * job-schedule.js (sets up jobs defined in jobs directory)
