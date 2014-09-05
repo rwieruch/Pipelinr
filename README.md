@@ -17,7 +17,6 @@ Project Structure
       * services.js (provides REST interfaces, business logic for controllers and websocket setup)
     * partials (all views of frontend project)
     * index.html (main file which includes external libraries and view wrapper)
-    * async
   * test
 
 * Backend
