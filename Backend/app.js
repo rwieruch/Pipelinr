@@ -42,6 +42,7 @@ app.post('/pipelines/:id/datasets', dataset.addDataset);
 app.delete('/pipelines/:pipeline_id/datasets/:dataset_id', dataset.deleteDataset);
 
 app.post('/pipelines/:pipeline_id/datasets/:dataset_id/values', value.updateValue);
+app.delete('/pipelines/:pipeline_id/datasets/:dataset_id/values', value.deleteAllValues);
 
 // Websockets
 var models = require('./models/models.js');

@@ -30,3 +30,19 @@ exports.updateValue = function(req, res) {
 	    }
 	);
 };
+
+exports.deleteAllValues = function(req, res) {
+  var object = req.body;
+  var _pipeline_id = req.params.pipeline_id;
+  var _dataset_id = req.params.dataset_id;
+
+  console.log('Delete all values from: ' + _pipeline_id + " in " + _dataset_id);
+
+  models.Value.find({ _dataset: req.params.dataset_id }, function(err, values) {
+    if (err) return res.send(pipelinr_util.handleError(err));
+    for(var i = 0; i < values.length; i++) {
+      values[i].remove();
+    }
+    res.send(200, {});
+  });
+};
