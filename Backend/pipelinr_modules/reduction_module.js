@@ -49,6 +49,8 @@ module.exports = {
         for(var i = 0; i < datasets.length; i++) {
           if(datasets[i].values.length > 1000 && datasets[i].type === 'int') {
             
+            console.log(datasets[i].values.length);
+
             var n = datasets[i].values.length - 1000; // Remove only over 1000 elements
             for(var j = 0; j < n; j++) {
               var valueId = datasets[i].values[Math.floor(Math.random() * datasets[i].values.length)];
