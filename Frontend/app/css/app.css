@@ -63,15 +63,19 @@ img.no-resize {
   cursor: pointer;
 }
 
+/* slider */
+
 .cdbl-slider {
     width: 200px; 
     margin-left: 10px;
     display: inline-block; 
 }
 
+/* loading overlay */
+
 .pipelinr-overlay {
     position: absolute;
-    top: 0;
+    top: 50px;
     left: 0;
     height: 100%;
     width: 100%;
