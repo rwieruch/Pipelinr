@@ -29,8 +29,8 @@
 			      	<form name="getPipelineForm" class="form-horizontal" role="form" ng-submit="getPipeline(rate, dateDropDownInput1, dateDropDownInput2)" novalidate>
 
 			      		<div class="form-group">
-					        <label class="col-sm-1 control-label" for="beginSearchInput">Begin:</label>
-					        <div class="dropdown col-sm-4">
+					        <label class="col-sm-2 control-label" for="beginSearchInput">Begin:</label>
+					        <div class="dropdown col-sm-5">
 							  <a class="dropdown-toggle" id="dropdown1" role="button" data-toggle="dropdown" data-target="#" href="#">
 							    <div class="input-group"><input type="text" class="form-control" data-ng-model="dateDropDownInput1" required><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
 							    </div>
@@ -39,9 +39,10 @@
 							    <datetimepicker data-ng-model="dateDropDownInput1" data-datetimepicker-config="{ dropdownSelector: '#dropdown1' }"/>
 							  </ul>
 							</div>
-
-					        <label class="col-sm-1 control-label" for="endSearchInput">End:</label>
-					        <div class="dropdown col-sm-4">
+						</div>
+						<div class="form-group">
+					        <label class="col-sm-2 control-label" for="endSearchInput">End:</label>
+					        <div class="dropdown col-sm-5">
 							  <a class="dropdown-toggle" id="dropdown2" role="button" data-toggle="dropdown" data-target="#" href="#">
 							    <div class="input-group"><input type="text" class="form-control" data-ng-model="dateDropDownInput2" required><span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
 							    </div>
@@ -53,7 +54,7 @@
 						</div>
 						
 						<div class="form-group">
-							<div class="col-sm-offset-1 col-sm-7">
+							<div class="col-sm-offset-2 col-sm-7">
 								<!--<div class="btn-group" style="vertical-align: bottom;" data-toggle="buttons">
 								  <label class="btn btn-default active">
 								    <input type="radio" name="options" id="option1" ng-model="radioMod" checked> Static
@@ -62,31 +63,23 @@
 								    <input type="radio" name="options" ng-model="radioMod" id="option2"> Real-time
 								  </label>
 								</div>-->
-								
-							    <div class="checkbox" ng-repeat="key in allKeys" style="display: inline-block;">
-								  <div class="col-sm-offset-1 col-sm-1">
-									<label style="line-height: 20px;">
-									  <input
-									    type="checkbox"
-									    name="selectedKeys[]"
-									    value="{{key}}"
-									    ng-checked="selection.indexOf(key) > -1"
-									    ng-click="toggleSelection(key)">
-									    {{key}}
-									</label>
-								</div>
-							  </div>
+
+							    <div class="btn-group" style="margin-top: -15px">
+							    	<span ng-repeat="key in keyCheckModel">
+								    	<label class="btn btn-default" ng-model="key.checked" ng-click="toggleSelection()" btn-checkbox>{{key.name}}</label>
+								    </span>
+							    </div>
 							</div>
 						</div>
 
 						<div class="form-group">
-							<div class="col-sm-offset-1 col-sm-7">
-						        <label>Sampling Rate:</label> {{rate}} %
-						        <div slider config="sliderConfig" model="rate" class="cdbl-slider"></div>
+							<label class="col-sm-2 control-label">Sampling:</label>
+							<div class="col-sm-7" style="margin-top: 9px">
+						        <div slider config="sliderConfig" model="rate" class="cdbl-slider"></div> <span style="display: inline-block; margin-left:10px;">{{rate}} %</span>
 						    </div>
 					    </div>
 
-				        <button type="submit" class="col-sm-offset-1 btn btn-default">Send</button>
+				        <button type="submit" class="col-sm-offset-2 btn btn-default">Send</button>
 			      	</form>
 		
 			    </accordion-group>

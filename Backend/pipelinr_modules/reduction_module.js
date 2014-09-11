@@ -34,8 +34,12 @@ module.exports = {
   selectDatasets: function(pipeline, tool) {
   	console.log("Reduction module: select datasets");
   	for(var k = 0; k < pipeline.datasets.length; k++) {
-	  	if(!(tool.keys.indexOf(pipeline.datasets[k].key) > -1))
-	  		pipeline.datasets[k].values = [];
+      for(var i = 0; i < tool.keys.length; i++) {
+  	  	if(tool.keys[i].name === pipeline.datasets[k].key) {
+          if(tool.keys[i].checked === false)
+  	  		  pipeline.datasets[k].values = [];
+        }
+      }
 	  }
   	return pipeline;
   },

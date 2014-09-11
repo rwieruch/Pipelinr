@@ -119,9 +119,9 @@ angular.module('myApp.services', ['ngResource'])
     }
 
     factory.getDatasetKeys = function(pipeline) {
-      var keys = new Array();
+      var keys = [];
       for(var i = 0; i < pipeline.datasets.length; i++) {
-        keys.push(pipeline.datasets[i].key);
+        keys.push({name: pipeline.datasets[i].key, checked: true});
       }
       return keys;
     }

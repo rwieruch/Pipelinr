@@ -127,9 +127,14 @@ angular.module('myApp.controllers', [])
 		$scope.latestDate = DataProcessing.latestDate(pipeline);
 
 		// Checkboxes
-		$scope.allKeys = DataProcessing.getDatasetKeys(pipeline);
-		$scope.selection = DataProcessing.getDatasetKeys(pipeline);
-		$scope.toggleSelection = function toggleSelection(key) {
+		$scope.keyCheckModel = DataProcessing.getDatasetKeys(pipeline);
+		//$scope.selection = DataProcessing.getDatasetKeys(pipeline);
+
+		//console.log($scope.allKeys);
+
+		//$scope.keyCheckModel = [{name: "cpu"},{name: "log"},{name: "log"},{name: "log"},{name: "log"},{name: "log"}];
+
+		/*$scope.toggleSelection = function toggleSelection(key) {
 		  var idx = $scope.selection.indexOf(key);
 		  // Is currently selected
 		  if (idx > -1) {
@@ -139,7 +144,8 @@ angular.module('myApp.controllers', [])
 		  else {
 		    $scope.selection.push(key);
 		  }
-		};
+		  console.log($scope.selection);
+		};*/
 		
 		// Push notification for each value on each dataset
 		angular.forEach($scope.pipeline.datasets, function(dataset, key) {
@@ -162,10 +168,13 @@ angular.module('myApp.controllers', [])
 		// Remove old listeners and init new listeners for selected datasets
 		Socket.getSocket().removeAllListeners();
 		angular.forEach($scope.pipeline.datasets, function(dataset, key) {
-			if($scope.selection.indexOf(dataset.key) > -1) {
-				Socket.on('add_value_' + dataset._id, function (v_data) {
-					$scope.date = v_data;
-			 	});
+			for(var i = 0; i < $scope.keyCheckModel.length; i++) {
+				if($scope.keyCheckModel[i].name === dataset.key) {
+				//if($scope.selection.indexOf(dataset.key) > -1) {
+					Socket.on('add_value_' + dataset._id, function (v_data) {
+						$scope.date = v_data;
+				 	});
+				}
 			}
 		});
 
@@ -173,13 +182,7 @@ angular.module('myApp.controllers', [])
   	var tools = [];
   	var tool;
 
-		if($scope.selection.length != 0) {
-			tool = {
-				keys: $scope.selection,
-				task: "selectDatasets"
-			}
-			tools.push(tool);
-		}
+		tools.push({keys: $scope.keyCheckModel, task: "selectDatasets"});
 
   	console.log(begin);
   	console.log(end);
