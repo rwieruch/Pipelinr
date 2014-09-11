@@ -97,6 +97,7 @@ exports.findOnePipeline = function(req, res) {
 
         // Use generic datareduction method
         var tools = req.query.tool;
+        console.log(tools);
         if(typeof tools !== "undefined") {
 
           if(typeof tools == "string") { // When it is only one tool

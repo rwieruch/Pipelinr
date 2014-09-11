@@ -105,12 +105,11 @@ angular.module('myApp.controllers', [])
 	$http.defaults.headers.common['token'] = Session.token;
 
 	// Slider for sampling rate
-  $scope.sliderConfig = {
-      min: 0,
-      max: 99,
-      step: 1
-  }  
+  $scope.sliderConfig = {min: 0, max: 99, step: 1};
   $scope.rate = 0;
+
+  $scope.samplingMethods = [{name: 'Random', value: 'randomSampling'}, {name: 'Interval', value: 'intervalSampling'}, {name: 'History', value: 'historySampling'}];
+  $scope.selSamplingMethod = {value: 'randomSampling'};
 
 	// Get and resolve pipeline
 	$scope.rendered = false;
@@ -128,24 +127,6 @@ angular.module('myApp.controllers', [])
 
 		// Checkboxes
 		$scope.keyCheckModel = DataProcessing.getDatasetKeys(pipeline);
-		//$scope.selection = DataProcessing.getDatasetKeys(pipeline);
-
-		//console.log($scope.allKeys);
-
-		//$scope.keyCheckModel = [{name: "cpu"},{name: "log"},{name: "log"},{name: "log"},{name: "log"},{name: "log"}];
-
-		/*$scope.toggleSelection = function toggleSelection(key) {
-		  var idx = $scope.selection.indexOf(key);
-		  // Is currently selected
-		  if (idx > -1) {
-		    $scope.selection.splice(idx, 1);
-		  }
-		  // Is newly selected
-		  else {
-		    $scope.selection.push(key);
-		  }
-		  console.log($scope.selection);
-		};*/
 		
 		// Push notification for each value on each dataset
 		angular.forEach($scope.pipeline.datasets, function(dataset, key) {
@@ -163,6 +144,8 @@ angular.module('myApp.controllers', [])
   // Get Pipeline with tools
   $scope.getPipeline = function(rate, begin, end){
 
+  	console.log($scope.samplingMethods);
+
 		$scope.rendered = false; // Enable rendering in directive and waiting animation
 
 		// Remove old listeners and init new listeners for selected datasets
@@ -170,7 +153,6 @@ angular.module('myApp.controllers', [])
 		angular.forEach($scope.pipeline.datasets, function(dataset, key) {
 			for(var i = 0; i < $scope.keyCheckModel.length; i++) {
 				if($scope.keyCheckModel[i].name === dataset.key) {
-				//if($scope.selection.indexOf(dataset.key) > -1) {
 					Socket.on('add_value_' + dataset._id, function (v_data) {
 						$scope.date = v_data;
 				 	});
@@ -203,8 +185,8 @@ angular.module('myApp.controllers', [])
 		console.log(tool);
 
 		tool = {
-			task: "samplePipeline",
-			rate: rate
+			task: $scope.selSamplingMethod.value,
+			rate: rate // interval, random
 		}
 		tools.push(tool);
 

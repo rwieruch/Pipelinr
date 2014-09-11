@@ -15,8 +15,8 @@ module.exports = {
     return pipeline;
   },
 
-  samplePipeline: function(pipeline, tool) {
-  	console.log("Reduction module: sample pipeline");
+  randomSampling: function(pipeline, tool) {
+  	console.log("Reduction module: " + tool.task);
     console.log(tool.rate);
   	if(tool.rate !== 0) {
       for(var i = 0; i < pipeline.datasets.length; i++) {
