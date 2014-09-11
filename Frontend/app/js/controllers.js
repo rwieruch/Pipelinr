@@ -108,6 +108,9 @@ angular.module('myApp.controllers', [])
   $scope.sliderConfig = {min: 0, max: 99, step: 1};
   $scope.rate = 0;
 
+  // More options
+  $scope.isCollapsed = true;
+
   $scope.samplingMethods = [{name: 'Random', value: 'randomSampling'}, {name: 'Interval', value: 'intervalSampling'}, {name: 'History', value: 'historySampling'}];
   $scope.selSamplingMethod = {value: 'randomSampling'};
 
@@ -176,19 +179,12 @@ angular.module('myApp.controllers', [])
 			end = moment(end).format('DD MM YYYY, HH:mm:ss');
 		}
 
-		tool = {
-			begin: begin,
-			end: end,
-			task: "trimPipeline"
-		}
-		tools.push(tool);
-		console.log(tool);
+		tools.push({begin: begin, end: end, task: "trimPipeline"});
 
-		tool = {
+		tools.push({
 			task: $scope.selSamplingMethod.value,
 			rate: rate // interval, random
-		}
-		tools.push(tool);
+		});
 
 		console.log(tools);
 
