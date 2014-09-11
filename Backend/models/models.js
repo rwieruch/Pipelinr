@@ -41,7 +41,8 @@ var datasetSchema = new mongoose.Schema({
   _pipeline: {type: mongoose.Schema.Types.ObjectId, ref: 'Pipeline'},
   key: String,
   type: String,
-  values: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Value' }]
+  values: []
+  //values: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Value' }]
 });
 
 var valueSchema = new mongoose.Schema({

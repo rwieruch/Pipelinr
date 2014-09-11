@@ -1,6 +1,7 @@
 var pipelinr_util = require("../util/util.js");
 var models = require('../models/models.js'); 
 var reduction_module = require('../pipelinr_modules/reduction_module.js'); 
+var moment = require('moment');
 
 exports.addPipeline = function(req, res) {
   var object = req.body;
@@ -38,7 +39,7 @@ exports.findOnePipeline = function(req, res) {
     if (err) return res.send(pipelinr_util.handleError(err));
 
     // Populate nested values in pipeline
-    models.Dataset.populate(pipeline.datasets, {path:'values'},
+    /*models.Dataset.populate(pipeline.datasets, {path:'values'},
        function(err, data){
           if (err) return res.send(pipelinr_util.handleError(err));
 
@@ -63,7 +64,59 @@ exports.findOnePipeline = function(req, res) {
 
           res.send(pipeline);
        }
-    );  
+    ); */
+
+    var idArray = [];
+    for(var i = 0; i < pipeline.datasets.length; i++) {
+      idArray.push(pipeline.datasets[i]._id);
+    }
+
+    models.Value
+      .find({
+        '_dataset': { $in: idArray }
+      })
+      .exec(function (err, values) {
+        if (err) return res.send(pipelinr_util.handleError(err));
+
+        for(var j = 0; j < values.length; j++) {
+          for(var k = 0; k < pipeline.datasets.length; k++) {
+            if(pipeline.datasets[k]._id.toString() === values[j]._dataset.toString()) {
+              pipeline.datasets[k].values.push(values[j]);
+            }
+          }
+        }
+
+        // Sort date
+        for(var k = 0; k < pipeline.datasets.length; k++) {
+          pipeline.datasets[k].values.sort(function(a,b){
+            // Turn your strings into dates, and then subtract them
+            // to get a value that is either negative, positive, or zero.
+            return new Date(b.timestamp) - new Date(a.timestamp);
+          });
+        }
+
+        // Use generic datareduction method
+        var tools = req.query.tool;
+        if(typeof tools !== "undefined") {
+
+          if(typeof tools == "string") { // When it is only one tool
+            objectTool = tools;
+            tools = [];
+            tools.push(objectTool);
+          }
+
+          console.log(tools);
+          console.log(tools[0]);
+          for(var t in tools) {
+            jsonTool = JSON.parse(tools[t]);
+            var task = reduction_module[jsonTool.task];
+            pipeline = task(pipeline, jsonTool);
+          }
+        }
+
+        res.send(pipeline);
+      });
+
   });
 };
 

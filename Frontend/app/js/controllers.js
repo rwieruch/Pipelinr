@@ -155,7 +155,7 @@ angular.module('myApp.controllers', [])
   });
 
   // Get Pipeline with tools
-  $scope.getPipeline = function(rate){
+  $scope.getPipeline = function(rate, begin, end){
 
 		$scope.rendered = false; // Enable rendering in directive and waiting animation
 
@@ -179,29 +179,33 @@ angular.module('myApp.controllers', [])
 				task: "selectDatasets"
 			}
 			tools.push(tool);
-			console.log(tool);
 		}
 
-  	var begin = $scope.dateDropDownInput1;
-  	var end = $scope.dateDropDownInput2;
-  	if(typeof begin !== "undefined" && typeof end !== "undefined") {
+  	console.log(begin);
+  	console.log(end);
+  	if(typeof begin === "undefined" && typeof end === "undefined") {
+  		begin = "";
+  		end = "";
+  	} else {
 			begin = moment(begin).format('DD MM YYYY, HH:mm:ss');
 			end = moment(end).format('DD MM YYYY, HH:mm:ss');
-
-			tool = {
-				begin: begin,
-				end: end,
-				task: "trimPipeline"
-			}
-			tools.push(tool);
-			console.log(tool);
 		}
+
+		tool = {
+			begin: begin,
+			end: end,
+			task: "trimPipeline"
+		}
+		tools.push(tool);
+		console.log(tool);
 
 		tool = {
 			task: "samplePipeline",
 			rate: rate
 		}
 		tools.push(tool);
+
+		console.log(tools);
 
 		// Request
 		var pipeline = PipelineService.get({id: $routeParams.id, tool: tools});

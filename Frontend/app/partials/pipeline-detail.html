@@ -10,7 +10,7 @@
 			    	Information
 					<i class="pull-right glyphicon pointer" ng-class="{'glyphicon-chevron-down': rendered, 'glyphicon-chevron-right': !rendered}"></i>
 				  	</accordion-heading>
-					<div><label>Id:</label>{{pipeline.origin_id}}</div>
+					<div><label>Id:</label>{{pipeline._id}}</div>
 					<div><label>Name:</label>{{pipeline.name}}</div>
 					<div><label>Begin:</label>{{earliestDate}}</div>
 					<div><label>End:</label>{{latestDate}}</div>
@@ -26,7 +26,7 @@
 						<i class="pull-right glyphicon pointer" ng-class="{'glyphicon-chevron-down': rendered, 'glyphicon-chevron-right': !rendered}"></i>
 					</accordion-heading>
 	
-			      	<form name="getPipelineForm" class="form-horizontal" role="form" ng-submit="getPipeline(rate)" novalidate>
+			      	<form name="getPipelineForm" class="form-horizontal" role="form" ng-submit="getPipeline(rate, dateDropDownInput1, dateDropDownInput2)" novalidate>
 
 			      		<div class="form-group">
 					        <label class="col-sm-1 control-label" for="beginSearchInput">Begin:</label>

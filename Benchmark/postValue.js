@@ -2,7 +2,7 @@
 
   var flow = {
     main: [
-      { post: 'http://localhost:1080/pipelines/54087a56807a3ae01584d5c3/datasets/540c88980b021d140ef1594c/values', json: {value: '23', timestamp: '03 09 2014, 12:42:12:564'}  }
+      { post: 'http://localhost:1080/pipelines/540d8a96ca2bd9701a1e43ba/datasets/540d8aa5ca2bd9701a1e43bb/values', json: {value: '23', timestamp: '03 09 2014, 12:42:12:564'}  }
     ]
   };
 

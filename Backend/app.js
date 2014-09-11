@@ -3,7 +3,6 @@ var app = express();
 var cors = require('cors');
 var http = require("http").createServer(app);
 var io = require('socket.io').listen(http);
-var moment = require('moment');
 
 // Enable cors
 app.use(cors());
@@ -78,7 +77,7 @@ models.datasetSchema.pre('remove', function (next) {
   next();
 });
 
-models.valueSchema.pre('remove', function (next) {
+/*models.valueSchema.pre('remove', function (next) {
   console.log("Removes top referenced documents of value");
   
   models.Dataset.update({_id: this._dataset}, {$pull : {'values' : this._id}}, function(err, value){
@@ -87,4 +86,4 @@ models.valueSchema.pre('remove', function (next) {
   });
 
   next();
-});
+});*/

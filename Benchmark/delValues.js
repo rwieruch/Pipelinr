@@ -2,7 +2,7 @@
 
   var flow = {
   	main: [
-	   { del: 'http://localhost:1080/pipelines/54087a56807a3ae01584d5c3/datasets/54087eed807a3ae01584ff92/values' }
+	   { del: 'http://localhost:1080/pipelines/540d8a96ca2bd9701a1e43ba/datasets/540d8aa5ca2bd9701a1e43bb/values' }
   	]
   };
 

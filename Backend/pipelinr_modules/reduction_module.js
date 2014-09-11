@@ -40,10 +40,10 @@ module.exports = {
   	return pipeline;
   },
 
-  samplingDatasets: function(dataset) {
+  samplingDatasets: function() {
     console.log("Reduction module: sampling dataset");
 
-    models.Dataset
+    /*models.Dataset
       .find({}, function (err, datasets) {
         if (err) return res.send(pipelinr_util.handleError(err));
         for(var i = 0; i < datasets.length; i++) {
@@ -62,6 +62,35 @@ module.exports = {
 
           }
         }
-    });
+    });*/
+
+    models.Value  
+    .find({})
+    .populate('_dataset', 'type')
+    .exec(function(err, values) {
+      if (err) return res.send(pipelinr_util.handleError(err));
+      
+      // Group values in dataset arrays to evaluate their length
+      var group = {};
+      values.map(function (value) {
+        if(value._dataset.type === 'int') {
+          if (!group[value._dataset]) {
+            group[value._dataset] = [];
+          } 
+          group[value._dataset].push(value);
+        }
+      });
+      
+      for(var i in group) {
+        if(group[i].length > 1000) {
+          var n = group[i].length - 1000; // Remove only over 1000 elements
+          for(var j = 0; j < n; j++) {
+            var valueId = group[i][Math.floor(Math.random() * group[i].length)];           
+            models.Value.find({_id: valueId}).remove().exec();
+          }
+        }
+      }
+
+    });    
   }
 };
