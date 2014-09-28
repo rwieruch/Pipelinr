@@ -31,6 +31,22 @@ module.exports = {
   	return pipeline;
   },
 
+  frequencySampling: function(pipeline, tool) {
+    console.log("Reduction module: " + tool.task);
+    console.log(tool.rate);
+    if(tool.rate !== 0) {
+      for(var i = 0; i < pipeline.datasets.length; i++) {
+        if(pipeline.datasets[i].type === 'int') {
+          //var n = Math.floor((tool.rate/100) * (pipeline.datasets[i].values.length - 1));
+          //for(var j = 0; j < n; j++) {
+          //  pipeline.datasets[i].values.splice([Math.floor(Math.random() * pipeline.datasets[i].values.length)], 1); 
+          //}
+        }
+      }
+    }
+    return pipeline;
+  },
+
   selectDatasets: function(pipeline, tool) {
   	console.log("Reduction module: select datasets");
   	for(var k = 0; k < pipeline.datasets.length; k++) {
@@ -46,27 +62,6 @@ module.exports = {
 
   samplingDatasets: function() {
     console.log("Reduction module: sampling dataset");
-
-    /*models.Dataset
-      .find({}, function (err, datasets) {
-        if (err) return res.send(pipelinr_util.handleError(err));
-        for(var i = 0; i < datasets.length; i++) {
-          if(datasets[i].values.length > 1000 && datasets[i].type === 'int') {
-            
-            console.log(datasets[i].values.length);
-
-            var n = datasets[i].values.length - 1000; // Remove only over 1000 elements
-            for(var j = 0; j < n; j++) {
-              var valueId = datasets[i].values[Math.floor(Math.random() * datasets[i].values.length)];
-              
-              models.Value.findOne({_id: valueId}, function(err, value) {
-                if(value !== null) value.remove();
-              });
-            }
-
-          }
-        }
-    });*/
 
     models.Value  
     .find({})

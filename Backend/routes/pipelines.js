@@ -89,9 +89,9 @@ exports.findOnePipeline = function(req, res) {
         // Sort date
         for(var k = 0; k < pipeline.datasets.length; k++) {
           pipeline.datasets[k].values.sort(function(a,b){
-            // Turn your strings into dates, and then subtract them
-            // to get a value that is either negative, positive, or zero.
-            return new Date(b.timestamp) - new Date(a.timestamp);
+            a = moment(a.timestamp, 'DD MM YYYY, HH:mm:ss:SSS');
+            b = moment(b.timestamp, 'DD MM YYYY, HH:mm:ss:SSS');
+            return a>b ? 1 : a<b ? -1 : 0;
           });
         }
 
