@@ -111,7 +111,7 @@ angular.module('myApp.controllers', [])
   // More options
   $scope.isCollapsed = true;
 
-  $scope.samplingMethods = [{name: 'Random', value: 'randomSampling'}, {name: 'Interval', value: 'intervalSampling'}, {name: 'History', value: 'historySampling'}];
+  $scope.samplingMethods = [{name: 'Random', value: 'randomSampling'}, {name: 'Interval', value: 'intervalSampling'}, {name: 'History', value: 'historySampling'}, {name: 'Frequency', value: 'frequencySampling'}];
   $scope.selSamplingMethod = {value: 'randomSampling'};
 
 	// Get and resolve pipeline

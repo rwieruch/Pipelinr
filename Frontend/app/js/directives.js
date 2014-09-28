@@ -429,14 +429,14 @@ angular.module('myApp.directives', ['d3']).
 								var maxData = [{timestamp: extent_data[0].timestamp, value: max}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: max}];
 
 					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline").data([maxData]).attr("d", scope.configuration.line);
-					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline-label").text("Maximum: " + max);
+					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline-label").text("Max: " + max.toFixed(2));
 
 					      // Minlines update
 								var min = d3.min(extent_data, function(d) { return +d.value;} );
 								var minData = [{timestamp: extent_data[0].timestamp, value: min}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: min}];
 
 					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline").data([minData]).attr("d", scope.configuration.line);
-					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline-label").text("Minimum: " + min);
+					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline-label").text("Min: " + min.toFixed(2));
 
 	      				var statistic = scope.configuration.util.calcMeanSdVar(extent_data);
 					      // Meanlines update
@@ -667,7 +667,7 @@ angular.module('myApp.directives', ['d3']).
             .attr("y", scope.configuration.height.linechart + scope.configuration.margin.bottom/2 + 5)
             .attr("dy", ".35em")
             .attr("class", "maxline-label")
-            .text("Maximum: " + max);
+            .text("Max: " + max.toFixed(2));
 
 					// Draw min line
 					var min = d3.min(scope.dataset.values, function(d) { return +d.value;} );
@@ -683,7 +683,7 @@ angular.module('myApp.directives', ['d3']).
             .attr("y", scope.configuration.height.linechart + scope.configuration.margin.bottom/2 + 5)
             .attr("dy", ".35em")
             .attr("class", "minline-label")
-            .text("Minimum: " + min);
+            .text("Min: " + min.toFixed(2));
 
 					var statistic = scope.configuration.util.calcMeanSdVar(scope.dataset.values);
 					// Draw mean and standard deviation line and variance
