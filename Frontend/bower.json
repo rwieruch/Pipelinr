@@ -6,12 +6,18 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "angular": "1.2.x",
-    "angular-route": "1.2.x",
-    "angular-loader": "1.2.x",
-    "angular-mocks": "~1.2.x",
+    "angular": "~1.2.25",
+    "angular-route": "~1.2.25",
+    "angular-loader": "~1.2.25",
+    "angular-mocks": "~1.2.25",
     "html5-boilerplate": "~4.3.0",
     "angular-bootstrap-datetimepicker": "latest",
-    "angular-bootstrap": "~0.11.0"
+    "angular-bootstrap": "~0.11.0",
+    "d3": "~3.4.11",
+    "angular-cookies": "~1.2.25",
+    "underscore": "~1.7.0",
+    "angular-resource": "~1.2.25",
+    "angular-socket-io": "~0.6.0",
+    "jquery-ui": "~1.11.1"
   }
 }

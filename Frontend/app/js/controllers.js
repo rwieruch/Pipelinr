@@ -119,7 +119,7 @@ angular.module('myApp.controllers', [])
 	var pipeline = PipelineService.get({id: $routeParams.id, tool: []});
 	// Resolve new pipeline
 	pipeline.$promise.then(function(pipeline) {
-		console.log(pipeline);
+		console.log(pipeline);	  	          	
 
 		// Dashboard directive
 		$scope.pipeline = pipeline;

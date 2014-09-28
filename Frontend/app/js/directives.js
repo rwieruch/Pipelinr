@@ -152,7 +152,11 @@ angular.module('myApp.directives', ['d3']).
 		        if (scope.pipeline) {
 		        	if(!scope.rendered) {
 			        	// Wait until everything is rendered
+			        	console.log(moment().format('DD MM YYYY, HH:mm:ss:SSS'));
 	  	          $timeout(function() {
+
+
+	  	          	console.log(moment().format('DD MM YYYY, HH:mm:ss:SSS'));
 
 	  	          	// Colorize line graphs
 							   	d3.selectAll(".area").attr("fill",function(d,i){return d3.rgb(color_lines(i)).brighter(2);});
@@ -204,6 +208,7 @@ angular.module('myApp.directives', ['d3']).
 					};
 
 					scope.renderDatumUpdate = function(data) {
+						console.log(moment().format('DD MM YYYY, HH:mm:ss:SSS'));
 	        	var dataset_to_update = window._.find(scope.pipeline.datasets, function(dataset) { return dataset._id == data.value._dataset });
 	        	dataset_to_update.values.push(data.value);
 
@@ -267,6 +272,7 @@ angular.module('myApp.directives', ['d3']).
         		// Keep brushed, update everything
         		brushed();
         		brushend();
+        		console.log(moment().format('DD MM YYYY, HH:mm:ss:SSS'));
 					}
 
 					scope.renderContext = function() {
