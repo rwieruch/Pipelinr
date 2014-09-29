@@ -87,12 +87,28 @@ module.exports = {
           }
 
           // Perm?
-          /*if(tool.perm) {
-            console.log("PERM");
+          console.log(tool.perm);
+          if(tool.perm) {
+
+            // Remove old values
             for(var j = 0; j < pipeline.datasets[i].values.length; j++) {
               models.Value.remove({ _id: pipeline.datasets[i].values[j]._id}).exec();
             }
-          }*/
+            
+            // Save new values
+            for(var n = 0; n < values.length; n++) {
+              var value = new models.Value({
+                _dataset: pipeline.datasets[i]._id,
+                timestamp: values[n].timestamp,
+                value: values[n].value,
+                level: null
+              });
+
+              value.save(function(err, value) {
+                if (err) console.log(err);
+              });
+            }
+          }
 
           pipeline.datasets[i].values = values;
 
