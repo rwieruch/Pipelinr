@@ -3,6 +3,35 @@ Pipelinr
 
 Real-time visualization of big data
 
+Project Setup
+========
+
+Be sure you have 
+* Node.js + npm (http://nodejs.org/ - the installer should install npm as well) 
+* MongoDB (http://www.mongodb.org/)
+
+Clone the Pipelinr Project into your favorite project folders
+* git clone https://github.com/wrobin/Pipelinr.git
+* Or download the .zip file
+
+Open 3 command prompts:
+
+First command prompt:
+* move to your MongoDB installation directory: cd mongoDBdirectory/bin 
+* type: mongod.exe
+
+Second command prompt: 
+* move to Pipelinr Backend: cd yourFolder/Pipelinr/Backend
+* type: node app.js
+
+Third command prompt:
+* move to Pipelinr Frontend: cd yourFolder/Pipelinr/Frontend
+* type: npm start
+
+The first initializations of the application should take some time.
+
+After that you will find the application at http://localhost:8000/app
+
 Project Structure
 ========
 * Frontend

@@ -32,6 +32,25 @@ module.exports = {
   	return pipeline;
   },
 
+  intervalSampling: function(pipeline, tool) {
+    console.log("Reduction module: " + tool.task);
+    console.log(tool.rate);
+    if(tool.rate !== 0) {
+      for(var i = 0; i < pipeline.datasets.length; i++) {
+        if(pipeline.datasets[i].type === 'int') {
+          var count = 0;
+          for(var j = 0; j < pipeline.datasets[i].values.length; j++) {
+            count++;
+            console.log(count % tool.rate);
+            if((count % tool.rate) !== 0)
+              pipeline.datasets[i].values.splice(j, 1); 
+          }
+        }
+      }
+    }
+    return pipeline;
+  },
+
   frequencySampling: function(pipeline, tool) {
     console.log("Reduction module: " + tool.task);
     console.log(tool.rate);
