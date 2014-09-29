@@ -183,7 +183,8 @@ angular.module('myApp.controllers', [])
 
 		tools.push({
 			task: $scope.selSamplingMethod.value,
-			rate: rate // interval, random
+			perm: false,
+			rate: rate // interval, random, frequency
 		});
 
 		console.log(tools);

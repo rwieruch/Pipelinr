@@ -37,7 +37,7 @@ module.exports = {
     console.log(tool.rate);
     if(tool.rate !== 0) {
       for(var i = 0; i < pipeline.datasets.length; i++) {
-        if(pipeline.datasets[i].type === 'int') {
+        if(pipeline.datasets[i].type === 'int' && pipeline.datasets[i].values.length !== 0) {
           var count = 0;
           for(var j = 0; j < pipeline.datasets[i].values.length; j++) {
             count++;
@@ -56,7 +56,7 @@ module.exports = {
     console.log(tool.rate);
     if(tool.rate !== 0) {
       for(var i = 0; i < pipeline.datasets.length; i++) {
-        if(pipeline.datasets[i].type === 'int') {
+        if(pipeline.datasets[i].type === 'int' && pipeline.datasets[i].values.length !== 0) {
           
           // Seperation in groups on rate
           var beginIntervall = moment(pipeline.datasets[i].values[0].timestamp, 'DD MM YYYY, HH:mm:ss:SSS');
@@ -65,8 +65,8 @@ module.exports = {
           for(var j = 0; j < pipeline.datasets[i].values.length; j++) {
             var currentDate = moment(pipeline.datasets[i].values[j].timestamp, 'DD MM YYYY, HH:mm:ss:SSS');
             if(!(currentDate >= beginIntervall && currentDate < endIntervall)) {
-              beginIntervall = moment(endIntervall, 'DD MM YYYY, HH:mm:ss:SSS');
-              endIntervall = moment(beginIntervall, 'DD MM YYYY, HH:mm:ss:SSS').add(tool.rate, 'seconds');
+              beginIntervall = moment(currentDate, 'DD MM YYYY, HH:mm:ss:SSS');
+              endIntervall = moment(currentDate, 'DD MM YYYY, HH:mm:ss:SSS').add(tool.rate, 'seconds');
             }
             if (!group[beginIntervall]) {
               group[beginIntervall] = [];
@@ -86,7 +86,16 @@ module.exports = {
             values.push({timestamp: group[k][0].timestamp, value: sum/count});
           }
 
+          // Perm?
+          /*if(tool.perm) {
+            console.log("PERM");
+            for(var j = 0; j < pipeline.datasets[i].values.length; j++) {
+              models.Value.remove({ _id: pipeline.datasets[i].values[j]._id}).exec();
+            }
+          }*/
+
           pipeline.datasets[i].values = values;
+
         }
       }
     }
