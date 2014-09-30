@@ -2,7 +2,7 @@
 
   var flow = {
     main: [
-      { get: 'http://localhost:1080/pipelines/540d8a96ca2bd9701a1e43ba' }
+      { get: 'http://localhost:1080/pipelines/542a80fd02ea223c18f1bcd2' }
     ]
   };
 

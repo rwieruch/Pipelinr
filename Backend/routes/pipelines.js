@@ -7,8 +7,14 @@ exports.addPipeline = function(req, res) {
   var object = req.body;
   console.log('Add pipeline: ' + JSON.stringify(object));
 
+  var sampling = null;
+  if(object.sampling !== null) {
+    sampling = { task: object.sampling.task, perm: object.sampling.perm, rate: object.sampling.rate };
+  }
+
   var pipeline = new models.Pipeline({
-    name: object.name
+    name: object.name,
+    sampling: sampling
   });
 
   pipeline.save(function(err, pipeline) {

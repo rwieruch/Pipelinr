@@ -34,7 +34,8 @@ var sessionSchema = new mongoose.Schema({
 var pipelineSchema = new mongoose.Schema({
   name: String,
   origin_id: String,
-  datasets: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Dataset' }]
+  datasets: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Dataset' }],
+  sampling: { task: String, perm: Boolean, rate: Number}
 });
 
 var datasetSchema = new mongoose.Schema({

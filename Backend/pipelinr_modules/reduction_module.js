@@ -53,6 +53,7 @@ module.exports = {
 
   frequencySampling: function(pipeline, tool) {
     console.log("Reduction module: " + tool.task);
+    console.log(moment().format('DD MM YYYY, HH:mm:ss:SSS'));
     console.log(tool.rate);
     if(tool.rate !== 0) {
       for(var i = 0; i < pipeline.datasets.length; i++) {
@@ -90,24 +91,19 @@ module.exports = {
           console.log(tool.perm);
           if(tool.perm) {
 
-            // Remove old values
             for(var j = 0; j < pipeline.datasets[i].values.length; j++) {
-              models.Value.remove({ _id: pipeline.datasets[i].values[j]._id}).exec();
-            }
-            
-            // Save new values
-            for(var n = 0; n < values.length; n++) {
-              var value = new models.Value({
-                _dataset: pipeline.datasets[i]._id,
-                timestamp: values[n].timestamp,
-                value: values[n].value,
-                level: null
-              });
 
-              value.save(function(err, value) {
-                if (err) console.log(err);
-              });
+              // Update old values, remove rest
+              if(typeof values[j] === 'undefined') {
+                models.Value.remove({ _id: pipeline.datasets[i].values[j]._id}).exec();
+              } else {
+                models.Value.findOneAndUpdate({ _id: pipeline.datasets[i].values[j]._id}, { timestamp: values[j].timestamp, value: values[j].value }, function(err, value) {
+                  if (err) console.log(err);
+                });
+              }
+
             }
+
           }
 
           pipeline.datasets[i].values = values;
@@ -115,6 +111,7 @@ module.exports = {
         }
       }
     }
+    console.log(moment().format('DD MM YYYY, HH:mm:ss:SSS'));
     return pipeline;
   },
 
