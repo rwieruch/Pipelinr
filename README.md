@@ -17,6 +17,7 @@ Clone the Pipelinr Project into your favorite project folders
 Open 3 command prompts:
 
 First command prompt:
+* Make sure your data storage path exists (Windows default: C:\data\db\)
 * move to your MongoDB installation directory: cd mongoDBdirectory/bin 
 * type: mongod.exe
 
