@@ -26,7 +26,8 @@ Second command prompt:
 * type: node app.js
 
 Third command prompt:
-* On Windows: make sure the npm AppData exists: C:\Users\your_account\AppData\Roaming\npm\ 
+* On Windows: make sure the npm AppData exists: C:\Users\your_account\AppData\Roaming\npm\
+* On Windows: make sure Git is installed and registered in PATH variable 
 * move to Pipelinr Frontend: cd yourFolder/Pipelinr/Frontend
 * type: npm start
 
