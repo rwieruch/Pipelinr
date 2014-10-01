@@ -250,17 +250,15 @@ angular.module('myApp.controllers', [])
 		});
 	};
 	$scope.logoutUser = function(){
-		SessionOutService.create(function(data) {
+		SessionOutService.create(function(data) {});
+	  Session.isLogged = false;
+	  Session.token = "";
+	  $cookieStore.remove("token");
 
-		  Session.isLogged = false;
-		  Session.token = "";
-		  $cookieStore.remove("token");
+	  console.log(Session);
 
-		  console.log(Session);
+	  $location.path( '/register' );
 
-		  $location.path( '/register' );
-
-  		  $http.defaults.headers.common['token'] = "";
-		});
+		$http.defaults.headers.common['token'] = "";
 	};
 }]);
