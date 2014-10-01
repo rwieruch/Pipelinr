@@ -54,11 +54,11 @@ module.exports = {
   frequencySampling: function(pipeline, tool) {
     console.log("Reduction module: " + tool.task);
     console.log(moment().format('DD MM YYYY, HH:mm:ss:SSS'));
-    console.log(tool.rate);
+    //console.log(tool.rate);
     if(tool.rate !== 0) {
       for(var i = 0; i < pipeline.datasets.length; i++) {
         if(pipeline.datasets[i].type === 'int' && pipeline.datasets[i].values.length !== 0) {
-          
+          console.log(pipeline.datasets[i].values.length);
           // Seperation in groups on rate
           var beginIntervall = moment(pipeline.datasets[i].values[0].timestamp, 'DD MM YYYY, HH:mm:ss:SSS');
           var endIntervall = moment(beginIntervall, 'DD MM YYYY, HH:mm:ss:SSS').add(tool.rate, 'seconds');
@@ -105,7 +105,7 @@ module.exports = {
             }
 
           }
-
+          console.log(values.length);
           pipeline.datasets[i].values = values;
 
         }

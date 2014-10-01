@@ -82,28 +82,19 @@ angular.module('myApp.services', ['ngResource'])
      
     var factory = {}; 
  
-    factory.earliestDate = function(pipeline) {
-      var earliestDate = moment().format('DD MM YYYY, HH:mm:ss');
+    factory.allSortedDates = function(pipeline) {
+      var allSortedDates = [];
       for(var i = 0; i < pipeline.datasets.length; i++) {
         for(var j = 0; j < pipeline.datasets[i].values.length; j++) {
-          if(pipeline.datasets[i].values[j].timestamp < earliestDate) {
-            earliestDate = pipeline.datasets[i].values[j].timestamp;
-          }
+          allSortedDates.push(pipeline.datasets[i].values[j].timestamp);
         }
       }
-      return earliestDate;
-    }
- 
-    factory.latestDate = function(pipeline) {
-      var latestDate = moment().format('DD MM YYYY, HH:mm:ss');
-      for(var i = 0; i < pipeline.datasets.length; i++) {
-        for(var j = 0; j < pipeline.datasets[i].values.length; j++) {
-          if(pipeline.datasets[i].values[j].timestamp > latestDate) {
-            latestDate = pipeline.datasets[i].values[j].timestamp;
-          }
-        }
-      }
-      return latestDate;
+      allSortedDates.sort(function(a,b){
+        a = moment(a.timestamp, 'DD MM YYYY, HH:mm:ss:SSS');
+        b = moment(b.timestamp, 'DD MM YYYY, HH:mm:ss:SSS');
+        return a>b ? 1 : a<b ? -1 : 0;
+      });
+      return allSortedDates;
     }
 
     factory.getStringDatasets = function(pipeline) {

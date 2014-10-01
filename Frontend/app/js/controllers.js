@@ -125,11 +125,24 @@ angular.module('myApp.controllers', [])
 		$scope.pipeline = pipeline;
 
 		// Detail window
-		$scope.earliestDate = DataProcessing.earliestDate(pipeline);
-		$scope.latestDate = DataProcessing.latestDate(pipeline);
+		var allSortedDates = DataProcessing.allSortedDates(pipeline);
+		$scope.earliestDate = allSortedDates[0];
+		$scope.latestDate = allSortedDates[allSortedDates.length-1];
 
 		// Checkboxes
 		$scope.keyCheckModel = DataProcessing.getDatasetKeys(pipeline);
+
+		// Datepickers
+	  /*$scope.calendar = {
+		    opened: {},
+		    dateFormat: 'dd.MM.yyyy',
+		    dateOptions: {},
+		    open: function($event, which) {
+		        $event.preventDefault();
+		        $event.stopPropagation();
+		        $scope.calendar.opened[which] = true;
+		    } 
+		};*/
 		
 		// Push notification for each value on each dataset
 		angular.forEach($scope.pipeline.datasets, function(dataset, key) {
