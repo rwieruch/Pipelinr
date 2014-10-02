@@ -5,7 +5,7 @@ exports.login = function(req, res) {
     console.log('add session: ' + JSON.stringify(object));
 
     // Get registered user
-    models.User.findOne({ email: object.email, password: object.password }, function(err, user) {
+    models.User.findOne( { $or:[{ email: object.email, password: object.password }, { username: object.email, password: object.password }] }, function(err, user) {
       if (err || !user) { res.send(404); return; }
 
       // Create session with token

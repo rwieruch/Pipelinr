@@ -68,7 +68,7 @@
           </ul>
           <form class="navbar-form navbar-right" ng-hide="Session.isLogged" name="loginForm" role="form" ng-submit="loginUser()" novalidate>
             <div class="form-group">
-              <input size="30" name="email" ng-model="user.email" type="email" class="form-control" placeholder="Enter your email" required/>
+              <input size="30" name="email" ng-model="user.email" type="text" class="form-control" placeholder="Enter your email" required/>
               <input size="30" name="password" ng-model="user.password" type="password" class="form-control" placeholder="Enter your password" required>
               <button type="submit" class="btn btn-default" ng-disabled="!loginForm.$valid">Login</button>
             </div>
