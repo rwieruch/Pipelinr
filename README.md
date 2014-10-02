@@ -17,6 +17,7 @@ Clone the Pipelinr Project into your favorite project folders
 Open 3 command prompts:
 
 First command prompt:
+* Make sure your data storage path exists (Windows default: C:\data\db\)
 * move to your MongoDB installation directory: cd mongoDBdirectory/bin 
 * type: mongod.exe
 
@@ -25,6 +26,8 @@ Second command prompt:
 * type: node app.js
 
 Third command prompt:
+* On Windows: make sure the npm AppData exists: C:\Users\your_account\AppData\Roaming\npm\
+* On Windows: make sure Git is installed and registered in PATH variable 
 * move to Pipelinr Frontend: cd yourFolder/Pipelinr/Frontend
 * type: npm start
 
