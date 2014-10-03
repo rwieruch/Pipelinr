@@ -72,10 +72,25 @@ How to publish your data to Pipelinr?
 
 Create a pipeline
 * Resource: POST: ../pipelines
-* Json to submit: var data = { name: name, sampling: { task: task, perm: perm, rate: rate } };
+* Json: var data = { name: name, sampling: { task: task, perm: perm, rate: rate } };
 * Data structure:
   * name: String
   * sampling: Object, null
   * task: Enumeration ["frequencySampling", "randomSampling", "intervalSampling"]
   * perm: Boolean
   * rate: Integer [1..99]
+
+Create a dataset in a pipeline
+* Resource: POST: ../pipelines/:id/datasets
+* Json: var data = { key: key, type: type };
+* Data structure:
+  * key: String
+  * type: Enumeration ["string", "int"]
+
+Create a value in a dataset
+* Resource: POST: ../pipelines/:id/datasets/:id/values
+* Json: var data = { value: value, level: level, timestamp: timestamp };
+* Data structure:
+  * value: String
+  * level: Enumeration ["error", "warning"] - für Datensätze vom Typ "string", sonst null
+  * timestamp: String ["DD MM YYYY, HH:mm:ss:SSS"]
