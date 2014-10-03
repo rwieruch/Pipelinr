@@ -71,11 +71,11 @@ Interface
 How to publish your data to Pipelinr?
 
 Create a pipeline
-* POST: ../pipelines
-* var data = { name: name, sampling: { task: task, perm: perm, rate: rate } };
-
-* name: String
-* sampling: Object, null
-* task: Enumeration ["frequencySampling", "randomSampling", "intervalSampling"]
-* perm: Boolean
-* rate: Integer [1..99]
+* Resource: POST: ../pipelines
+* Json to submit: var data = { name: name, sampling: { task: task, perm: perm, rate: rate } };
+* Data structure:
+** name: String
+** sampling: Object, null
+** task: Enumeration ["frequencySampling", "randomSampling", "intervalSampling"]
+** perm: Boolean
+** rate: Integer [1..99]
