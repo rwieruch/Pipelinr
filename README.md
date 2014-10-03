@@ -1,7 +1,7 @@
 Pipelinr
 ========
 
-Real-time visualization of big data
+Pipelinr is a realtime data processing and visualization application to explore large datasets. Data processing, interaction and analysis make it possible to recognize patterns and trends in your data.
 
 Project Setup
 ========
@@ -64,3 +64,18 @@ Project Structure
 * Benchmark (files for backend benchmarking accomplished by bench-rest library)
 
 * SampleRESTClient (uses the backend REST inerface to create pipelines and datasets and insert values)
+
+Interface
+========
+
+How to publish your data to Pipelinr?
+
+Create a pipeline
+* POST: ../pipelines
+* var data = { name: name, sampling: { task: task, perm: perm, rate: rate } };
+
+* name: String
+* sampling: Object, null
+* task: Enumeration ["frequencySampling", "randomSampling", "intervalSampling"]
+* perm: Boolean
+* rate: Integer [1..99]
