@@ -16,7 +16,7 @@ angular.module('myApp.directives', ['d3']).
       	date: '=',
       	rendered: '='
       },
-      templateUrl: 'partials/dashboard.html?110',
+      templateUrl: 'partials/dashboard.html?113',
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
         	console.log("pipelinrDashboard");

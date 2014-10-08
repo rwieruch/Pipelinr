@@ -8,16 +8,16 @@
 	            <div class="panel-heading">
 	                <div class="row">
 	                    <div class="col-xs-4">
-	                        <div><label>Identification:</label>{{pipeline._id}}</div>
+	                        <div><label>Identification:</label><span class="label-span">{{pipeline._id}}</span></div>
 	                    </div>
 	                    <div class="col-xs-2">
-	                        <div><label>Name:</label>{{pipeline.name}}</div>
+	                        <div><label>Name:</label><span class="label-span">{{pipeline.name}}</span></div>
 	                    </div>
 	                    <div class="col-xs-3">
-	                        <div><label>From:</label>{{earliestDate}}</div>
+	                        <div><label>From:</label><span class="label-span">{{earliestDate}}</span></div>
 	                    </div>
 	                    <div class="col-xs-3">
-	                        <div><label>to:</label>{{latestDate}}</div>
+	                        <div><label>to:</label><span class="label-span">{{latestDate}}</span></div>
 	                    </div>
 	                </div>
 	            </div>
@@ -26,27 +26,12 @@
 	</div>
 
 	<div class="row equal">
-		<!--<div class="col col-md-2">
-			<accordion>
-			    <accordion-group is-open="rendered" style="width: 230px;">
-			        <accordion-heading>
-			    	<i class="glyphicon glyphicon-info-sign"></i>
-			    	Information
-					<i class="pull-right glyphicon pointer" ng-class="{'glyphicon-chevron-down': rendered, 'glyphicon-chevron-right': !rendered}"></i>
-				  	</accordion-heading>
-					<div><label>Id:</label>{{pipeline._id}}</div>
-					<div><label>Name:</label>{{pipeline.name}}</div>
-					<div><label>Begin:</label>{{earliestDate}}</div>
-					<div><label>End:</label>{{latestDate}}</div>
-			   </accordion-group>
-			</accordion>
-		</div>-->
-		<div class="col col-md-10">
+		<div class="col col-md-6">
 			<accordion>
 			    <accordion-group is-open="rendered" style="width: 845px;">
 			        <accordion-heading>
 			    		<i class="glyphicon glyphicon-search"></i>
-			    		Process Pipeline
+			    		<span class="label-span">Process Pipeline</span>
 						<i class="pull-right glyphicon pointer" ng-class="{'glyphicon-chevron-down': rendered, 'glyphicon-chevron-right': !rendered}"></i>
 					</accordion-heading>
 	

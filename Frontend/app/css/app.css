@@ -21,6 +21,13 @@ p, label {
   -webkit-margin-end: 0px;
 }
 
+.label-span {
+  display: inline-block;
+  margin-bottom: 5px;
+  font-weight: 700;
+  margin-left: 10px;
+}
+
 a:link { text-decoration:none !important; color:#000; }
 a:visited { text-decoration:none !important; color:#000; }
 a:hover { text-decoration:none !important; color:#BBB;; }
