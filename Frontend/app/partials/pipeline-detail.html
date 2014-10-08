@@ -1,8 +1,32 @@
 <loading/>
 
 <div class="container">
+
+   <div class="row equal">
+	    <div class="col-lg-3 col-md-6">
+	        <div class="panel panel-primary">
+	            <div class="panel-heading">
+	                <div class="row">
+	                    <div class="col-xs-4">
+	                        <div><label>Identification:</label>{{pipeline._id}}</div>
+	                    </div>
+	                    <div class="col-xs-2">
+	                        <div><label>Name:</label>{{pipeline.name}}</div>
+	                    </div>
+	                    <div class="col-xs-3">
+	                        <div><label>From:</label>{{earliestDate}}</div>
+	                    </div>
+	                    <div class="col-xs-3">
+	                        <div><label>to:</label>{{latestDate}}</div>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+
 	<div class="row equal">
-		<div class="col col-md-2">
+		<!--<div class="col col-md-2">
 			<accordion>
 			    <accordion-group is-open="rendered" style="width: 230px;">
 			        <accordion-heading>
@@ -16,8 +40,8 @@
 					<div><label>End:</label>{{latestDate}}</div>
 			   </accordion-group>
 			</accordion>
-		</div>
-		<div class="col col-md-8">
+		</div>-->
+		<div class="col col-md-10">
 			<accordion>
 			    <accordion-group is-open="rendered" style="width: 845px;">
 			        <accordion-heading>

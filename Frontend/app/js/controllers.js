@@ -126,8 +126,8 @@ angular.module('myApp.controllers', [])
 
 		// Detail window
 		var allSortedDates = DataProcessing.allSortedDates(pipeline);
-		$scope.earliestDate = allSortedDates[0];
-		$scope.latestDate = allSortedDates[allSortedDates.length-1];
+		$scope.earliestDate = moment(allSortedDates[0]).format('DD.MM.YYYY, HH:mm');
+		$scope.latestDate = moment(allSortedDates[allSortedDates.length-1]).format('DD.MM.YYYY, HH:mm');
 
 		// Checkboxes
 		$scope.keyCheckModel = DataProcessing.getDatasetKeys(pipeline);
@@ -144,6 +144,7 @@ angular.module('myApp.controllers', [])
 		    } 
 		};
 
+		// Popover
 		$scope.dynamicTooltip = 'Random: Percentage X of values sampled out.' +
 														'Interval: Every X value is not being sampled out.' + 
 														'Frequency: In every X seconds goes one average value.'
