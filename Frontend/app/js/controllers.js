@@ -133,7 +133,7 @@ angular.module('myApp.controllers', [])
 		$scope.keyCheckModel = DataProcessing.getDatasetKeys(pipeline);
 
 		// Datepickers
-	  /*$scope.calendar = {
+	  $scope.calendar = {
 		    opened: {},
 		    dateFormat: 'dd.MM.yyyy',
 		    dateOptions: {},
@@ -142,7 +142,11 @@ angular.module('myApp.controllers', [])
 		        $event.stopPropagation();
 		        $scope.calendar.opened[which] = true;
 		    } 
-		};*/
+		};
+
+		$scope.dynamicTooltip = 'Random: Percentage X of values sampled out.' +
+														'Interval: Every X value is not being sampled out.' + 
+														'Frequency: In every X seconds goes one average value.'
 		
 		// Push notification for each value on each dataset
 		angular.forEach($scope.pipeline.datasets, function(dataset, key) {
@@ -158,7 +162,7 @@ angular.module('myApp.controllers', [])
   });
 
   // Get Pipeline with tools
-  $scope.getPipeline = function(rate, begin, end){
+  $scope.getPipeline = function(rate, begin, end, process) {
 
   	console.log($scope.samplingMethods);
 
@@ -182,7 +186,7 @@ angular.module('myApp.controllers', [])
 
 		tools.push({keys: $scope.keyCheckModel, task: "selectDatasets"});
 
-  	console.log(begin);
+  	/*console.log(begin);
   	console.log(end);
   	if(typeof begin === "undefined" && typeof end === "undefined") {
   		begin = "";
@@ -190,9 +194,11 @@ angular.module('myApp.controllers', [])
   	} else {
 			begin = moment(begin).format('DD MM YYYY, HH:mm:ss');
 			end = moment(end).format('DD MM YYYY, HH:mm:ss');
-		}
+		}*/
+		var beginDatetime = moment(process.beginDate).format('DD MM YYYY') + ', ' + moment(process.beginTime).format('HH:mm:ss');
+  	var endDatetime = moment(process.endDate).format('DD MM YYYY') + ', ' + moment(process.endTime).format('HH:mm:ss');
 
-		tools.push({begin: begin, end: end, task: "trimPipeline"});
+		tools.push({begin: beginDatetime, end: endDatetime, task: "trimPipeline"});
 
 		tools.push({
 			task: $scope.selSamplingMethod.value,
