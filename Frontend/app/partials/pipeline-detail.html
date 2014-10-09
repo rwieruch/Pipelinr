@@ -1,9 +1,10 @@
 <loading/>
 
 <div class="container">
-<div ng-show="rendered">
-   <div class="row equal">
-	    <div class="col-lg-3 col-md-6">
+
+	<div ng-show="rendered">
+	   <div class="row equal">
+		    <div class="col-lg-3 col-md-6">
 		        <div class="panel panel-default">
 		            <div class="panel-heading">
 		                <div class="row">
@@ -25,9 +26,48 @@
 		                    </div>
 		                </div>
 		            </div>
-		        </div>
+			    </div>
 		    </div>
-	    </div>
+		</div>
+	</div>
+
+		<div ng-show="rendered">
+	   <div class="row equal">
+		    <div class="col-lg-3 col-md-6">
+		        <div class="panel panel-default">
+		            <div class="panel-heading">
+		                <div class="row">
+		                    <div class="col-xs-12">
+		                    	<span class="label-span-white">Process Pipeline:</span>
+
+	                    	    <script type="text/ng-template" id="myModalContent.html">
+							        <div class="modal-header">
+							            <h3 class="modal-title">Im a modal!</h3>
+							        </div>
+							        <div class="modal-body">
+							            <ul>
+							                <li ng-repeat="item in items">
+							                    <a ng-click="selected.item = item">{{ item }}</a>
+							                </li>
+							            </ul>
+							            Selected: <b>{{ selected.item }}</b>
+							        </div>
+							        <div class="modal-footer">
+							            <button class="btn btn-primary" ng-click="ok()">OK</button>
+							            <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+							        </div>
+							    </script>
+
+							    <div ng-controller="PipelineDetailCtrl">
+		                    	    <button class="btn btn-default" ng-click="open()">Open me!</button>
+									<div ng-show="selected">Selection from a modal: {{ selected }}</div>
+								</div>
+		                    </div>
+		                </div>
+		            </div>
+			    </div>
+		    </div>
+		</div>
 	</div>
 
 	<!--<div class="row equal">

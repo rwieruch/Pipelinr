@@ -99,10 +99,33 @@ angular.module('myApp.controllers', [])
   });
 
 }])  
-.controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'DataProcessing', 'Session', function($scope, $http, $routeParams, Socket, PipelineService, DataProcessing, Session) {
+.controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'DataProcessing', 'Session', '$modal', '$log', function($scope, $http, $routeParams, Socket, PipelineService, DataProcessing, Session, $modal, $log) {
 
 	// Set for refresh
 	$http.defaults.headers.common['token'] = Session.token;
+
+	//Modal
+  $scope.items = ['item1', 'item2', 'item3'];
+
+  $scope.open = function (size) {
+
+    var modalInstance = $modal.open({
+      templateUrl: 'myModalContent.html',
+      controller: 'ModalInstanceCtrl',
+      size: size,
+      resolve: {
+        items: function () {
+          return $scope.items;
+        }
+      }
+    });
+
+    modalInstance.result.then(function (selectedItem) {
+      $scope.selected = selectedItem;
+    }, function () {
+      $log.info('Modal dismissed at: ' + new Date());
+    });
+  };
 
 	// Slider for sampling rate
   $scope.sliderConfig = {min: 0, max: 99, step: 1};
@@ -217,6 +240,21 @@ angular.module('myApp.controllers', [])
 	};
 
 }]) 
+.controller('ModalInstanceCtrl', function ($scope, $modalInstance, items) {
+
+  $scope.items = items;
+  $scope.selected = {
+    item: $scope.items[0]
+  };
+
+  $scope.ok = function () {
+    $modalInstance.close($scope.selected.item);
+  };
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+})
 .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
   $scope.addUser = function(){
   	var user = {name:$scope.newUser.username, email:$scope.newUser.email, password:$scope.newUser.password1};
