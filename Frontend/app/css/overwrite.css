@@ -28,3 +28,17 @@ h3 {
 .popover {
   width: 350px;
 }
+
+.panel-default>.panel-heading {
+	color: #333;
+	background-color: #4F7596;
+	border-color: #4F7596;
+}
+
+.panel-default {
+	border-color: #4F7596;
+}
+
+body {
+	background-color: #151325;
+}

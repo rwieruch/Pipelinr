@@ -14,7 +14,7 @@ p, label {
   font-weight: normal;
   font-size: 16px;
   display: block;
-  color: #333;
+  color: #000;
   -webkit-margin-before: 1em;
   -webkit-margin-after: 1em;
   -webkit-margin-start: 0px;
@@ -23,9 +23,20 @@ p, label {
 
 .label-span {
   display: inline-block;
-  margin-bottom: 5px;
   font-weight: 700;
   margin-left: 10px;
+  color:#333;
+}
+
+.label-span-white {
+  display: inline-block;
+  font-weight: 700;
+  margin-left: 10px;
+  color:#fff;
+}
+
+.glyphicon-white {
+  color:white;
 }
 
 a:link { text-decoration:none !important; color:#000; }
@@ -39,10 +50,8 @@ a:focus { text-decoration:none !important; background-color:#BBB; }
 	padding: 15px;
     margin: 0 auto;
 	margin-bottom: 30px;
-  	background-color: #fff;
+  	background-color: #4F7596;
   	-webkit-border-radius: 4px;
-  	-webkit-box-shadow: inset -1px 0 0 0 #d2d2d2,inset -1px 0 0 0 #e6e6e6,inset 1px 0 0 0 #d2d2d2,1px 0 0 0 #e6e6e6,0 -1px 0 0 #e8e8e8,0 2px 0 0 rgba(241,241,241,0.3),0 1px 0 0 #b1b1b1;
-  	-moz-box-shadow: inset -1px 0 0 0 #d2d2d2,inset -1px 0 0 0 #e6e6e6,inset 1px 0 0 0 #d2d2d2,1px 0 0 0 #e6e6e6,0 -1px 0 0 #e8e8e8,0 2px 0 0 rgba(241,241,241,0.3),0 1px 0 0 #b1b1b1;
 }
 
 .my-table-container {
@@ -54,7 +63,7 @@ a:focus { text-decoration:none !important; background-color:#BBB; }
 }
 
 .scrollable-box {
-  height: 300px;
+  height: 200px;
   overflow: auto;
 }
 

@@ -1,31 +1,36 @@
 <loading/>
 
 <div class="container">
-
+<div ng-show="rendered">
    <div class="row equal">
 	    <div class="col-lg-3 col-md-6">
-	        <div class="panel panel-primary">
-	            <div class="panel-heading">
-	                <div class="row">
-	                    <div class="col-xs-4">
-	                        <div><label>Identification:</label><span class="label-span">{{pipeline._id}}</span></div>
-	                    </div>
-	                    <div class="col-xs-2">
-	                        <div><label>Name:</label><span class="label-span">{{pipeline.name}}</span></div>
-	                    </div>
-	                    <div class="col-xs-3">
-	                        <div><label>From:</label><span class="label-span">{{earliestDate}}</span></div>
-	                    </div>
-	                    <div class="col-xs-3">
-	                        <div><label>to:</label><span class="label-span">{{latestDate}}</span></div>
-	                    </div>
-	                </div>
-	            </div>
-	        </div>
+		        <div class="panel panel-default">
+		            <div class="panel-heading">
+		                <div class="row">
+		                    <div class="col-xs-4">
+		                        <span class="label-span-white">Identification:</span>
+		                        <span class="label-span-white">{{pipeline._id}}</span>
+		                    </div>
+		                    <div class="col-xs-2">
+		                        <span class="label-span-white">Name:</span>
+		                        <span class="label-span-white">{{pipeline.name}}</span>
+		                    </div>
+		                    <div class="col-xs-3">
+		                        <span class="label-span-white">From:</span>
+		                        <span class="label-span-white">{{earliestDate}}</span>
+		                    </div>
+		                    <div class="col-xs-3">
+		                        <span class="label-span-white">To:</span>
+		                        <span class="label-span-white">{{latestDate}}</span>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
 	    </div>
 	</div>
 
-	<div class="row equal">
+	<!--<div class="row equal">
 		<div class="col col-md-6">
 			<accordion>
 			    <accordion-group is-open="rendered" style="width: 845px;">
@@ -76,7 +81,7 @@
 							</div>
 						</div>
 						<hr>
-						<!-- more -->
+				
 						<div class="form-group">
 							<div class="col-sm-offset-1 col-sm-9">
 								<button type="button" class="btn btn-default btn-xs" ng-click="isCollapsed = !isCollapsed">Extended Options</button>
@@ -118,7 +123,7 @@
 		<div class="col col-md-8">
 
 		</div>
-	</div>
+	</div>-->
 
 	<div pipelinr-dashboard id="pipelinr-dashboard" pipeline='pipeline' date='date' rendered='rendered'></div>
 
