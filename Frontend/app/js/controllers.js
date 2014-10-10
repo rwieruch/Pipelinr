@@ -141,16 +141,18 @@ angular.module('myApp.controllers', [])
 			var tools = [];
 			var datasetsToRegister = null;
 			for(var i = 0; i < $scope.processes.length; i++) {
-				tools.push($scope.processes[i].tool);
-				if($scope.processes[i].tool.task === 'selectDatasets') {
-					datasetsToRegister = $scope.processes[i].tool.keys;
+				if($scope.processes[i].select) {
+					console.log($scope.processes[i].name);
+					tools.push($scope.processes[i].tool);
+					if($scope.processes[i].tool.task === 'selectDatasets') {
+						datasetsToRegister = $scope.processes[i].tool.keys;
+					}
 				}
 			}
 
 			// Remove old listeners and init new listeners for selected datasets
 			if(datasetsToRegister !== null) {
 				console.log("Re-register new listeners");
-				console.log(datasetsToRegister);
 				Socket.getSocket().removeAllListeners();
 				angular.forEach($scope.pipeline.datasets, function(dataset, key) {
 					for(var i = 0; i < datasetsToRegister.length; i++) {
