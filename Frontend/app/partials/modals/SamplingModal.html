@@ -1,0 +1,26 @@
+<div class="modal-header">
+    <h3 class="modal-title">Sampling</h3>
+</div>
+<div class="modal-body">
+  	<form class="form-horizontal" role="form" novalidate>
+
+		<div class="form-group">
+
+			<div class="col-sm-3">
+			    <select popover-title="Sampling strategies" popover="{{dynamicTooltip}}" popover-trigger="mouseenter" popover-popup-delay="300" class="form-control btn-xs" ng-model="selSamplingMethod.value">
+			        <option ng-selected="{{method.value == selSamplingMethod.value}}" ng-repeat="method in samplingMethods" value="{{method.value}}">{{method.name}}</option>
+			    </select>
+			</div>
+
+			<div class="col-sm-5" style="margin-top:7px;">
+		        <div slider config="sliderConfig" model="rate" class="cdbl-slider"></div>
+		        <span style="margin-left:10px; font-weight: bold;">{{rate}}</span>
+		    </div>
+	    </div>
+
+	</form>
+</div>
+<div class="modal-footer">
+	<button class="btn btn-primary" ng-click="sendProcess(rate)">Ok</button>
+	<button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

@@ -99,43 +99,13 @@ angular.module('myApp.controllers', [])
   });
 
 }])  
-.controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'DataProcessing', 'Session', '$modal', '$log', function($scope, $http, $routeParams, Socket, PipelineService, DataProcessing, Session, $modal, $log) {
+.controller('PipelineDetailCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'DataProcessing', 'Session', '$modal', function($scope, $http, $routeParams, Socket, PipelineService, DataProcessing, Session, $modal) {
 
 	// Set for refresh
 	$http.defaults.headers.common['token'] = Session.token;
 
-	//Modal
-  $scope.items = ['item1', 'item2', 'item3'];
-
-  $scope.open = function (size) {
-
-    var modalInstance = $modal.open({
-      templateUrl: 'myModalContent.html',
-      controller: 'ModalInstanceCtrl',
-      size: size,
-      resolve: {
-        items: function () {
-          return $scope.items;
-        }
-      }
-    });
-
-    modalInstance.result.then(function (selectedItem) {
-      $scope.selected = selectedItem;
-    }, function () {
-      $log.info('Modal dismissed at: ' + new Date());
-    });
-  };
-
-	// Slider for sampling rate
-  $scope.sliderConfig = {min: 0, max: 99, step: 1};
-  $scope.rate = 0;
-
-  // More options
-  $scope.isCollapsed = true;
-
-  $scope.samplingMethods = [{name: 'Random', value: 'randomSampling'}, {name: 'Interval', value: 'intervalSampling'}, {name: 'Frequency', value: 'frequencySampling'}];
-  $scope.selSamplingMethod = {value: 'randomSampling'};
+	// Processes
+	$scope.processes = [];
 
 	// Get and resolve pipeline
 	$scope.rendered = false;
@@ -147,30 +117,57 @@ angular.module('myApp.controllers', [])
 		// Dashboard directive
 		$scope.pipeline = pipeline;
 
-		// Detail window
-		var allSortedDates = DataProcessing.allSortedDates(pipeline);
-		$scope.earliestDate = moment(allSortedDates[0]).format('DD.MM.YYYY, HH:mm');
-		$scope.latestDate = moment(allSortedDates[allSortedDates.length-1]).format('DD.MM.YYYY, HH:mm');
+		// Modal
+	  $scope.openModal = function (kind, size) {
+	    var modalInstance = $modal.open({
+	      templateUrl: 'partials/modals/' + kind + 'Modal.html',
+	      controller: kind + 'ModalCtrl',
+	      size: size,
+	      resolve: {
+	        pipeline: function () {
+	          return pipeline;
+	        }
+	      }
+	    });
+	    modalInstance.result.then(function (process) {
+	      $scope.processes.push(process);
+	    }, function () { console.log('Modal dismissed at: ' + new Date()); });
+	  };
 
-		// Checkboxes
-		$scope.keyCheckModel = DataProcessing.getDatasetKeys(pipeline);
+		// Request new pipeline with processes
+		$scope.getPipeline = function() {
+			$scope.rendered = false;
 
-		// Datepickers
-	  $scope.calendar = {
-		    opened: {},
-		    dateFormat: 'dd.MM.yyyy',
-		    dateOptions: {},
-		    open: function($event, which) {
-		        $event.preventDefault();
-		        $event.stopPropagation();
-		        $scope.calendar.opened[which] = true;
-		    } 
-		};
+			var tools = [];
+			var datasetsToRegister = null;
+			for(var i = 0; i < $scope.processes.length; i++) {
+				tools.push($scope.processes[i].tool);
+				if($scope.processes[i].tool.task === 'selectDatasets') {
+					datasetsToRegister = $scope.processes[i].tool.keys;
+				}
+			}
 
-		// Popover
-		$scope.dynamicTooltip = 'Random: Percentage X of values sampled out.' +
-														'Interval: Every X value is not being sampled out.' + 
-														'Frequency: In every X seconds goes one average value.'
+			// Remove old listeners and init new listeners for selected datasets
+			if(datasetsToRegister !== null) {
+				console.log("Re-register new listeners");
+				console.log(datasetsToRegister);
+				Socket.getSocket().removeAllListeners();
+				angular.forEach($scope.pipeline.datasets, function(dataset, key) {
+					for(var i = 0; i < datasetsToRegister.length; i++) {
+						if(datasetsToRegister[i].name === dataset.key) {
+							Socket.on('add_value_' + dataset._id, function (v_data) {
+								$scope.date = v_data;
+						 	});
+						}
+					}
+				});
+			}
+
+			var pipeline = PipelineService.get({id: $routeParams.id, tool: tools});
+			pipeline.$promise.then(function(newdata) {
+				$scope.pipeline = newdata;
+	  	});
+		}
 		
 		// Push notification for each value on each dataset
 		angular.forEach($scope.pipeline.datasets, function(dataset, key) {
@@ -185,76 +182,90 @@ angular.module('myApp.controllers', [])
       Socket.getSocket().removeAllListeners();
   });
 
-  // Get Pipeline with tools
-  $scope.getPipeline = function(rate, begin, end, process) {
-
-  	console.log($scope.samplingMethods);
-
-		$scope.rendered = false; // Enable rendering in directive and waiting animation
-
-		// Remove old listeners and init new listeners for selected datasets
-		Socket.getSocket().removeAllListeners();
-		angular.forEach($scope.pipeline.datasets, function(dataset, key) {
-			for(var i = 0; i < $scope.keyCheckModel.length; i++) {
-				if($scope.keyCheckModel[i].name === dataset.key) {
-					Socket.on('add_value_' + dataset._id, function (v_data) {
-						$scope.date = v_data;
-				 	});
-				}
-			}
-		});
-
-		// Toolchain
-  	var tools = [];
-  	var tool;
-
-		tools.push({keys: $scope.keyCheckModel, task: "selectDatasets"});
-
-  	/*console.log(begin);
-  	console.log(end);
-  	if(typeof begin === "undefined" && typeof end === "undefined") {
-  		begin = "";
-  		end = "";
-  	} else {
-			begin = moment(begin).format('DD MM YYYY, HH:mm:ss');
-			end = moment(end).format('DD MM YYYY, HH:mm:ss');
-		}*/
-		var beginDatetime = moment(process.beginDate).format('DD MM YYYY') + ', ' + moment(process.beginTime).format('HH:mm:ss');
-  	var endDatetime = moment(process.endDate).format('DD MM YYYY') + ', ' + moment(process.endTime).format('HH:mm:ss');
-
-		tools.push({begin: beginDatetime, end: endDatetime, task: "trimPipeline"});
-
-		tools.push({
-			task: $scope.selSamplingMethod.value,
-			perm: false,
-			rate: rate // interval, random, frequency
-		});
-
-		console.log(tools);
-
-		// Request
-		var pipeline = PipelineService.get({id: $routeParams.id, tool: tools});
-		pipeline.$promise.then(function(newdata) {
-			$scope.pipeline = newdata;
-  	});
-	};
-
 }]) 
-.controller('ModalInstanceCtrl', function ($scope, $modalInstance, items) {
+.controller('QueryModalCtrl', ['$scope', '$modalInstance', '$routeParams', 'pipeline', 'DataProcessing', 'Socket', 'PipelineService', function ($scope, $modalInstance, $routeParams, pipeline, DataProcessing, Socket, PipelineService) {
+	console.log(pipeline);
+	$scope.pipeline = pipeline;
 
-  $scope.items = items;
-  $scope.selected = {
-    item: $scope.items[0]
-  };
+	// Datepickers
+	var allSortedDates = DataProcessing.allSortedDates(pipeline);
+	$scope.earliestDate = moment(allSortedDates[0]).format('DD.MM.YYYY, HH:mm');
+	$scope.latestDate = moment(allSortedDates[allSortedDates.length-1]).format('DD.MM.YYYY, HH:mm');
 
-  $scope.ok = function () {
-    $modalInstance.close($scope.selected.item);
-  };
+	// Datepickers
+  $scope.calendar = {
+	    opened: {},
+	    dateFormat: 'dd.MM.yyyy',
+	    dateOptions: {},
+	    open: function($event, which) {
+	        $event.preventDefault();
+	        $event.stopPropagation();
+	        $scope.calendar.opened[which] = true;
+	    } 
+	};
 
   $scope.cancel = function () {
     $modalInstance.dismiss('cancel');
   };
-})
+
+  // Get Pipeline with tools
+  $scope.sendProcess = function(process) {
+		if(typeof process !== 'undefined') {
+			var beginDatetime = moment(process.beginDate).format('DD MM YYYY') + ', ' + moment(process.beginTime).format('HH:mm:ss');
+  		var endDatetime = moment(process.endDate).format('DD MM YYYY') + ', ' + moment(process.endTime).format('HH:mm:ss');
+		} else {
+			var beginDatetime = '';
+			var endDatetime = '';
+		}
+		
+		var process = {select: true, name: 'Query Time', tool: {begin: beginDatetime, end: endDatetime, task: "trimPipeline"} };
+		$modalInstance.close(process);
+  }
+}])
+.controller('BrowseModalCtrl', ['$scope', '$modalInstance', '$routeParams', 'pipeline', 'DataProcessing', 'Socket', 'PipelineService', function ($scope, $modalInstance, $routeParams, pipeline, DataProcessing, Socket, PipelineService) {
+	console.log(pipeline);
+	$scope.pipeline = pipeline;
+
+	// Checkboxes
+	$scope.keyCheckModel = DataProcessing.getDatasetKeys(pipeline);
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+
+  // Get Pipeline with tools
+  $scope.sendProcess = function() {
+		var process = {select: true, name: 'Browse Datasets', tool: {keys: $scope.keyCheckModel, task: "selectDatasets"} };
+		$modalInstance.close(process);
+  }
+}])
+.controller('SamplingModalCtrl', ['$scope', '$modalInstance', '$routeParams', 'pipeline', 'DataProcessing', 'Socket', 'PipelineService', function ($scope, $modalInstance, $routeParams, pipeline, DataProcessing, Socket, PipelineService) {
+	console.log(pipeline);
+	$scope.pipeline = pipeline;
+
+	// Sampling
+  $scope.samplingMethods = [{name: 'Random', value: 'randomSampling'}, {name: 'Interval', value: 'intervalSampling'}, {name: 'Frequency', value: 'frequencySampling'}];
+  $scope.selSamplingMethod = {value: 'randomSampling'};
+
+	// Popover
+	$scope.dynamicTooltip = 'Random: Percentage X of values sampled out.' +
+													'Interval: Every X value is not being sampled out.' + 
+													'Frequency: In every X seconds goes one average value.'
+
+	// Slider for sampling rate
+  $scope.sliderConfig = {min: 0, max: 99, step: 1};
+  $scope.rate = 0;
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+
+  // Get Pipeline with tools
+  $scope.sendProcess = function(rate) {
+		var process = {select: true, name: 'Sampling', tool: {task: $scope.selSamplingMethod.value, perm: false, rate: rate} };
+		$modalInstance.close(process);
+  }
+}])
 .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
   $scope.addUser = function(){
   	var user = {name:$scope.newUser.username, email:$scope.newUser.email, password:$scope.newUser.password1};

@@ -38,30 +38,32 @@
 		            <div class="panel-heading">
 		                <div class="row">
 		                    <div class="col-xs-12">
-		                    	<span class="label-span-white">Process Pipeline:</span>
+							 
+	                    	    <!--<button class="btn btn-default" ng-click="open()">Add Process</button>-->
 
-	                    	    <script type="text/ng-template" id="myModalContent.html">
-							        <div class="modal-header">
-							            <h3 class="modal-title">Im a modal!</h3>
-							        </div>
-							        <div class="modal-body">
-							            <ul>
-							                <li ng-repeat="item in items">
-							                    <a ng-click="selected.item = item">{{ item }}</a>
-							                </li>
-							            </ul>
-							            Selected: <b>{{ selected.item }}</b>
-							        </div>
-							        <div class="modal-footer">
-							            <button class="btn btn-primary" ng-click="ok()">OK</button>
-							            <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
-							        </div>
-							    </script>
+                    	        <span class="btn-group" dropdown is-open="status.isopen">
+							      <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
+							        Add Process <span class="caret"></span>
+							      </button>
+							      <ul class="dropdown-menu" role="menu">
+							        <li><a href="" ng-click="openModal('Browse')">Browse Datasets</a></li>
+							        <li><a href="" ng-click="openModal('Query')">Query Time</a></li>
+							        <li><a href="" ng-click="openModal('Sampling')">Sampling</a></li>
+							        <li class="divider"></li>
+							        <li><a href="#">Random Sampling</a></li>
+							        <li><a href="#">Interval Sampling</a></li>
+							        <li><a href="#">Stratified Sampling</a></li>
+							      </ul>
+							    </span>
 
-							    <div ng-controller="PipelineDetailCtrl">
-		                    	    <button class="btn btn-default" ng-click="open()">Open me!</button>
-									<div ng-show="selected">Selection from a modal: {{ selected }}</div>
-								</div>
+							    <div class="btn-group" style="margin-top: -15px">
+							    	<span ng-repeat="process in processes">
+								    	<label class="btn btn-default" ng-model="process.select" btn-checkbox>{{process.name}}</label>
+								    </span>
+							    </div>
+
+								<button class="btn btn-default pull-right" ng-click="getPipeline()">Send</button>
+
 		                    </div>
 		                </div>
 		            </div>
