@@ -194,7 +194,12 @@ angular.module('myApp.controllers', [])
 	$scope.earliestDate = moment(allSortedDates[0]).format('DD.MM.YYYY, HH:mm');
 	$scope.latestDate = moment(allSortedDates[allSortedDates.length-1]).format('DD.MM.YYYY, HH:mm');
 
-	// Datepickers
+	$scope.minDate = moment(allSortedDates[0],'DD.MM.YYYY, HH:mm').format('MM.DD.YYYY');
+	var beginInitDate = moment(allSortedDates[0],'DD.MM.YYYY, HH:mm').format('DD.MM.YYYY');
+	$scope.maxDate = moment(allSortedDates[allSortedDates.length-1],'DD.MM.YYYY, HH:mm').format('MM.DD.YYYY');
+	var endInitDate = moment(allSortedDates[allSortedDates.length-1],'DD.MM.YYYY, HH:mm').format('DD.MM.YYYY');
+	$scope.process = { beginDate: beginInitDate, endDate: endInitDate };
+
   $scope.calendar = {
 	    opened: {},
 	    dateFormat: 'dd.MM.yyyy',
