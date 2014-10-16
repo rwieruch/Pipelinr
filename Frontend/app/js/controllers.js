@@ -134,6 +134,20 @@ angular.module('myApp.controllers', [])
 	    }, function () { console.log('Modal dismissed at: ' + new Date()); });
 	  };
 
+	  $scope.clearProcesses = function() {
+	  	var uncheckedCleared = false;
+			for(var i = $scope.processes.length; i--; ) {
+				console.log($scope.processes[i]);
+				if($scope.processes[i].select === false) {
+					$scope.processes.splice(i, 1);
+					uncheckedCleared = true;
+				}
+			}
+			if(!uncheckedCleared) {
+				$scope.processes = [];
+			}
+	  };
+
 		// Request new pipeline with processes
 		$scope.getPipeline = function() {
 			$scope.rendered = false;
@@ -193,7 +207,6 @@ angular.module('myApp.controllers', [])
 	var allSortedDates = DataProcessing.allSortedDates(pipeline);
 	$scope.earliestDate = moment(allSortedDates[0]).format('DD.MM.YYYY, HH:mm');
 	$scope.latestDate = moment(allSortedDates[allSortedDates.length-1]).format('DD.MM.YYYY, HH:mm');
-
 	$scope.minDate = moment(allSortedDates[0],'DD.MM.YYYY, HH:mm').format('MM.DD.YYYY');
 	var beginInitDate = moment(allSortedDates[0],'DD.MM.YYYY, HH:mm').format('DD.MM.YYYY');
 	$scope.maxDate = moment(allSortedDates[allSortedDates.length-1],'DD.MM.YYYY, HH:mm').format('MM.DD.YYYY');
