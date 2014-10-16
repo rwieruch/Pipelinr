@@ -21,6 +21,10 @@ p, label {
   -webkit-margin-end: 0px;
 }
 
+.small-information {
+  font-size: 14px;
+}
+
 .label-span {
   display: inline-block;
   font-weight: 700;
