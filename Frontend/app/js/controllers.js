@@ -156,7 +156,6 @@ angular.module('myApp.controllers', [])
 			var datasetsToRegister = null;
 			for(var i = 0; i < $scope.processes.length; i++) {
 				if($scope.processes[i].select) {
-					console.log($scope.processes[i].name);
 					tools.push($scope.processes[i].tool);
 					if($scope.processes[i].tool.task === 'selectDatasets') {
 						datasetsToRegister = $scope.processes[i].tool.keys;
@@ -179,9 +178,10 @@ angular.module('myApp.controllers', [])
 				});
 			}
 
+			console.log(tools);
 			var pipeline = PipelineService.get({id: $routeParams.id, tool: tools});
-			pipeline.$promise.then(function(newdata) {
-				$scope.pipeline = newdata;
+			pipeline.$promise.then(function(newPipeline) {
+				$scope.pipeline = newPipeline;
 	  	});
 		}
 		
@@ -231,8 +231,8 @@ angular.module('myApp.controllers', [])
   // Get Pipeline with tools
   $scope.sendProcess = function(process) {
 		if(typeof process !== 'undefined') {
-			var beginDatetime = moment(process.beginDate).format('DD MM YYYY') + ', ' + moment(process.beginTime).format('HH:mm:ss');
-  		var endDatetime = moment(process.endDate).format('DD MM YYYY') + ', ' + moment(process.endTime).format('HH:mm:ss');
+			var beginDatetime = moment(process.beginDate, 'DD.MM.YYYY').format('DD MM YYYY') + ', ' + moment(process.beginTime).format('HH:mm:ss');
+  		var endDatetime = moment(process.endDate, 'DD.MM.YYYY').format('DD MM YYYY') + ', ' + moment(process.endTime).format('HH:mm:ss');
 		} else {
 			var beginDatetime = '';
 			var endDatetime = '';
