@@ -295,33 +295,6 @@ angular.module('myApp.controllers', [])
 		$modalInstance.close({select: true, name: 'Random Sampling', tool: {task: 'randomSampling', perm: false, rate: rate} });
   }
 }])
-.controller('SamplingModalCtrl', ['$scope', '$modalInstance', '$routeParams', 'pipeline', 'DataProcessing', 'Socket', 'PipelineService', function ($scope, $modalInstance, $routeParams, pipeline, DataProcessing, Socket, PipelineService) {
-	console.log(pipeline);
-	$scope.pipeline = pipeline;
-
-	// Sampling
-  $scope.samplingMethods = [{name: 'Random', value: 'randomSampling'}, {name: 'Interval', value: 'intervalSampling'}, {name: 'Frequency', value: 'frequencySampling'}];
-  $scope.selSamplingMethod = {value: 'randomSampling'};
-
-	// Popover
-	$scope.dynamicTooltip = 'Random: Percentage X of values sampled out.' +
-													'Interval: Every X value is not being sampled out.' + 
-													'Frequency: In every X seconds goes one average value.'
-
-	// Slider for sampling rate
-  $scope.sliderConfig = {min: 0, max: 99, step: 1};
-  $scope.rate = 0;
-
-  $scope.cancel = function () {
-    $modalInstance.dismiss('cancel');
-  };
-
-  // Get Pipeline with tools
-  $scope.sendProcess = function(rate) {
-		var process = {select: true, name: 'Sampling', tool: {task: $scope.selSamplingMethod.value, perm: false, rate: rate} };
-		$modalInstance.close(process);
-  }
-}])
 .controller('RegisterCtrl', ['$scope', '$http', 'UserService', function($scope, $http, UserService) {
   $scope.addUser = function(){
   	var user = {name:$scope.newUser.username, email:$scope.newUser.email, password:$scope.newUser.password1};
