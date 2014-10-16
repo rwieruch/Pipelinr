@@ -259,6 +259,20 @@ angular.module('myApp.controllers', [])
 		$modalInstance.close(process);
   }
 }])
+.controller('StratifiedSamplingModalCtrl', ['$scope', '$modalInstance', '$routeParams', 'pipeline', 'DataProcessing', 'Socket', 'PipelineService', function ($scope, $modalInstance, $routeParams, pipeline, DataProcessing, Socket, PipelineService) {
+  $scope.sliderConfig = {min: 1, max: 60, step: 1};
+  $scope.rate = 1;
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+
+  // Get Pipeline with tools
+  $scope.sendProcess = function(rate) {
+		var process = {select: true, name: 'Stratified Sampling', tool: {task: 'stratifiedSampling', perm: false, rate: rate} };
+		$modalInstance.close(process);
+  }
+}])
 .controller('SamplingModalCtrl', ['$scope', '$modalInstance', '$routeParams', 'pipeline', 'DataProcessing', 'Socket', 'PipelineService', function ($scope, $modalInstance, $routeParams, pipeline, DataProcessing, Socket, PipelineService) {
 	console.log(pipeline);
 	$scope.pipeline = pipeline;

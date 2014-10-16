@@ -51,7 +51,7 @@ module.exports = {
     return pipeline;
   },
 
-  frequencySampling: function(pipeline, tool) {
+  stratifiedSampling: function(pipeline, tool) {
     console.log("Reduction module: " + tool.task);
     console.log(moment().format('DD MM YYYY, HH:mm:ss:SSS'));
     //console.log(tool.rate);
