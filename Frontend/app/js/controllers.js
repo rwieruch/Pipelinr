@@ -259,7 +259,7 @@ angular.module('myApp.controllers', [])
 		$modalInstance.close(process);
   }
 }])
-.controller('StratifiedSamplingModalCtrl', ['$scope', '$modalInstance', '$routeParams', 'pipeline', 'DataProcessing', 'Socket', 'PipelineService', function ($scope, $modalInstance, $routeParams, pipeline, DataProcessing, Socket, PipelineService) {
+.controller('StratifiedSamplingModalCtrl', ['$scope', '$modalInstance', function ($scope, $modalInstance) {
   $scope.sliderConfig = {min: 1, max: 60, step: 1};
   $scope.rate = 1;
 
@@ -267,10 +267,20 @@ angular.module('myApp.controllers', [])
     $modalInstance.dismiss('cancel');
   };
 
-  // Get Pipeline with tools
   $scope.sendProcess = function(rate) {
-		var process = {select: true, name: 'Stratified Sampling', tool: {task: 'stratifiedSampling', perm: false, rate: rate} };
-		$modalInstance.close(process);
+		$modalInstance.close({select: true, name: 'Stratified Sampling', tool: {task: 'stratifiedSampling', perm: false, rate: rate} });
+  }
+}])
+.controller('IntervalSamplingModalCtrl', ['$scope', '$modalInstance', function ($scope, $modalInstance) {
+  $scope.sliderConfig = {min: 1, max: 60, step: 1};
+  $scope.rate = 1;
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+
+  $scope.sendProcess = function(rate) {
+		$modalInstance.close({select: true, name: 'Interval Sampling', tool: {task: 'intervalSampling', perm: false, rate: rate} });
   }
 }])
 .controller('SamplingModalCtrl', ['$scope', '$modalInstance', '$routeParams', 'pipeline', 'DataProcessing', 'Socket', 'PipelineService', function ($scope, $modalInstance, $routeParams, pipeline, DataProcessing, Socket, PipelineService) {
