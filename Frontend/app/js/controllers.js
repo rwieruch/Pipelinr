@@ -283,6 +283,18 @@ angular.module('myApp.controllers', [])
 		$modalInstance.close({select: true, name: 'Interval Sampling', tool: {task: 'intervalSampling', perm: false, rate: rate} });
   }
 }])
+.controller('RandomSamplingModalCtrl', ['$scope', '$modalInstance', function ($scope, $modalInstance) {
+  $scope.sliderConfig = {min: 1, max: 99, step: 1};
+  $scope.rate = 1;
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+
+  $scope.sendProcess = function(rate) {
+		$modalInstance.close({select: true, name: 'Random Sampling', tool: {task: 'randomSampling', perm: false, rate: rate} });
+  }
+}])
 .controller('SamplingModalCtrl', ['$scope', '$modalInstance', '$routeParams', 'pipeline', 'DataProcessing', 'Socket', 'PipelineService', function ($scope, $modalInstance, $routeParams, pipeline, DataProcessing, Socket, PipelineService) {
 	console.log(pipeline);
 	$scope.pipeline = pipeline;
