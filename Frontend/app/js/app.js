@@ -11,9 +11,7 @@ angular.module('myApp', [
   'ui.bootstrap',
   'ngCookies',
   'btford.socket-io',
-  'd3',
-  'ui.bootstrap.datetimepicker',
-  'ui.bootstrap'
+  'd3'
 ]).
 config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
   $routeProvider.when('/pipeline-list', {templateUrl: 'partials/pipeline-list.html', controller: 'PipelinesCtrl', access: { isFree: true } });
