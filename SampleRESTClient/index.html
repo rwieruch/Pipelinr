@@ -36,7 +36,7 @@
       $("#addObject").click(function(){
 
         // Build mock object
-        var data = JSON.stringify({ name: $("#nameInput").val(), sampling: { task: "frequencySampling", perm: true, rate: 5} });
+        var data = JSON.stringify({ name: $("#nameInput").val(), sampling: { task: "stratifiedSampling", perm: true, rate: 5} });
 
         $.ajax({
           url : "http://localhost:1080/pipelines",
