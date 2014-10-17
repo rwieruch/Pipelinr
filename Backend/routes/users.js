@@ -1,4 +1,5 @@
 var models = require('../models/models.js'); 
+var sampleCreator = require('../models/sample-creator.js'); 
 
 exports.addUser = function(req, res) {
     var object = req.body;
@@ -14,8 +15,11 @@ exports.addUser = function(req, res) {
 
       if ( err && err.code !== 11000 ) { res.send(404); return; }
 
-     // Duplicate key
+      // Duplicate key
       if ( err && err.code === 11000 ) { res.send(409); return; }
+
+      // Create sample in database
+      sampleCreator.createSample(user, models);
 
       res.send(200);
     });

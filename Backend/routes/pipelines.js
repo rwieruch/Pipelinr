@@ -14,7 +14,8 @@ exports.addPipeline = function(req, res) {
 
   var pipeline = new models.Pipeline({
     name: object.name,
-    sampling: sampling
+    sampling: sampling,
+    _user: null // TODO:change this
   });
 
   pipeline.save(function(err, pipeline) {
