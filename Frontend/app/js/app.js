@@ -11,7 +11,8 @@ angular.module('myApp', [
   'ui.bootstrap',
   'ngCookies',
   'btford.socket-io',
-  'd3'
+  'd3',
+  'perfect_scrollbar'
 ]).
 config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
   $routeProvider.when('/pipeline-list', {templateUrl: 'partials/pipeline-list.html', controller: 'PipelinesCtrl', access: { isFree: true } });

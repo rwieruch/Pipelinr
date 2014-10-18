@@ -92,6 +92,14 @@ img.no-resize {
     display: inline-block; 
 }
 
+/* tiny scrollbar */
+.scroller {
+    white-space: pre-line;
+    height: 200px;
+    overflow-y: hidden;
+    position: relative;
+}
+
 /* loading overlay */
 
 .pipelinr-overlay {

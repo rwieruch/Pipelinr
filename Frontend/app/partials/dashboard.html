@@ -9,7 +9,8 @@
 						<i class="pull-right glyphicon glyphicon-white pointer" ng-class="{'glyphicon-chevron-down': rendered, 'glyphicon-chevron-right': !rendered}"></i>
 					</accordion-heading>
 
-					<div class="my-table-container scrollable-box">
+					<div class="my-table-container">
+					    <perfect-scrollbar class="scroller" wheel-propagation="true" wheel-speed="50" min-scrollbar-length="20">
 						<table class="table table-hover table-top dashboard-table" id="tr_list">
 						    <colgroup>
 						       <col span="1" style="width: 25%;">
@@ -22,6 +23,7 @@
 						    	<td>{{value.value}}</td>
 						    </tr>
 						</table>
+						</perfect-scrollbar>
 					</div>
 			    </accordion-group>
 			</accordion>
