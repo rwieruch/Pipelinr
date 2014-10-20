@@ -169,7 +169,7 @@ angular.module('myApp.controllers', [])
 				Socket.getSocket().removeAllListeners();
 				angular.forEach($scope.pipeline.datasets, function(dataset, key) {
 					for(var i = 0; i < datasetsToRegister.length; i++) {
-						if(datasetsToRegister[i].name === dataset.key) {
+						if(datasetsToRegister[i].name === dataset.key && datasetsToRegister[i].checked) {
 							Socket.on('add_value_' + dataset._id, function (v_data) {
 								$scope.date = v_data;
 						 	});
