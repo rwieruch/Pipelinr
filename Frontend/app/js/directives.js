@@ -16,7 +16,7 @@ angular.module('myApp.directives', ['d3']).
       	date: '=',
       	rendered: '='
       },
-      templateUrl: 'partials/dashboard.html?117',
+      templateUrl: 'partials/dashboard.html',
       link: function(scope, ele, attrs) {
         d3Service.d3().then(function(d3) {
         	console.log("pipelinrDashboard");
@@ -124,6 +124,8 @@ angular.module('myApp.directives', ['d3']).
 						margin: {left: 50, top: 30, bottom: 50, right: 50},
 						tip: tip,
 						string_color: string_color,
+						ys: [],
+						yAxes: [],
 						xs: [],
 						xAxes: [],
 						main_lines: [],
@@ -412,48 +414,51 @@ angular.module('myApp.directives', ['d3']).
 								else
 									var extent_data = scope.intdatasets[i].values.filter(function(d) { return extent[0] <= scope.configuration.parseDate(d.timestamp) && scope.configuration.parseDate(d.timestamp) <= extent[1] });
 
-								// Redraw donut graph
-								var globalMax = d3.max(scope.intdatasets[i].values, function(d) { return +d.value; } );
-	      				var donut_data = scope.configuration.donutGraph.computeDonutData(extent_data, globalMax);
-	      				var path = scope.configuration.donutGraph.donutPaths[scope.intdatasets[i]._id].data(scope.configuration.donutGraph.pie(donut_data));
-	      				path.transition().duration(750).attrTween("d", scope.configuration.donutGraph.arcTween); // Redraw the arcs
+								if(extent_data.length > 2) {
 
-								// Trendlines update
-								var series = scope.configuration.util.calculateSeries(extent_data);			
-								var leastSquaresCoeff = scope.configuration.util.leastSquares(series.xSeries, series.ySeries);						
-								var trendData = scope.configuration.util.trendCoordinates(series.xSeries, leastSquaresCoeff, extent_data);
+									// Redraw donut graph
+									var globalMax = d3.max(scope.intdatasets[i].values, function(d) { return +d.value; } );
+		      				var donut_data = scope.configuration.donutGraph.computeDonutData(extent_data, globalMax);
+		      				var path = scope.configuration.donutGraph.donutPaths[scope.intdatasets[i]._id].data(scope.configuration.donutGraph.pie(donut_data));
+		      				path.transition().duration(750).attrTween("d", scope.configuration.donutGraph.arcTween); // Redraw the arcs
 
-					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".trendline").data([trendData]).attr("d", scope.configuration.line);
+									// Trendlines update
+									var series = scope.configuration.util.calculateSeries(extent_data);			
+									var leastSquaresCoeff = scope.configuration.util.leastSquares(series.xSeries, series.ySeries);						
+									var trendData = scope.configuration.util.trendCoordinates(series.xSeries, leastSquaresCoeff, extent_data);
+									
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".trendline").data([trendData]).attr("d", scope.configuration.line);
+									
+						      // Maxlines update
+									var max = d3.max(extent_data, function(d) { return +d.value;} );
+									var maxData = [{timestamp: extent_data[0].timestamp, value: max}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: max}];
 
-					      // Maxlines update
-								var max = d3.max(extent_data, function(d) { return +d.value;} );
-								var maxData = [{timestamp: extent_data[0].timestamp, value: max}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: max}];
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline").data([maxData]).attr("d", scope.configuration.line);
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline-label").text("Max: " + max.toFixed(2));
 
-					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline").data([maxData]).attr("d", scope.configuration.line);
-					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline-label").text("Max: " + max.toFixed(2));
+						      // Minlines update
+									var min = d3.min(extent_data, function(d) { return +d.value;} );
+									var minData = [{timestamp: extent_data[0].timestamp, value: min}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: min}];
 
-					      // Minlines update
-								var min = d3.min(extent_data, function(d) { return +d.value;} );
-								var minData = [{timestamp: extent_data[0].timestamp, value: min}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: min}];
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline").data([minData]).attr("d", scope.configuration.line);
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline-label").text("Min: " + min.toFixed(2));
 
-					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline").data([minData]).attr("d", scope.configuration.line);
-					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline-label").text("Min: " + min.toFixed(2));
+		      				var statistic = scope.configuration.util.calcMeanSdVar(extent_data);
+						      // Meanlines update
+									var meanData = [{timestamp: extent_data[0].timestamp, value: statistic.mean}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: statistic.mean}];  
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".meanline").data([meanData]).attr("d", scope.configuration.line);
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".meanline-label").text("Mean: " + statistic.mean.toFixed(2) );
 
-	      				var statistic = scope.configuration.util.calcMeanSdVar(extent_data);
-					      // Meanlines update
-								var meanData = [{timestamp: extent_data[0].timestamp, value: statistic.mean}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: statistic.mean}];  
-					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".meanline").data([meanData]).attr("d", scope.configuration.line);
-					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".meanline-label").text("Mean: " + statistic.mean.toFixed(2) );
+						      // Standard deviation lines and variance update
+									var sdMinData = [{timestamp: extent_data[0].timestamp, value: statistic.mean - statistic.deviation}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: statistic.mean - statistic.deviation}];
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdminline").data([sdMinData]).attr("d", scope.configuration.line);
 
-					      // Standard deviation lines and variance update
-								var sdMinData = [{timestamp: extent_data[0].timestamp, value: statistic.mean - statistic.deviation}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: statistic.mean - statistic.deviation}];
-					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdminline").data([sdMinData]).attr("d", scope.configuration.line);
+									var sdMaxData = [{timestamp: extent_data[0].timestamp, value: statistic.mean + statistic.deviation}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: statistic.mean + statistic.deviation}];    
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdmaxline").data([sdMaxData]).attr("d", scope.configuration.line);
 
-								var sdMaxData = [{timestamp: extent_data[0].timestamp, value: statistic.mean + statistic.deviation}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: statistic.mean + statistic.deviation}];    
-					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdmaxline").data([sdMaxData]).attr("d", scope.configuration.line);
-
-					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdline-label").text("Standard Deviation: " + statistic.deviation.toFixed(2) );
-					      d3.select(".focus_"+scope.intdatasets[i]._id).select(".variance-label").text("Variance: " + statistic.variance.toFixed(2) );
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdline-label").text("Standard Deviation: " + statistic.deviation.toFixed(2) );
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".variance-label").text("Variance: " + statistic.variance.toFixed(2) );
+						    }
 				    	}
 				    }
 					}
@@ -487,6 +492,13 @@ angular.module('myApp.directives', ['d3']).
 				    // Line charts update
 				    for(var i in scope.configuration.main_lines) { // i = dataset._id
 				      scope.configuration.xs[i].domain(scope.configuration.brush.empty() ? scope.configuration.x_context.domain() : scope.configuration.brush.extent());
+				      
+				      // Adjust Y-Axis
+				      var dataToBrush = window._.find(scope.pipeline.datasets, function(dataset) { return dataset._id == i });
+						  scope.configuration.ys[i].domain([0, d3.max(dataToBrush.values.map(function(d) { return +d.value; }))]);
+				      d3.select(".focus_"+i).select(".y.axis").call(scope.configuration.yAxes[i]);
+
+				      // Adjust X-Axis
 				      d3.select(".focus_"+i).select(".area").attr("d", scope.configuration.main_areas[i]);
 				      d3.select(".focus_"+i).select(".line").attr("d", scope.configuration.main_lines[i]);
 				      d3.select(".focus_"+i).select(".x.axis").call(scope.configuration.xAxes[i]);
@@ -588,6 +600,8 @@ angular.module('myApp.directives', ['d3']).
 	        // Save domains and axes for later
 	        scope.configuration.xAxes[scope.dataset._id] = xAxis;
 	        scope.configuration.xs[scope.dataset._id] = x;
+	        scope.configuration.yAxes[scope.dataset._id] = yAxis;
+	        scope.configuration.ys[scope.dataset._id] = y;
 
 	        // Create charts
 					var main_line = d3.svg.line()
