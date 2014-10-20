@@ -415,7 +415,6 @@ angular.module('myApp.directives', ['d3']).
 									var extent_data = scope.intdatasets[i].values.filter(function(d) { return extent[0] <= scope.configuration.parseDate(d.timestamp) && scope.configuration.parseDate(d.timestamp) <= extent[1] });
 
 								if(extent_data.length > 2) {
-
 									// Redraw donut graph
 									var globalMax = d3.max(scope.intdatasets[i].values, function(d) { return +d.value; } );
 		      				var donut_data = scope.configuration.donutGraph.computeDonutData(extent_data, globalMax);
@@ -427,38 +426,52 @@ angular.module('myApp.directives', ['d3']).
 									var leastSquaresCoeff = scope.configuration.util.leastSquares(series.xSeries, series.ySeries);						
 									var trendData = scope.configuration.util.trendCoordinates(series.xSeries, leastSquaresCoeff, extent_data);
 									
-						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".trendline").data([trendData]).attr("d", scope.configuration.line);
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".trendline").data([trendData]).attr("d", scope.configuration.line).style("display", "block");
 									
 						      // Maxlines update
 									var max = d3.max(extent_data, function(d) { return +d.value;} );
 									var maxData = [{timestamp: extent_data[0].timestamp, value: max}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: max}];
 
-						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline").data([maxData]).attr("d", scope.configuration.line);
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline").data([maxData]).attr("d", scope.configuration.line).style("display", "block");
 						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline-label").text("Max: " + max.toFixed(2));
 
 						      // Minlines update
 									var min = d3.min(extent_data, function(d) { return +d.value;} );
 									var minData = [{timestamp: extent_data[0].timestamp, value: min}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: min}];
 
-						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline").data([minData]).attr("d", scope.configuration.line);
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline").data([minData]).attr("d", scope.configuration.line).style("display", "block");
 						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline-label").text("Min: " + min.toFixed(2));
 
 		      				var statistic = scope.configuration.util.calcMeanSdVar(extent_data);
 						      // Meanlines update
 									var meanData = [{timestamp: extent_data[0].timestamp, value: statistic.mean}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: statistic.mean}];  
-						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".meanline").data([meanData]).attr("d", scope.configuration.line);
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".meanline").data([meanData]).attr("d", scope.configuration.line).style("display", "block");
 						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".meanline-label").text("Mean: " + statistic.mean.toFixed(2) );
 
 						      // Standard deviation lines and variance update
 									var sdMinData = [{timestamp: extent_data[0].timestamp, value: statistic.mean - statistic.deviation}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: statistic.mean - statistic.deviation}];
-						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdminline").data([sdMinData]).attr("d", scope.configuration.line);
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdminline").data([sdMinData]).attr("d", scope.configuration.line).style("display", "block");
 
 									var sdMaxData = [{timestamp: extent_data[0].timestamp, value: statistic.mean + statistic.deviation}, {timestamp: extent_data[extent_data.length - 1].timestamp, value: statistic.mean + statistic.deviation}];    
-						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdmaxline").data([sdMaxData]).attr("d", scope.configuration.line);
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdmaxline").data([sdMaxData]).attr("d", scope.configuration.line).style("display", "block");
 
 						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdline-label").text("Standard Deviation: " + statistic.deviation.toFixed(2) );
 						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".variance-label").text("Variance: " + statistic.variance.toFixed(2) );
+						    } else {
+									d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline-label").text("Max: -");
+						    	d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline-label").text("Min: -");
+									d3.select(".focus_"+scope.intdatasets[i]._id).select(".meanline-label").text("Mean: -");
+									d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdline-label").text("Standard Deviation: -");
+						      d3.select(".focus_"+scope.intdatasets[i]._id).select(".variance-label").text("Variance: -");
+						    	
+						    	d3.select(".focus_"+scope.intdatasets[i]._id).select(".maxline").style("display", "none");
+						    	d3.select(".focus_"+scope.intdatasets[i]._id).select(".minline").style("display", "none");
+						    	d3.select(".focus_"+scope.intdatasets[i]._id).select(".meanline").style("display", "none");
+						    	d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdminline").style("display", "none");
+						    	d3.select(".focus_"+scope.intdatasets[i]._id).select(".sdmaxline").style("display", "none");
+						    	d3.select(".focus_"+scope.intdatasets[i]._id).select(".trendline").style("display", "none");
 						    }
+
 				    	}
 				    }
 					}
