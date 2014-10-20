@@ -93,7 +93,7 @@ angular.module('myApp.directives', ['d3']).
 						var high = (max-(max/100)*25); // Upper 25% quantile
 						var low = (max-(max/100)*75); // lower 25% quantile
 
-						var computed_data = [{count: 0}, {count: 0}, {count: 0}];
+						var computed_data = [{count: 0, label: 'high', color: '#D24D57'}, {count: 0, label: 'med', color: '#F5D76E'}, {count: 0, label: 'low', color: '#87D37C'}];
 						for (var i = data.length; --i >= 0;) {
 							if(data[i].value >= high)
 								computed_data[0].count++;
@@ -779,10 +779,9 @@ angular.module('myApp.directives', ['d3']).
 
 					var globalMax = d3.max(scope.dataset.values, function(d) { return +d.value; } );
 					var data = scope.configuration.donutGraph.computeDonutData(scope.dataset.values, globalMax);
-
-					var width = 200,
-					    height = 120,
-					    margin = 30,
+					console.log(data);
+					var width = 150,
+					    height = 150,
 					    radius = Math.min(width, height) / 2;
 
 					var donut_color = d3.scale.ordinal()
@@ -801,37 +800,18 @@ angular.module('myApp.directives', ['d3']).
 
 	    		var arcOver = d3.svg.arc()
 					    .outerRadius(radius - 0)
-					    .innerRadius(radius - 20);
+					    .innerRadius(radius - 10);
 
 			    scope.configuration.donutGraph.arc = arc;
 
 					var svg = d3.select(ele[0]).append("svg")
 					    .attr("width", width)
-					    .attr("height", height + margin)
+					    .attr("height", height)
 					  .append("g")
 					    .attr("transform", "translate(" + height / 2 + "," + height / 2 + ")");
 
-					var legend = svg.append("g")
-				      .attr("class", "legend")
-				      .attr("width", 50)
-				      .attr("height", 100)
-				      .attr("transform", "translate(" + -height / 2 + "," + (height / 2 + 11) + ")")
-				    .selectAll("g")
-				      .data(donut_color.domain())
-				    .enter().append("g")
-				      .attr("transform", function(d, i) { return "translate(" + i * 55 + ",0)"; });
-
-	        legend.append("circle")
-							.attr("cx", 9)
-							.attr("cy", 9)
-							.attr("r", 9)
-							.style("fill", donut_color);
-
-	        legend.append("text")
-	            .attr("x", 24)
-	            .attr("y", 9)
-	            .attr("dy", ".35em")
-	            .text(function(d) { return d}); 
+					var text = svg.append('text')
+            .attr('class','center-label');
 
 			    var path = svg.selectAll("path")
 			      .data(pie(data))
@@ -842,11 +822,16 @@ angular.module('myApp.directives', ['d3']).
             	d3.select(this).transition()
 	               .duration(500)
 	               .attr("d", arcOver);
+              text
+      					.text(d.data.label)
+      					.attr("fill", d.data.color);
              })
 						.on("mouseout", function(d) {
             	d3.select(this).transition()
 	               .duration(500)
 	               .attr("d", arc);
+               text
+      					.text('');
              })
 			      .each(function(d) { this._current = d; }); // store the initial angles
 

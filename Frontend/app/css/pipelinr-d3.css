@@ -98,6 +98,14 @@
   stroke: #fff;
 }
 
+.center-label, .bottom-label {
+    text-anchor: middle;
+    alignment-baseline: middle;
+    pointer-events: none;
+    font-size: 18px;
+    font-weight: 700;
+}
+
 .trendline {
   stroke: #000;
   fill: none;
