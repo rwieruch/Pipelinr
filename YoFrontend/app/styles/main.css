@@ -1,5 +1,14 @@
-.navbar-default {
-  background-color: #fff;
+.navbar-inverse {
+  background-color: #4F7596;
+  border-color: #4F7596;
+}
+
+.navbar-inverse .navbar-brand {
+  color: #fff;
+}
+
+.navbar-inverse .navbar-nav > li > a {
+  color: #fff;
 }
 
 .equal, .equal > div[class*='col-'] {  
