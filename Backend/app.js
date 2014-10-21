@@ -10,9 +10,13 @@ app.use(cors());
 // For req.body parser
 app.use(require('connect').bodyParser());
 
-http.listen(1080);
+// Auth Middleware - This will check if the token is valid
+// Only the requests that start with /api/v1/* will be checked for the token.
+// Any URL's that do not follow the below pattern should be avoided unless you 
+// are sure that authentication is not needed
+app.all('/api/v1/*', [require('./middlewares/auth')]);
 
-var _ = require("underscore");
+http.listen(1080);
 
 // Rest models
 var pipeline = require('./routes/pipelines');
@@ -32,6 +36,7 @@ app.get('/users', user.findAll);
 app.post('/login', session.login);
 app.post('/logout', session.logout);
 
+//app.get('/api/v1/pipelines', pipeline.findAllPipelines);
 app.post('/pipelines', pipeline.addPipeline);
 app.get('/pipelines', pipeline.findAllPipelines);
 app.get('/pipelines/:id', pipeline.findOnePipeline);

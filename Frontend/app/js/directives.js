@@ -124,6 +124,7 @@ angular.module('myApp.directives', ['d3']).
 						margin: {left: 50, top: 30, bottom: 50, right: 50},
 						tip: tip,
 						string_color: string_color,
+						domain_range: [],
 						ys: [],
 						yAxes: [],
 						xs: [],
@@ -192,6 +193,14 @@ angular.module('myApp.directives', ['d3']).
 						scope.intdatasets = DataProcessing.getIntDatasets(pipeline);
 						scope.stringdatasets = DataProcessing.getStringDatasets(pipeline);
 
+						// Get whole domain range for all datasets
+						for(var i = 0; i < pipeline.datasets.length; i++) {
+							if(pipeline.datasets[i].values.length > 0) {
+								scope.configuration.domain_range.push(pipeline.datasets[i].values[0]);
+								scope.configuration.domain_range.push(pipeline.datasets[i].values[pipeline.datasets[i].values.length-1]);
+							}
+						}
+
 						// Render context as overview for brushing + linking + zooming + panning
 						scope.renderContext();
 						scope.renderLegend();
@@ -211,6 +220,8 @@ angular.module('myApp.directives', ['d3']).
 
 					scope.renderDatumUpdate = function(data) {
 						console.log(moment().format('DD MM YYYY, HH:mm:ss:SSS'));
+
+						scope.configuration.domain_range.push(data.value); // Adjust overall domain range
 
 	        	var dataset_to_update = window._.find(scope.pipeline.datasets, function(dataset) { return dataset._id == data.value._dataset });
 	         	dataset_to_update.values.push(data.value);
@@ -256,8 +267,8 @@ angular.module('myApp.directives', ['d3']).
 	            }
 	        	}
 
-        		// Update context
-        		scope.configuration.x_context.domain(d3.extent(dataset_to_update.values, function(d) { return scope.configuration.parseDate(d.timestamp); }));
+        		// Adjust overall domain range
+        		scope.configuration.x_context.domain(d3.extent(scope.configuration.domain_range, function(d) { return scope.configuration.parseDate(d.timestamp); }));
 
 		        // Move context circles
 		        d3.select(".context").selectAll("circle")
@@ -287,7 +298,8 @@ angular.module('myApp.directives', ['d3']).
 
             scope.configuration.xAxis_context = xAxis_context;
 
-		        x_context.domain(d3.extent(scope.stringdatasets[0].values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
+		        //x_context.domain(d3.extent(scope.stringdatasets[0].values.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
+		        x_context.domain(d3.extent(scope.configuration.domain_range.map(function(d) { return scope.configuration.parseDate(d.timestamp); })));
 		        y2.domain(scope.stringdatasets[0].values);
 
             scope.configuration.x_context = x_context;
@@ -503,15 +515,14 @@ angular.module('myApp.directives', ['d3']).
 				    d3.select(".focus.scatter").select(".x.axis").call(scope.configuration.xAxes[scope.stringdatasets[0]._id]); // Move axis
 
 				    // Line charts update
-				    for(var i in scope.configuration.main_lines) { // i = dataset._id
-				      scope.configuration.xs[i].domain(scope.configuration.brush.empty() ? scope.configuration.x_context.domain() : scope.configuration.brush.extent());
-				      
+				    for(var i in scope.configuration.main_lines) { // i = dataset._id	      
 				      // Adjust Y-Axis
 				      var dataToBrush = window._.find(scope.pipeline.datasets, function(dataset) { return dataset._id == i });
 						  scope.configuration.ys[i].domain([0, d3.max(dataToBrush.values.map(function(d) { return +d.value; }))]);
 				      d3.select(".focus_"+i).select(".y.axis").call(scope.configuration.yAxes[i]);
 
 				      // Adjust X-Axis
+				      scope.configuration.xs[i].domain(scope.configuration.brush.empty() ? scope.configuration.x_context.domain() : scope.configuration.brush.extent());
 				      d3.select(".focus_"+i).select(".area").attr("d", scope.configuration.main_areas[i]);
 				      d3.select(".focus_"+i).select(".line").attr("d", scope.configuration.main_lines[i]);
 				      d3.select(".focus_"+i).select(".x.axis").call(scope.configuration.xAxes[i]);

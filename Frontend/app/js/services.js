@@ -38,7 +38,7 @@ angular.module('myApp.services', ['ngResource'])
   };
 })
 .factory('PipelineService', function($resource) {
-  return $resource(pipelinrURL + '/pipelines/:id', {}, {  
+  return $resource(pipelinrURL + '/api/v1/pipelines/:id', {}, {  
       query: {method: 'GET', isArray: true},
       get: {method:'GET', params:{id:'id', tool: ''}},
       remove: { method: 'DELETE', params: {id:'id'} }

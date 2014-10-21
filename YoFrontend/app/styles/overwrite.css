@@ -1,0 +1,44 @@
+.navbar-default {
+	background-color: #fff;
+}
+
+.equal, .equal > div[class*='col-'] {  
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    flex:1 0 auto;
+}
+
+h3 {
+	font-size: 24px;
+	font-weight: bold;
+	margin-bottom: -15px;
+	margin-top: -5px;
+	color:#333;
+}
+
+.panel {
+	width: 100%;
+}
+
+/*.panel-default>.panel-heading {
+	background-color: #fff
+}*/
+
+.popover {
+  width: 350px;
+}
+
+.panel-default>.panel-heading {
+	color: #333;
+	background-color: #4F7596;
+	border-color: #4F7596;
+}
+
+.panel-default {
+	border-color: #4F7596;
+}
+
+body {
+	background-color: #151325;
+}
