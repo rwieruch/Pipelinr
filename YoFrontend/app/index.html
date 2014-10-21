@@ -13,8 +13,8 @@
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css(.tmp) styles/main.css -->
+    <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.css" /> <!-- Angular Slider -->
     <link rel="stylesheet" href="styles/main.css">
-    <link rel="stylesheet" href="styles/overwrite.css"/>
     <link rel="stylesheet" href="styles/pipelinr-d3.css"/>
     <!-- endbuild -->
   </head>
@@ -50,7 +50,7 @@
             </ul>
             <ul class="nav navbar-nav navbar-right" ng-show="Session.isLogged">
               <li>
-                <a href="#/pipeline-list">Pipelines</a>
+                <a href="#/pipelines">Pipelines</a>
               </li>
             </ul>
             <form class="navbar-form navbar-right" ng-hide="Session.isLogged" name="loginForm" role="form" ng-submit="loginUser()" novalidate>
@@ -104,8 +104,14 @@
     <script src="bower_components/d3/d3.js"></script>
     <script src="bower_components/underscore/underscore.js"></script>
     <script src="bower_components/jquery-ui/jquery-ui.js"></script>
+    <script src="bower_components/moment/moment.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
+
+    <script src="bower_components/angular-socket-io/mock/socket-io.js"></script> <!-- socket.io client -->
+    <script src="http://localhost:1080/socket.io/socket.io.js"></script> 
+    <!-- Angular Slider Directive -->
+    <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="scripts/app.js"></script>
@@ -116,6 +122,23 @@
         <script src="scripts/services/session.js"></script>
         <script src="scripts/services/userservice.js"></script>
         <script src="scripts/controllers/register.js"></script>
+        <script src="scripts/controllers/pipelines.js"></script>
+        <script src="scripts/services/socket.js"></script>
+        <script src="scripts/services/pipelineservice.js"></script>
+        <script src="scripts/services/datasetservice.js"></script>
+        <script src="scripts/services/dataprocessing.js"></script>
+        <script src="scripts/controllers/pipeline.js"></script>
+        <script src="scripts/directives/loading.js"></script>
+        <script src="scripts/directives/slider.js"></script>
+        <script src="scripts/directives/pipelinrdashboard.js"></script>
+        <script src="scripts/directives/pipelinrpointgraph.js"></script>
+        <script src="scripts/directives/pipelinrlinegraph.js"></script>
+        <script src="scripts/directives/pipelinrdonut.js"></script>
+        <script src="scripts/controllers/browsemodal.js"></script>
+        <script src="scripts/controllers/querymodal.js"></script>
+        <script src="scripts/controllers/stratifiedsamplingmodal.js"></script>
+        <script src="scripts/controllers/intervalsamplingmodal.js"></script>
+        <script src="scripts/controllers/randomsamplingmodal.js"></script>
         <!-- endbuild -->
 </body>
 </html>

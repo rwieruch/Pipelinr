@@ -1,0 +1,42 @@
+<div class="modal-header">
+    <h3 class="modal-title">Query Time</h3>
+</div>
+<div class="modal-body">
+	<p class="small-information">The data of your pipeline reaches from {{earliestDate}} to {{latestDate}}. Query your prefered time range of data to visualize.</p>
+  	<form class="form-horizontal" role="form" novalidate>
+		<div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top:20px;" for="beginSearchInput">Begin:</label>
+		<div class="col-sm-5" style="margin-top:20px;">
+	        <p class="input-group">
+		        <input type="text" class="form-control" datepicker-popup="{{calendar.dateFormat}}" ng-model="process.beginDate" model="process.beginDate" is-open="calendar.opened.begin" datepicker-options="calendar.dateOptions" close-text="Close" placeholder="Begin Date" min-date="minDate" max-date="maxDate"/>
+		        <span class="input-group-btn">
+		            <button type="button" class="btn btn-default" ng-click="calendar.open($event, 'begin')"><i class="glyphicon glyphicon-calendar"></i></button>
+		        </span>
+	        </p>
+    	</div>
+        <div class="col-sm-4" style="margin-top:-14px;">
+			<timepicker ng-model="process.beginTime" model="process.beginTime" hour-step="1" minute-step="15" show-meridian="true"></timepicker>
+		</div>
+	</div>
+	<div class="form-group">
+        <label class="col-sm-2 control-label" style="margin-top:20px;" for="beginSearchInput">End:</label>
+		<div class="col-sm-5" style="margin-top:20px;">
+	        <p class="input-group">
+		        <input type="text" class="form-control" datepicker-popup="{{calendar.dateFormat}}" ng-model="process.endDate" model="process.endDate" is-open="calendar.opened.end" datepicker-options="calendar.dateOptions" close-text="Close" placeholder="End Date" min-date="minDate" max-date="maxDate"/>
+		        <span class="input-group-btn">
+		            <button type="button" class="btn btn-default" ng-click="calendar.open($event, 'end')"><i class="glyphicon glyphicon-calendar"></i></button>
+		        </span>
+	        </p>
+    	</div>
+        <div class="col-sm-4" style="margin-top:-14px;">
+			<timepicker ng-model="process.endTime" model="process.endTime" hour-step="1" minute-step="15" show-meridian="true"></timepicker>
+		</div>
+	</div>
+
+	</form>
+
+</div>
+<div class="modal-footer">
+	<button class="btn btn-primary" ng-click="sendProcess(process)">Ok</button>
+	<button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

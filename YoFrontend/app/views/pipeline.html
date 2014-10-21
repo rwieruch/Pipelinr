@@ -1,0 +1,67 @@
+<loading/>
+
+<div ng-show="rendered">
+<div class="container">
+
+   <div class="row equal">
+	    <div class="col-lg-3 col-md-6">
+	        <div class="panel panel-default">
+	            <div class="panel-heading">
+	                <div class="row">
+	                    <div class="col-xs-4">
+	                        <span class="label-span-white">Identification:</span>
+	                        <span class="label-span-white">{{pipeline._id}}</span>
+	                    </div>
+	                    <div class="col-xs-4">
+	                        <span class="label-span-white">Name:</span>
+	                        <span class="label-span-white">{{pipeline.name}}</span>
+	                    </div>
+	                </div>
+	            </div>
+		    </div>
+	    </div>
+	</div>
+
+   <div class="row equal">
+	    <div class="col-lg-3 col-md-6">
+	        <div class="panel panel-default">
+	            <div class="panel-heading">
+	                <div class="row">
+	                    <div class="col-xs-12">
+
+                	        <span class="btn-group" dropdown is-open="status.isopen">
+						      <button type="button" class="btn btn-default dropdown-toggle" ng-disabled="disabled">
+						        Add Process <span class="caret"></span>
+						      </button>
+						      <ul class="dropdown-menu" role="menu">
+						        <li><a href="" ng-click="openModal('Browse')">Browse Datasets</a></li>
+						        <li><a href="" ng-click="openModal('Query')">Query Time</a></li>
+						        <li class="divider"></li>
+						        <li><a href="" ng-click="openModal('RandomSampling')">Random Sampling</a></li>
+						        <li><a href="" ng-click="openModal('IntervalSampling')">Interval Sampling</a></li>
+						        <li><a href="" ng-click="openModal('StratifiedSampling')">Stratified Sampling</a></li>
+						      </ul>
+						    </span>
+
+						    <div class="btn-group" style="margin-top: -15px">
+						    	<span ng-repeat="process in processes">
+							    	<label class="btn btn-default" ng-model="process.select" btn-checkbox>{{process.name}}</label>
+							    </span>
+						    </div>
+
+						    <div class="btn-group pull-right" ng-show="processes.length > 0">
+							    <button class="btn btn-default" ng-click="clearProcesses()">Clear</button>
+								<button class="btn btn-default" ng-click="getPipeline()">Send</button>
+							</div>
+
+	                    </div>
+	                </div>
+	            </div>
+		    </div>
+	    </div>
+	</div>
+
+	<div pipelinr-dashboard id="pipelinr-dashboard" pipeline='pipeline' date='date' rendered='rendered'></div>
+
+</div>
+</div>

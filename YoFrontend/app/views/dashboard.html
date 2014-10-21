@@ -1,0 +1,109 @@
+<div class="row equal">
+	<div class="col col-md-8">
+		<div ng-show="stringdatasets[0].values.length > 2 && rendered">
+			<accordion>
+			    <accordion-group is-open="true" style="width: 845px;">
+			        <accordion-heading>
+				    	<i class="glyphicon glyphicon-white glyphicon-file"></i>
+				    	<span class="pointer label-span-white">Overall Log Files</span>
+						<i class="pull-right glyphicon glyphicon-white pointer" ng-class="{'glyphicon-chevron-down': rendered, 'glyphicon-chevron-right': !rendered}"></i>
+					</accordion-heading>
+
+					<div class="my-table-container">
+					    <perfect-scrollbar class="scroller" wheel-propagation="true" wheel-speed="50" min-scrollbar-length="20">
+						<table class="table table-hover table-top dashboard-table" id="tr_list">
+						    <colgroup>
+						       <col span="1" style="width: 25%;">
+						       <col span="1" style="width: 25%;">
+						       <col span="1" style="width: 50%;">
+						    </colgroup>
+						    <tr ng-repeat="value in stringdatasets[0].values" ng-click="clickValue(value)" ng-mouseover="hoverValue(value)" ng-mouseleave="hoverOutValue(value)" class="selected">
+						    	<td class="table-timestamp">{{value.timestamp}}</td>
+						    	<td class="table-level">{{value.level}}</td>
+						    	<td>{{value.value}}</td>
+						    </tr>
+						</table>
+						</perfect-scrollbar>
+					</div>
+			    </accordion-group>
+			</accordion>
+		</div>
+	</div>
+	<div class="col col-md-2">
+		<div><!--Placeholder--></div>
+	</div>
+</div>
+
+<div class="row equal">
+	<div class="col col-md-8">
+		<div ng-repeat="dataset in stringdatasets">
+			<div ng-show="dataset.values.length > 2 && rendered">
+				<accordion>
+				    <accordion-group is-open="true" style="width: 845px;">
+				        <accordion-heading>
+					    	<i class="glyphicon glyphicon-white glyphicon-file"></i>
+					    	<span class="pointer label-span-white">Log Files for {{dataset.key}}</span>
+					    	<i class="pull-right glyphicon glyphicon-white pointer" ng-class="{'glyphicon-chevron-down': rendered, 'glyphicon-chevron-right': !rendered}"></i>
+        				</accordion-heading>
+						<div pipelinr-point-graph></div>
+				    </accordion-group>
+				</accordion>
+			</div>
+		</div>
+	</div>
+	<div class="col col-md-2">
+		<div><!--Placeholder--></div>
+	</div>
+</div>
+
+<div ng-repeat="dataset in intdatasets">
+	<div ng-show="dataset.values.length > 2 && rendered">
+		<div class="row equal">
+			<div class="col col-md-8">
+				<accordion>
+				    <accordion-group is-open="true" style="width: 845px;">
+				        <accordion-heading>
+					    	<i class="glyphicon glyphicon-white glyphicon-stats"></i>
+					    	<span class="pointer label-span-white">Values for {{dataset.key}}</span>
+			    			<i class="pull-right glyphicon glyphicon-white pointer" ng-class="{'glyphicon-chevron-down': rendered, 'glyphicon-chevron-right': !rendered}"></i>
+    					</accordion-heading>
+						<div pipelinr-line-graph></div>
+				    </accordion-group>
+				</accordion>
+			</div>
+			<div class="col col-md-2">
+				<accordion>
+				    <accordion-group is-open="true" style="width: 230px;">
+				        <accordion-heading>
+				    		<i class="glyphicon glyphicon-white glyphicon-dashboard"></i>
+				    		<span class="pointer label-span-white">Distribution</span>
+							<i class="pull-right glyphicon glyphicon-white pointer" ng-class="{'glyphicon-chevron-down': rendered, 'glyphicon-chevron-right': !rendered}"></i>
+    					</accordion-heading>
+						<div pipelinr-donut></div>
+				    </accordion-group>
+				</accordion>			
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row equal">
+	<div class="col col-md-8">
+		<div ng-show="rendered">
+			<accordion>
+			    <accordion-group is-open="true" style="width: 845px;">
+			        <accordion-heading>
+				    	<i class="glyphicon glyphicon-white glyphicon-move"></i>
+				    	<span class="pointer label-span-white">Overview</span>
+						<i class="pull-right glyphicon glyphicon-white pointer" ng-class="{'glyphicon-chevron-down': rendered, 'glyphicon-chevron-right': !rendered}"></i>
+					</accordion-heading>
+					<div id="context-container"/>
+					<div id="legend-container"/>
+			    </accordion-group>
+			</accordion>
+		</div>
+	</div>
+	<div class="col col-md-2">
+		<!--Placeholder -->
+	</div>
+</div>

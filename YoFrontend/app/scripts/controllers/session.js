@@ -31,7 +31,7 @@ angular.module('pipelinrApp')
 		  $scope.user.email = '';
 			$scope.user.password = '';
 
-			$location.path( '/pipeline-list' );
+			$location.path( '/pipelines' );
 
 			$http.defaults.headers.common['token'] = Session.token;
 		});
