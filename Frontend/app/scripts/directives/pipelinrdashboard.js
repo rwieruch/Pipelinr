@@ -193,6 +193,7 @@ angular.module('pipelinrApp')
 						scope.stringdatasets = DataProcessing.getStringDatasets(pipeline);
 
 						// Get whole domain range for all datasets
+						scope.configuration.domain_range = [];
 						for(var i = 0; i < pipeline.datasets.length; i++) {
 							if(pipeline.datasets[i].values.length > 0) {
 								scope.configuration.domain_range.push(pipeline.datasets[i].values[0]);
