@@ -47,34 +47,6 @@ exports.findOnePipeline = function(req, res) {
   .exec(function(err, pipeline) {
     if (err) return res.send(pipelinr_util.handleError(err));
 
-    // Populate nested values in pipeline
-    /*models.Dataset.populate(pipeline.datasets, {path:'values'},
-       function(err, data){
-          if (err) return res.send(pipelinr_util.handleError(err));
-
-          // Use generic datareduction method
-          var tools = req.query.tool;
-          if(typeof tools !== "undefined") {
-
-            if(typeof tools == "string") { // When it is only one tool
-              objectTool = tools;
-              tools = [];
-              tools.push(objectTool);
-            }
-
-            console.log(tools);
-            console.log(tools[0]);
-            for(var t in tools) {
-              jsonTool = JSON.parse(tools[t]);
-              var task = reduction_module[jsonTool.task];
-              pipeline = task(pipeline, jsonTool);
-            }
-          }
-
-          res.send(pipeline);
-       }
-    ); */
-
     var idArray = [];
     for(var i = 0; i < pipeline.datasets.length; i++) {
       idArray.push(pipeline.datasets[i]._id);

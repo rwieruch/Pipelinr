@@ -1,7 +1,7 @@
-var express = require("express");
+var express = require('express');
 var app = express();
 var cors = require('cors');
-var http = require("http").createServer(app);
+var http = require('http').createServer(app);
 var io = require('socket.io').listen(http);
 
 // Enable cors
@@ -36,7 +36,6 @@ app.get('/api/v1/admin/users', user.findAll);
 app.post('/login', session.login);
 app.post('/logout', session.logout);
 
-//app.get('/api/v1/pipelines', pipeline.findAllPipelines);
 app.post('/api/v1/pipelines', pipeline.addPipeline);
 app.get('/api/v1/pipelines', pipeline.findAllPipelines);
 app.get('/api/v1/pipelines/:id', pipeline.findOnePipeline);
@@ -81,14 +80,3 @@ models.datasetSchema.pre('remove', function (next) {
   models.Value.remove({_dataset: this._id}).exec();
   next();
 });
-
-/*models.valueSchema.pre('remove', function (next) {
-  console.log("Removes top referenced documents of value");
-  
-  models.Dataset.update({_id: this._dataset}, {$pull : {'values' : this._id}}, function(err, value){
-      if(err) return console.log(err);
-        return console.log('success remove', value);
-  });
-
-  next();
-});*/
