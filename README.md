@@ -23,15 +23,23 @@ Open 3 command prompts:
 First command prompt:
 * Make sure your data storage path exists (Windows default: C:\data\db\)
 * move to your MongoDB installation directory: cd mongoDBdirectory/bin 
-* type: mongod.exe
+```
+mongod.exe
+```
 
 Second command prompt: 
 * move to Pipelinr Backend: cd yourFolder/Pipelinr/Backend
-* type: node app.js
+```
+node app.js
+```
 
 Third command prompt: 
 * move to Pipelinr Frontend: cd yourFolder/Pipelinr/Frontend
-* type: 
+```
+npm install
+bower install
+grunt serve
+```
 
 The first initializations of the application should take some time.
 
@@ -41,15 +49,14 @@ Project Structure
 ========
 * Frontend
   * app
-    * css
-    * img
-    * js
+    * styles (css)
+    * images
+    * scripts
       * app.js (provides angular modules, routes and project settings)
-      * controllers.js (provides controllers for views)
-      * directives.js (provides directives [components] for visualizations by d3.js)
-      * filters.js (unused)
-      * services.js (provides REST interfaces, business logic for controllers and websocket setup)
-    * partials (all views of frontend project)
+      * controllers (provides controllers for views)
+      * directives (provides directives [components] for visualizations by d3.js)
+      * services (provides REST interfaces, business logic for controllers and websocket setup)
+    * views (all views of frontend project)
     * index.html (main file which includes external libraries and view wrapper)
   * test
 
