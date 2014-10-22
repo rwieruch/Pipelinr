@@ -1,4 +1,5 @@
 var models = require('../models/models.js'); 
+var moment = require('moment');
 
 exports.login = function(req, res) {
     var object = req.body;
@@ -9,14 +10,14 @@ exports.login = function(req, res) {
       if (err || !user) { res.send(404); return; }
 
       // Create session with token
-      var timestamp = new Date();
-      var plainToken =  object.email+":"+object.password+":"+timestamp;
+      var timestamp = moment();
+      var plainToken =  user.email+":"+user.password+":"+timestamp;
       var token = new Buffer(plainToken).toString('base64');
 
       console.log("Token created: " + token);
 
       var session = new models.Session({
-            email: object.email,
+            email: user.email,
             timestamp: timestamp,
             token: token
       });

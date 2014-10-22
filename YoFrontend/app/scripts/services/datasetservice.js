@@ -9,7 +9,7 @@
  */
 angular.module('pipelinrApp')
   .factory('DatasetService', function ($resource) {
-  return $resource('http://localhost:1080' + '/pipelines/:pipeline_id/datasets/:dataset_id', {pipeline_id: '@pipeline_id', dataset_id: '@dataset_id'}, {  
+  return $resource('http://localhost:1080' + '/api/v1/pipelines/:pipeline_id/datasets/:dataset_id', {pipeline_id: '@pipeline_id', dataset_id: '@dataset_id'}, {  
       remove: { method: 'DELETE' }
   });
 });

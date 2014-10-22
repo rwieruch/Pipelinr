@@ -28,7 +28,9 @@ exports.addPipeline = function(req, res) {
 exports.findAllPipelines = function(req, res) {
   console.log('Find all pipelines');
 
-  models.Pipeline.find()
+  console.log(req.user);
+
+  models.Pipeline.find({ _user: req.user._id })
     .populate('datasets', '_pipeline key type')
     .exec(function(err, pipelines) {
       if (err) return res.send(pipelinr_util.handleError(err));
@@ -136,17 +138,4 @@ exports.deletePipeline = function(req, res) {
     res.send(200, {});
   });
 };
-
-// Vorlage
-//exports.myMethod = function(req, res) {
-    //var token = req.headers.token;
-
-    // Find session
-    //models.Session.findOne({ token: token }, function(err, session) {
-    //  if (err|| !session) { res.send(401); return; }
-
-      // TODO
-
-    //});
-//};
 

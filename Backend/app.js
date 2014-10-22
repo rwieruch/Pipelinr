@@ -31,22 +31,22 @@ jobSchedule.setupJobs();
 
 // REST routes
 app.post('/users', user.addUser);
-app.get('/users', user.findAll);
+app.get('/api/v1/admin/users', user.findAll);
 
 app.post('/login', session.login);
 app.post('/logout', session.logout);
 
 //app.get('/api/v1/pipelines', pipeline.findAllPipelines);
-app.post('/pipelines', pipeline.addPipeline);
-app.get('/pipelines', pipeline.findAllPipelines);
-app.get('/pipelines/:id', pipeline.findOnePipeline);
-app.delete('/pipelines/:id', pipeline.deletePipeline);
+app.post('/api/v1/pipelines', pipeline.addPipeline);
+app.get('/api/v1/pipelines', pipeline.findAllPipelines);
+app.get('/api/v1/pipelines/:id', pipeline.findOnePipeline);
+app.delete('/api/v1/pipelines/:id', pipeline.deletePipeline);
 
-app.post('/pipelines/:id/datasets', dataset.addDataset);
-app.delete('/pipelines/:pipeline_id/datasets/:dataset_id', dataset.deleteDataset);
+app.post('/api/v1/pipelines/:id/datasets', dataset.addDataset);
+app.delete('/api/v1/pipelines/:pipeline_id/datasets/:dataset_id', dataset.deleteDataset);
 
-app.post('/pipelines/:pipeline_id/datasets/:dataset_id/values', value.updateValue);
-app.delete('/pipelines/:pipeline_id/datasets/:dataset_id/values', value.deleteAllValues);
+app.post('/api/v1/pipelines/:pipeline_id/datasets/:dataset_id/values', value.updateValue);
+app.delete('/api/v1/pipelines/:pipeline_id/datasets/:dataset_id/values', value.deleteAllValues);
 
 // Websockets
 var models = require('./models/models.js');
