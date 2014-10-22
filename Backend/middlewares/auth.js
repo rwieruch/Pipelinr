@@ -1,6 +1,7 @@
 //var jwt = require('jwt-simple');
 //var validateUser = require('../routes/auth').validateUser;
 var models = require('../models/models.js'); 
+var moment = require('moment');
  
 module.exports = function(req, res, next) {
  
@@ -9,10 +10,15 @@ module.exports = function(req, res, next) {
 
   // Find session
   models.Session.findOne({ token: token }, function(err, session) {
-    if (err|| !session) { res.send(401); return; }
+    if (err|| !session) { res.status(401); res.send('Invalid Token'); return; }
     console.log('Session found.');
 
-    // TODO: check if date expired
+    if(moment(session.timestamp).add(7,'day').format('DD.MM.YYYY, HH:mm') <= moment().format('DD.MM.YYYY, HH:mm')) {
+      console.log('Token expired.');
+      res.status(400);
+      res.send('Token Expired');
+      return;
+    }
 
     models.User.findOne({ email: session.email }, function(err, user) {
       if (err|| !user) { res.send(401); return; }
