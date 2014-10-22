@@ -21,7 +21,7 @@
 				<div class="panel-heading">
 				    <h3 class="panel-title">
 				    	<i class="glyphicon glyphicon-white glyphicon-th-list"></i>
-				    	<span class="label-span-white">Pipelines</span>
+				    	<span class="label-span-white">Own Pipelines</span>
 				    </h3>
 				</div>
 				<div class="panel-body">
@@ -32,30 +32,27 @@
 						       <col span="1" style="width: 35%;">
 						       <col span="1" style="width: 25%;">
 						    </colgroup>
-							<tr><th>Pipeline</th><th></th><th>Datasets</th><th></th><tr>
+							<tr><th>Name</th><th>Datasets</th><th></th><tr>
 							<tr ng-repeat="pipeline in pipelines | filter:search">
 								<td>
-									<p><span class="label label-info" style="font-size: 12px;">{{pipeline.state}}</span> {{pipeline.name}}</p>
-								</td>
-								<td>
-									<a href="#/pipelines/{{pipeline._id}}">
-									<button type="button" class="btn btn-default">
-									  <span class="glyphicon glyphicon-stats"></span>
-									</button></a>
-									<button type="button" class="btn btn-default">
-									  <span class="glyphicon glyphicon-edit"></span> Edit
-									</button>
-									<button type="button" class="btn btn-danger" ng-click="deletePipeline(pipeline)">
-									  <span class="glyphicon glyphicon-trash"></span>
-									</button>
+									<p style="display:inline-block;">
+										<a href="#/pipelines/{{pipeline._id}}">
+										<button type="button" class="btn btn-default">
+										  <span class="glyphicon glyphicon-stats"></span>
+										</button></a>
+										<button type="button" class="btn btn-default">
+										  <span class="glyphicon glyphicon-edit"></span> Edit
+										</button>
+										<button type="button" class="btn btn-danger" ng-click="deletePipeline(pipeline)">
+										  <span class="glyphicon glyphicon-trash"></span>
+										</button>
+										<span class="label label-info" style="font-size: 12px;">{{pipeline.state}}</span>{{pipeline.name}}
+									</p>
 								</td>
 								<td>      
 									<ul>
 							         <li class="non-styled" ng-repeat="dataset in pipeline.datasets"> 
 							            <p>
-		    								<button type="button" class="btn btn-xs btn-default">
-											  <span class="glyphicon glyphicon-edit"></span> Edit
-											</button>
 							            	<button type="button" class="btn btn-xs btn-danger" ng-click="deleteDataset(pipeline, dataset)">
 											  <span class="glyphicon glyphicon-trash"></span>
 											</button>
@@ -63,6 +60,8 @@
 										</p>
 							         </li>
 							       </ul>
+						   	   </td>
+						   	   <td>
 						   	   </td>
 							</tr>
 						</table>
