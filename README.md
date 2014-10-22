@@ -79,8 +79,19 @@ Interface
 
 How to publish your data to Pipelinr?
 
+Authentification
+* Before publishing data to Pipelinr, you need to register a new user in Pipelinr. When you make use of the ../api/v1/.. resources, you have to send an authentification token as header to the service. You get the authenfication token when you login:
+
+Login
+* Resource: POST: ../login
+* Json: var data = { email: email, password: password };
+* Data structure:
+  * email: String
+  * password: String
+
 Create a pipeline
-* Resource: POST: ../pipelines
+* Resource: POST: ../api/v1/pipelines
+* Header: var headers: { token: token };
 * Json: var data = { name: name, sampling: { task: task, perm: perm, rate: rate } };
 * Data structure:
   * name: String
@@ -90,14 +101,16 @@ Create a pipeline
   * rate: Integer [1..99]
 
 Create a dataset in a pipeline
-* Resource: POST: ../pipelines/:id/datasets
+* Resource: POST: ../api/v1/pipelines/:id/datasets
+* Header: var headers: { token: token };
 * Json: var data = { key: key, type: type };
 * Data structure:
   * key: String
   * type: Enumeration ["string", "int"]
 
 Create a value in a dataset
-* Resource: POST: ../pipelines/:id/datasets/:id/values
+* Resource: POST: ../api/v1/pipelines/:id/datasets/:id/values
+* Header: var headers: { token: token };
 * Json: var data = { value: value, level: level, timestamp: timestamp };
 * Data structure:
   * value: String
