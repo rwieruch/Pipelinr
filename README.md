@@ -14,6 +14,10 @@ Clone the Pipelinr Project into your favorite project folders
 * git clone https://github.com/wrobin/Pipelinr.git
 * Or download the .zip file
 
+Additional
+* On Windows: make sure the npm AppData exists: C:\Users\your_account\AppData\Roaming\npm\
+* On Windows: make sure Git is installed and registered in PATH variable
+
 Open 3 command prompts:
 
 First command prompt:
@@ -25,11 +29,9 @@ Second command prompt:
 * move to Pipelinr Backend: cd yourFolder/Pipelinr/Backend
 * type: node app.js
 
-Third command prompt:
-* On Windows: make sure the npm AppData exists: C:\Users\your_account\AppData\Roaming\npm\
-* On Windows: make sure Git is installed and registered in PATH variable 
+Third command prompt: 
 * move to Pipelinr Frontend: cd yourFolder/Pipelinr/Frontend
-* type: npm start
+* type: 
 
 The first initializations of the application should take some time.
 
