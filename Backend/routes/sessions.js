@@ -17,9 +17,9 @@ exports.login = function(req, res) {
       console.log("Token created: " + token);
 
       var session = new models.Session({
-            email: user.email,
-            timestamp: timestamp,
-            token: token
+        email: user.email,
+        timestamp: timestamp,
+        token: token
       });
 
       console.log("Session created: " + session);
@@ -28,24 +28,6 @@ exports.login = function(req, res) {
       session.save(function(err, session) {
         if ( err && err.code) { res.send(404); return; }
         res.send(200,{token: session.token, user: user});
-      });
-    });
-};
-
-exports.logout = function(req, res) {
-    var token = req.headers.token;
-    console.log('remove session: ' + token);
-
-    // Find session
-    models.Session.findOne({ token: token }, function(err, session) {
-      if (err || !session) { res.send(401); return; }
-      
-      console.log("Session retireved: " + session);
-
-      // Remove session
-      session.remove(function(err, session) {
-        if ( err && err.code) { res.send(404); return; }
-        res.send(200);
       });
     });
 };

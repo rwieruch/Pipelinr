@@ -34,7 +34,6 @@ app.post('/users', user.addUser);
 app.get('/api/v1/admin/users', user.findAll);
 
 app.post('/login', session.login);
-app.post('/logout', session.logout);
 
 app.post('/api/v1/pipelines', pipeline.addPipeline);
 app.get('/api/v1/pipelines', pipeline.findAllPipelines);
