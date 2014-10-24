@@ -12,7 +12,6 @@ angular
   .module('pipelinrApp', [
     'ngRoute',
     'ui.bootstrap',
-    'ngCookies',
     'btford.socket-io',
     'd3',
     'perfect_scrollbar',

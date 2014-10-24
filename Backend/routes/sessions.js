@@ -27,7 +27,7 @@ exports.login = function(req, res) {
       // Save session in db
       session.save(function(err, session) {
         if ( err && err.code) { res.send(404); return; }
-        res.send(200,{token: session.token});
+        res.send(200,{token: session.token, user: user});
       });
     });
 };

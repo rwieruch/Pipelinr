@@ -8,7 +8,7 @@
  * Controller of the pipelinrApp
  */
 angular.module('pipelinrApp')
-  .controller('SessionCtrl', ['$scope', '$http', '$location', '$cookieStore', 'SessionInService', 'SessionOutService', 'Session', function($scope, $http, $location, $cookieStore, SessionInService, SessionOutService, Session) {
+  .controller('SessionCtrl', ['$scope', '$http', '$location', '$window', 'SessionInService', 'SessionOutService', 'Session', function($scope, $http, $location, $window, SessionInService, SessionOutService, Session) {
 	$scope.Session = Session;
 
 	$scope.loginUser = function(){
@@ -17,18 +17,27 @@ angular.module('pipelinrApp')
 
 			Session.isLogged = true;
 			Session.token = data.token;
+			Session.user = data.user;
 
-			$cookieStore.put("token", data.token);
+			$window.sessionStorage.token = data.token;
+			$window.sessionStorage.user = data.user;
 
 		  $scope.user.email = '';
 			$scope.user.password = '';
 			$location.path( '/pipelines' );
+
+			console.log($window.sessionStorage);
+			console.log(Session);
 		});
 	};
 	$scope.logoutUser = function(){
-		SessionOutService.create(function(data) {});
+		SessionOutService.create();
+		
 	  Session.isLogged = false;
-	  Session.token = "";
-	  $cookieStore.remove("token");
+	  delete Session.token;
+	  delete Session.user;
+
+	  delete $window.sessionStorage.token;
+	  delete $window.sessionStorage.user;
 	};
 }]);

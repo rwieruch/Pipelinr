@@ -8,16 +8,17 @@
  * Factory in the pipelinrApp.
  */
 angular.module('pipelinrApp')
-  .factory('Session', function ($cookieStore) {
-    var isLogged;
-    if(!(typeof $cookieStore.get("token") === "undefined"))
+  .factory('Session', function ($window) {
+    var isLogged = false;
+    if($window.sessionStorage.token && $window.sessionStorage.user)
       isLogged = true;
     else
       isLogged = false;
 
     var session = {
       isLogged: isLogged,
-      token: $cookieStore.get("token")
+      token: $window.sessionStorage.token,
+      user: $window.sessionStorage.user
     };
     return session;
   });
