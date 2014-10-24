@@ -10,6 +10,7 @@
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="bower_components/perfect-scrollbar/min/perfect-scrollbar.min.css" />
+    <link rel="stylesheet" href="bower_components/angular-growl-v2/build/angular-growl.css" />
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css(.tmp) styles/main.css -->
@@ -66,6 +67,7 @@
     </nav>
   </div>
 
+  <div growl limit-messages="4"></div>
   <div ng-view class="content"></div>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
@@ -104,6 +106,7 @@
     <script src="bower_components/underscore/underscore.js"></script>
     <script src="bower_components/jquery-ui/jquery-ui.js"></script>
     <script src="bower_components/moment/moment.js"></script>
+    <script src="bower_components/angular-growl-v2/build/angular-growl.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -111,6 +114,8 @@
     <script src="http://localhost:1080/socket.io/socket.io.js"></script> 
     <!-- Angular Slider Directive -->
     <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <!-- Angular Animate -->
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
 
         <!-- build:js({.tmp,app}) scripts/scripts.js -->
         <script src="scripts/app.js"></script>

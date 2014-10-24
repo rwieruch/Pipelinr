@@ -15,7 +15,7 @@ exports.addPipeline = function(req, res) {
   var pipeline = new models.Pipeline({
     name: object.name,
     sampling: sampling,
-    _user: null // TODO:change this
+    _user: req.user._id // TODO:change this
   });
 
   pipeline.save(function(err, pipeline) {
@@ -31,6 +31,7 @@ exports.findAllPipelines = function(req, res) {
   console.log(req.user);
 
   models.Pipeline.find({ _user: req.user._id })
+  //models.Pipeline.find()
     .populate('datasets', '_pipeline key type')
     .exec(function(err, pipelines) {
       if (err) return res.send(pipelinr_util.handleError(err));

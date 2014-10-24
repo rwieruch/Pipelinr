@@ -15,11 +15,18 @@ angular
     'btford.socket-io',
     'd3',
     'perfect_scrollbar',
-    'ngResource'
+    'ngResource',
+    'angular-growl',
+    'ngAnimate'
   ])
-  .config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
+  .config(['$routeProvider', '$httpProvider', 'growlProvider', function($routeProvider, $httpProvider, growlProvider) {
     
     $httpProvider.interceptors.push('TokenInterceptor');
+
+    growlProvider.globalTimeToLive(5000);
+    growlProvider.onlyUniqueMessages(false);
+    growlProvider.globalDisableIcons(true);
+    growlProvider.globalPosition('bottom-right');
 
     $routeProvider
       .when('/register', {

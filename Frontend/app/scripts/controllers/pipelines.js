@@ -8,12 +8,12 @@
  * Controller of the pipelinrApp
  */
 angular.module('pipelinrApp')
-  .controller('PipelinesCtrl', ['$scope', '$http', 'Socket', 'PipelineService', 'DatasetService', function($scope, $http, Socket, PipelineService, DatasetService) {
+  .controller('PipelinesCtrl', ['$scope', '$http', 'growl', 'Socket', 'PipelineService', 'DatasetService', function($scope, $http, growl, Socket, PipelineService, DatasetService) {
 
-	$scope.alerts = [];
-  $scope.closeAlert = function(index) {
-    $scope.alerts.splice(index, 1);
-  };
+	//$scope.alerts = [];
+  //$scope.closeAlert = function(index) {
+  //  $scope.alerts.splice(index, 1);
+  //};
 
   $scope.search = function(item) {
   	if (item.name.indexOf($scope.query)!=-1 || angular.isUndefined($scope.query)) {           
@@ -34,10 +34,10 @@ angular.module('pipelinrApp')
 				var index = $scope.pipelines.indexOf(pipeline);
 		    if (index != -1) {
 	        $scope.pipelines.splice(index, 1);
-    			$scope.alerts.push({ type: 'success', msg: 'Pipeline deleted successfully.'});
+					growl.success('Pipeline deleted successfully.');
     		}
 	    }, function (error) {
-	      $scope.alerts.push({ type: 'danger', msg: error.status + ": " + error.data});
+  			growl.error(error.status + ': ' + error.data);
 	    });
 	  };
 
@@ -48,17 +48,17 @@ angular.module('pipelinrApp')
 	        var data_index = $scope.pipelines[pipe_index].datasets.indexOf(dataset);
 	        if (data_index != -1) {
 						$scope.pipelines[pipe_index].datasets.splice(data_index, 1);
-			    	$scope.alerts.push({ type: 'success', msg: 'Dataset deleted successfully.'});
+	        	growl.success('Dataset deleted successfully.');
 	        }
 	      }
 	    }, function (error) {
-	      $scope.alerts.push({ type: 'danger', msg: error.status + ": " + error.data});
+	    	growl.error(error.status + ': ' + error.data);
 	    });
 	  };
 
     // Push notifications
 		Socket.on('add_pipeline', function (p_data) {
-			$scope.alerts.push({ type: 'info', msg: 'Pipeline "' + p_data.pipeline.name + '" added.'});
+			growl.info('Pipeline "' + p_data.pipeline.name + '" added.');
 			p_data.pipeline.state = "new";
 			$scope.pipelines.push(p_data.pipeline);	
 			addDatasetSocket(p_data.pipeline);
@@ -74,7 +74,7 @@ angular.module('pipelinrApp')
 		// Push notification for each dataset on each pipeline
 		function addDatasetSocket(pipeline) {
 			Socket.on('add_dataset_' + pipeline._id, function (d_data) { // same as (A)
-				$scope.alerts.push({ type: 'info', msg: 'Dataset "' + d_data.dataset.key + '" in Pipeline "' + pipeline.name + '" added.'});
+				growl.info('Dataset "' + d_data.dataset.key + '" in Pipeline "' + pipeline.name + '" added.');
 				d_data.dataset.state = "new";
 				pipeline.datasets.push(d_data.dataset);
 

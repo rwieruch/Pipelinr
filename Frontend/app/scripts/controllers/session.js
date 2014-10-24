@@ -24,6 +24,7 @@ angular.module('pipelinrApp')
 
 		  $scope.user.email = '';
 			$scope.user.password = '';
+
 			$location.path( '/pipelines' );
 
 			console.log($window.sessionStorage);
