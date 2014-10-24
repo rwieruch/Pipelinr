@@ -45,7 +45,7 @@ angular
     // Register listener to watch route changes
     $rootScope.$on('$routeChangeStart', function(event, next, current) {
       if (!Session.isLogged) {
-        $location.path( '/register' );
+        $location.path('/register');
       }      
     });
   });

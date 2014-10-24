@@ -8,7 +8,7 @@
  * Controller of the pipelinrApp
  */
 angular.module('pipelinrApp')
-  .controller('PipelinesCtrl', ['$scope', '$http', 'Socket', 'PipelineService', 'DatasetService', 'Session', function($scope, $http, Socket, PipelineService, DatasetService, Session) {
+  .controller('PipelinesCtrl', ['$scope', '$http', 'Socket', 'PipelineService', 'DatasetService', function($scope, $http, Socket, PipelineService, DatasetService) {
 
 	$scope.alerts = [];
   $scope.closeAlert = function(index) {

@@ -8,7 +8,7 @@
  * Controller of the pipelinrApp
  */
 angular.module('pipelinrApp')
-.controller('PipelineCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'DataProcessing', 'Session', '$modal', function($scope, $http, $routeParams, Socket, PipelineService, DataProcessing, Session, $modal) {
+.controller('PipelineCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', '$modal', function($scope, $http, $routeParams, Socket, PipelineService, $modal) {
 
 	// Get and resolve pipeline
 	$scope.rendered = false;

@@ -8,12 +8,12 @@
  * Controller of the pipelinrApp
  */
 angular.module('pipelinrApp')
-  .controller('SessionCtrl', ['$scope', '$http', '$location', '$window', 'SessionInService', 'SessionOutService', 'Session', function($scope, $http, $location, $window, SessionInService, SessionOutService, Session) {
+  .controller('SessionCtrl', ['$scope', '$http', '$location', '$window', 'SessionService', 'Session', function($scope, $http, $location, $window, SessionService, Session) {
 	$scope.Session = Session;
 
 	$scope.loginUser = function(){
 		var session = {email:$scope.user.email, password:$scope.user.password};
-    SessionInService.create(session, function(data){
+    SessionService.create(session, function(data){
 
 			Session.isLogged = true;
 			Session.token = data.token;
@@ -31,8 +31,6 @@ angular.module('pipelinrApp')
 		});
 	};
 	$scope.logoutUser = function(){
-		SessionOutService.create();
-		
 	  Session.isLogged = false;
 	  delete Session.token;
 	  delete Session.user;
