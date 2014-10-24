@@ -10,23 +10,17 @@
 angular.module('pipelinrApp')
 .controller('PipelineCtrl', ['$scope', '$http', '$routeParams', 'Socket', 'PipelineService', 'DataProcessing', 'Session', '$modal', function($scope, $http, $routeParams, Socket, PipelineService, DataProcessing, Session, $modal) {
 
-	// Set for refresh
-	$http.defaults.headers.common['token'] = Session.token;
-
-	// Processes
-	$scope.processes = [];
-
 	// Get and resolve pipeline
 	$scope.rendered = false;
 	var pipeline = PipelineService.get({id: $routeParams.id, tool: []});
-	// Resolve new pipeline
 	pipeline.$promise.then(function(pipeline) {
 		console.log(pipeline);	  	          	
 
 		// Dashboard directive
 		$scope.pipeline = pipeline;
 
-		// Modal
+		// Modals
+		$scope.processes = [];
 	  $scope.openModal = function (kind, size) {
 	    var modalInstance = $modal.open({
 	      templateUrl: 'views/modals/' + kind + 'Modal.html',
@@ -87,7 +81,6 @@ angular.module('pipelinrApp')
 				});
 			}
 
-			console.log(tools);
 			var pipeline = PipelineService.get({id: $routeParams.id, tool: tools});
 			pipeline.$promise.then(function(newPipeline) {
 				$scope.pipeline = newPipeline;

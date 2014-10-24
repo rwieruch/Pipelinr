@@ -13,27 +13,16 @@ angular.module('pipelinrApp')
 
 	$scope.loginUser = function(){
 		var session = {email:$scope.user.email, password:$scope.user.password};
-	    console.log(session);
-		$http.defaults.useXDomain = true;
-		delete $http.defaults.headers.common['X-Requested-With'];
-	    SessionInService.create(session, function(data){
+    SessionInService.create(session, function(data){
 
-			console.log(data);
-
-			console.log(data.token);
 			Session.isLogged = true;
 			Session.token = data.token;
 
 			$cookieStore.put("token", data.token);
 
-			console.log(Session);
-
 		  $scope.user.email = '';
 			$scope.user.password = '';
-
 			$location.path( '/pipelines' );
-
-			$http.defaults.headers.common['token'] = Session.token;
 		});
 	};
 	$scope.logoutUser = function(){
@@ -41,11 +30,5 @@ angular.module('pipelinrApp')
 	  Session.isLogged = false;
 	  Session.token = "";
 	  $cookieStore.remove("token");
-
-	  console.log(Session);
-
-	  $location.path( '/register' );
-
-		$http.defaults.headers.common['token'] = "";
 	};
 }]);

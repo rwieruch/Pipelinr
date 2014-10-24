@@ -10,15 +10,11 @@
 angular.module('pipelinrApp')
   .controller('PipelinesCtrl', ['$scope', '$http', 'Socket', 'PipelineService', 'DatasetService', 'Session', function($scope, $http, Socket, PipelineService, DatasetService, Session) {
 
-  // Set for page refresh
-	$http.defaults.headers.common['token'] = Session.token;
-
 	$scope.alerts = [];
   $scope.closeAlert = function(index) {
     $scope.alerts.splice(index, 1);
   };
 
-  // Search
   $scope.search = function(item) {
   	if (item.name.indexOf($scope.query)!=-1 || angular.isUndefined($scope.query)) {           
       return true;
@@ -62,7 +58,6 @@ angular.module('pipelinrApp')
 
     // Push notifications
 		Socket.on('add_pipeline', function (p_data) {
-			console.log("wefwe");
 			$scope.alerts.push({ type: 'info', msg: 'Pipeline "' + p_data.pipeline.name + '" added.'});
 			p_data.pipeline.state = "new";
 			$scope.pipelines.push(p_data.pipeline);	

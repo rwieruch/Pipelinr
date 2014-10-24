@@ -19,6 +19,9 @@ angular
     'ngResource'
   ])
   .config(['$routeProvider', '$httpProvider', function($routeProvider, $httpProvider) {
+    
+    $httpProvider.interceptors.push('TokenInterceptor');
+
     $routeProvider
       .when('/register', {
         templateUrl: 'views/register.html',
@@ -37,13 +40,11 @@ angular
       .otherwise({
         redirectTo: '/register'
       });
-    $httpProvider.defaults.useXDomain = true;
-    delete $httpProvider.defaults.headers.common['X-Requested-With'];
   }])
   // Redirection for no session.
   .run( function($rootScope, $location, $templateCache, Session, Socket) {
-    // register listener to watch route changes
-    $rootScope.$on( '$routeChangeStart', function(event, next, current) {
+    // Register listener to watch route changes
+    $rootScope.$on('$routeChangeStart', function(event, next, current) {
       if (!Session.isLogged) {
         $location.path( '/register' );
       }      
