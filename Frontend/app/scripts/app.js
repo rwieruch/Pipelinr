@@ -21,13 +21,15 @@ angular
   ])
   .config(['$routeProvider', '$httpProvider', 'growlProvider', function($routeProvider, $httpProvider, growlProvider) {
     
+    // Request interceptor
     $httpProvider.interceptors.push('TokenInterceptor');
 
+    // Growl notification configuration
     growlProvider.globalTimeToLive(5000);
     growlProvider.onlyUniqueMessages(false);
     growlProvider.globalDisableIcons(true);
     growlProvider.globalPosition('bottom-right');
-
+    
     $routeProvider
       .when('/register', {
         templateUrl: 'views/register.html',

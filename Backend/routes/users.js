@@ -16,12 +16,13 @@ exports.addUser = function(req, res) {
       if ( err && err.code !== 11000 ) { res.send(404); return; }
 
       // Duplicate key
-      if ( err && err.code === 11000 ) { res.send(409); return; }
+      if ( err && err.code === 11000 ) { res.status(409); res.send({statusText:'Username or email already taken.'}); return; }
 
       // Create sample in database
       sampleCreator.createSample(user, models);
 
-      res.send(200);
+      res.status(200);
+      res.send({statusText:'Your registration was successful.'});
     });
 };
 
