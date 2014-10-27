@@ -12,7 +12,7 @@ module.exports = function(req, res, next) {
     console.log('Session found.');
 
     // Check expired
-    if(moment(session.timestamp).add(7,'day').format('DD.MM.YYYY, HH:mm') <= moment().format('DD.MM.YYYY, HH:mm')) {
+    if(moment().diff(moment(session.timestamp).add(7,'day')) > 0) {
       console.log('Token expired.');
       res.status(400);
       res.send('Token Expired');
