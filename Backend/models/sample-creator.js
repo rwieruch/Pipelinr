@@ -58,7 +58,7 @@ exports.createSample = function(user) {
             level = levelArray[randomNumber];
           }
 
-          var newValue = Math.floor(Math.random() * 100) + 1;
+          var newValue = Math.floor(Math.random() * j%100) + j%50;
 
 				  var value = new models.Value({
 				    _dataset: dataset._id,
