@@ -10,7 +10,7 @@
 angular.module('pipelinrApp')
   .factory('Session', function ($window) {
     var isLogged = false;
-    if($window.sessionStorage.token && $window.sessionStorage.user)
+    if($window.sessionStorage.token && $window.sessionStorage.username && $window.sessionStorage.email)
       isLogged = true;
     else
       isLogged = false;
@@ -18,7 +18,8 @@ angular.module('pipelinrApp')
     var session = {
       isLogged: isLogged,
       token: $window.sessionStorage.token,
-      user: $window.sessionStorage.user
+      username: $window.sessionStorage.username,
+      email: $window.sessionStorage.email
     };
     return session;
   });
