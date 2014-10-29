@@ -6,7 +6,7 @@
 				<div class="my-inner-container">
 					<div class="row">
 						<div class="col col-md-offset-1 col-md-10">
-							<p class="label-span-white" style="font-weight: bold; font-size: 26px; padding: 15px; font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;">Pipelinr is a realtime data processing and visualization application to explore large datasets. Data processing, interaction and analysis make it possible to recognize patterns and trends in your data.</p>
+							<p class="label-span" style="font-weight: bold; font-size: 26px; padding: 15px; font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;">Pipelinr is a realtime data processing and visualization application to explore large datasets. Data processing, interaction and analysis make it possible to recognize patterns and trends in your data.</p>
 						</div>
 					</div>
 				</div>
@@ -15,20 +15,20 @@
 				<div class="my-inner-container">
 					<form name="signupForm" role="form" ng-submit="addUser()" novalidate>
 					  <div class="form-group">
-						<label class="label-span-white" for="email">Email</label>
+						<label class="label-span" for="email">Email</label>
 						<input size="30" id="email" name="email" ng-model="newUser.email" type="email" class="form-control" placeholder="Enter your email" required>
 						<span class="help-inline" ng-show="signupForm.$error.email">Invalid Email format!</span>
 	  				  </div>
 	  				  <div class="form-group">
-				  		<label class="label-span-white" for="username">Username</label>
+				  		<label class="label-span" for="username">Username</label>
 					  	<input id="username" name="username" ng-model="newUser.username" type="text" class="form-control" placeholder="Enter your username" required>
 					  </div>
 					  <div class="form-group">
-					  	<label class="label-span-white" for="password1">Password</label>
+					  	<label class="label-span" for="password1">Password</label>
 					  	<input id="password1" name="password1" ng-model="newUser.password1" type="password" class="form-control" placeholder="Enter your password" required>
 					  </div>
 					  <div class="form-group">
-					  	<label class="label-span-white" for="password2">Confirm Password</label>
+					  	<label class="label-span" for="password2">Confirm Password</label>
 					  	<input id="password2" name="password2" ng-model="newUser.password2" type="password" class="form-control" pw-check="password1" placeholder="Confirm your password" required>
 					  	<span class="help-inline" ng-show="signupForm.password2.$error.pwmatch">Passwords don't match!</span>
 					  </div>
