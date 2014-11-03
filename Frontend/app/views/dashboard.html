@@ -18,7 +18,7 @@
 						       <col span="1" style="width: 50%;">
 						    </colgroup>
 						    <tr ng-repeat="value in stringdatasets[0].values" ng-click="clickValue(value)" ng-mouseover="hoverValue(value)" ng-mouseleave="hoverOutValue(value)" class="selected">
-						    	<td class="table-timestamp">{{value.timestamp}}</td>
+						    	<td class="table-timestamp">{{value.timestamp | date}}</td>
 						    	<td class="table-level">{{value.level}}</td>
 						    	<td>{{value.value}}</td>
 						    </tr>
