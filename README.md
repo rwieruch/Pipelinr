@@ -1,6 +1,8 @@
 Pipelinr
 ========
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/rwieruch/Pipelinr.svg)](https://greenkeeper.io/)
+
 Pipelinr is a realtime data processing and visualization application to explore large datasets. Data processing, interaction and analysis make it possible to recognize patterns and trends in your data.
 
 Project Setup
